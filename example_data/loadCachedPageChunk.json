@@ -1,0 +1,222 @@
+{
+    "cursors": [],
+    "recordMap": {
+        "__version__": 3,
+        "block": {
+            "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                        "version": 71,
+                        "type": "page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "Codecademy"
+                                ]
+                            ]
+                        },
+                        "content": [
+                            "1e4c862d-9b35-80f6-aae8-ca1aec93cb6c",
+                            "1e3c862d-9b35-807e-ae5f-c35eb165e97f",
+                            "1e4c862d-9b35-80a8-875f-cf9a461f8dab",
+                            "1e5c862d-9b35-8043-94ee-c96167abb928"
+                        ],
+                        "format": {
+                            "page_icon": "https://yt3.googleusercontent.com/OoIfYjblzMBPeV3kAHvaOYNgQmvJeVUB9q14pRuAhawNFRppUstvr_inYiBzdVB6EuWhK4li=s160-c-k-c0x00ffffff-no-rj",
+                            "page_cover_position": 0.1
+                        },
+                        "permissions": [
+                            {
+                                "role": "editor",
+                                "type": "user_permission",
+                                "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22"
+                            }
+                        ],
+                        "created_time": 1745856916475,
+                        "last_edited_time": 1746027106952,
+                        "parent_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "parent_table": "space",
+                        "alive": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "editor"
+                }
+            },
+            "1e4c862d-9b35-80f6-aae8-ca1aec93cb6c": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "1e4c862d-9b35-80f6-aae8-ca1aec93cb6c",
+                        "version": 33,
+                        "type": "page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "React Testing"
+                                ]
+                            ]
+                        },
+                        "format": {
+                            "page_icon": "https://yt3.googleusercontent.com/OoIfYjblzMBPeV3kAHvaOYNgQmvJeVUB9q14pRuAhawNFRppUstvr_inYiBzdVB6EuWhK4li=s160-c-k-c0x00ffffff-no-rj"
+                        },
+                        "created_time": 1745891563834,
+                        "last_edited_time": 1745891581459,
+                        "parent_id": "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                        "parent_table": "block",
+                        "alive": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "editor"
+                }
+            },
+            "1e3c862d-9b35-807e-ae5f-c35eb165e97f": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "1e3c862d-9b35-807e-ae5f-c35eb165e97f",
+                        "version": 145,
+                        "type": "page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "Learn Advanced React"
+                                ]
+                            ]
+                        },
+                        "content": [
+                            "1f2c862d-9b35-8078-8e61-c788db0dcbb9",
+                            "1f2c862d-9b35-80c0-90a1-d3543af2732c",
+                            "1e3c862d-9b35-8068-b653-e8b7aeee4566",
+                            "1e3c862d-9b35-8066-a117-c84fad8bd196",
+                            "1e3c862d-9b35-80f5-a889-eb7f0324afff",
+                            "1e3c862d-9b35-808c-a5af-cf0eb6908850",
+                            "1e3c862d-9b35-8093-9470-f37432de0bc0",
+                            "1e3c862d-9b35-8094-8502-e49321b9ece4",
+                            "1e3c862d-9b35-80d7-909d-ea72961f8c8e",
+                            "1e3c862d-9b35-8082-a7b2-d1c4ac62994b",
+                            "1e3c862d-9b35-8079-990b-e2602f909805",
+                            "1e3c862d-9b35-800e-85dc-cb0fd726d026",
+                            "1e3c862d-9b35-8018-ac9e-c13ca4c5c96e",
+                            "1e3c862d-9b35-80ae-8a2b-e92430ee7cac",
+                            "1e3c862d-9b35-8063-808a-f98c788e1513",
+                            "1e3c862d-9b35-805b-a963-fcf8c6789b53",
+                            "1e3c862d-9b35-8067-93c6-f9d3bdee8bc2",
+                            "1e3c862d-9b35-80a6-b197-ef1cdebaa9cb",
+                            "1e3c862d-9b35-8087-88bc-cceeaaa1dc29",
+                            "1e3c862d-9b35-8060-91f3-e9246e428f6b",
+                            "1e3c862d-9b35-8054-97d4-f6113b321190",
+                            "1e3c862d-9b35-80a1-bf67-c584bf6852b7",
+                            "1e3c862d-9b35-80ad-9a6a-e6f78d9ba239",
+                            "1e3c862d-9b35-80c7-bab9-e47944cbba9a",
+                            "1e3c862d-9b35-80d2-9520-c65aba39643f",
+                            "1e3c862d-9b35-805c-88d5-da7ccec882f9",
+                            "1e3c862d-9b35-80e1-afb1-efad3c32db8a",
+                            "1e3c862d-9b35-800e-84b0-f65fb8db256c",
+                            "1e3c862d-9b35-803e-9adb-fd02e76bebc5",
+                            "1e3c862d-9b35-80fc-bd92-ef8c0294e139",
+                            "1e3c862d-9b35-806a-8e33-c29d325a8fec",
+                            "1e3c862d-9b35-8020-86f1-c6ef4895fd9f",
+                            "1e3c862d-9b35-801d-b5eb-f4e85cd93897",
+                            "1e3c862d-9b35-807d-b2d2-ddf89961a3a8"
+                        ],
+                        "format": {
+                            "page_icon": "https://yt3.googleusercontent.com/OoIfYjblzMBPeV3kAHvaOYNgQmvJeVUB9q14pRuAhawNFRppUstvr_inYiBzdVB6EuWhK4li=s160-c-k-c0x00ffffff-no-rj"
+                        },
+                        "created_time": 1745856960934,
+                        "last_edited_time": 1747140661708,
+                        "parent_id": "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                        "parent_table": "block",
+                        "alive": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "editor"
+                }
+            },
+            "1e4c862d-9b35-80a8-875f-cf9a461f8dab": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "1e4c862d-9b35-80a8-875f-cf9a461f8dab",
+                        "version": 59,
+                        "type": "page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "Learn Intermediate Java"
+                                ]
+                            ]
+                        },
+                        "content": [
+                            "1e5c862d-9b35-802d-b8b7-fa54044f6703"
+                        ],
+                        "format": {
+                            "page_icon": "https://yt3.googleusercontent.com/OoIfYjblzMBPeV3kAHvaOYNgQmvJeVUB9q14pRuAhawNFRppUstvr_inYiBzdVB6EuWhK4li=s160-c-k-c0x00ffffff-no-rj"
+                        },
+                        "created_time": 1745891596906,
+                        "last_edited_time": 1746024712121,
+                        "parent_id": "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                        "parent_table": "block",
+                        "alive": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "editor"
+                }
+            },
+            "1e5c862d-9b35-8043-94ee-c96167abb928": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "1e5c862d-9b35-8043-94ee-c96167abb928",
+                        "version": 46,
+                        "type": "page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "Learn Advanced Java"
+                                ]
+                            ]
+                        },
+                        "content": [
+                            "1e5c862d-9b35-804a-9ebe-d0b848cf3ac8"
+                        ],
+                        "format": {
+                            "page_icon": "https://yt3.googleusercontent.com/OoIfYjblzMBPeV3kAHvaOYNgQmvJeVUB9q14pRuAhawNFRppUstvr_inYiBzdVB6EuWhK4li=s160-c-k-c0x00ffffff-no-rj"
+                        },
+                        "created_time": 1746027106948,
+                        "last_edited_time": 1746027128599,
+                        "parent_id": "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                        "parent_table": "block",
+                        "alive": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "editor"
+                }
+            }
+        }
+    },
+    "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+    "spaceShortId": "53790743349",
+    "dedupeSessionId": "92c0ab3a-bc6e-4c41-8d61-06aaf4d7e2a7"
+}
