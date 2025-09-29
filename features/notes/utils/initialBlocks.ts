@@ -7,28 +7,8 @@ export const blocksData : Record<string, IBlock> = {
         properties: {
             title: "Hello World"
         },
-        content: ["2", "3"],
+        content: [],
         parent: "",
         parent_table: "lists"
-    },
-    "2": {
-        id: "2",
-        type: "parapraph",
-        properties: {
-            title: "This is paragraph 2"
-        },
-        content: [],
-        parent: "1",
-        parent_table: "blocks"
-    },
-    "3": {
-        id: "3",
-        type: "parapraph",
-        properties: {
-            title: "This is paragraph 3"
-        },
-        content: [],
-        parent: "1",
-        parent_table: "blocks"
     }
 }

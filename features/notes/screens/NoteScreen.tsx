@@ -2,6 +2,7 @@ import { useRef } from "react";
 import {
     View,
     Text,
+    TextInput,
     StyleSheet,
     ScrollView,
     Pressable,
@@ -11,6 +12,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
 import { blocksData } from "../utils/initialBlocks";
 import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
@@ -20,6 +22,7 @@ import { BlocksContext } from "../../blocks/context/BlocksContext";
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
     const refs = useRef({});
+    const { isKeyboardOpen } = useKeyboardStatus();
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
     const rootBlock : Block = blocks[pageId];
@@ -28,6 +31,12 @@ export default function NoteScreen() {
     const contextValue = {
         blocks,
         setBlocks,
+        updateBlock: (block: Block) => {
+            setBlocks({
+                ...blocks,
+                [block.id]: block
+            });
+        },
         addBlock: (block: Block, contentIndex: number) => {
             let parentBlock = blocks[block.parent];
             if (contentIndex === undefined) {
@@ -64,7 +73,14 @@ export default function NoteScreen() {
 
     const handleNewLineBlock = () => {
         if (rootBlock.content.length === 0) {
-            const newBlock = new Block("parapraph", { title: "" }, [], pageId);
+            const newBlock = new Block({
+                type: "text",
+                properties: {
+                    title: ""
+                },
+                content: [],
+                parent: pageId
+            });
             setBlocks({
                 ...blocks,
                 [pageId]: {
@@ -77,7 +93,14 @@ export default function NoteScreen() {
         }
 
         if (rootBlockLastChild?.properties.title.length > 0) {
-            const newBlock = new Block("parapraph", { title: "" }, [], pageId);
+            const newBlock = new Block({
+                type: "text",
+                properties: {
+                    title: ""
+                },
+                content: [],
+                parent: pageId
+            });
             setBlocks({
                 ...blocks,
                 [pageId]: {
@@ -96,14 +119,13 @@ export default function NoteScreen() {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-
         >
             <BlocksContext value={contextValue}>
                 <ScrollView
                     contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top }}
                     keyboardShouldPersistTaps="always"
                 >
-                    <Text style={styles.pageTitle}>{blocks[pageId].properties.title}</Text>
+                    <TextInput style={styles.pageTitle}>{blocks[pageId].properties.title}</TextInput>
 
                     {blocks[pageId].content.map((blockId: string) => {
                         return <BlockElement key={blockId} blockId={blockId}/>
@@ -118,7 +140,7 @@ export default function NoteScreen() {
                     />
                 </ScrollView>
             </BlocksContext>
-            {Keyboard.isVisible() && <Footer />}
+            {isKeyboardOpen && <Footer />}
         </KeyboardAvoidingView>
 
     )
