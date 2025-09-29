@@ -62,8 +62,9 @@ export default function BlockElement({ blockId } : Props) {
         const siblings = parentBlock.content;
         const index = siblings.indexOf(blockId);
         let newBlock = addBlock(new Block("parapraph", { title: "" }, [], blockData.parent, blockData.parent_table), index + 1);
-        const nextBlockId = newBlock.id;
-        focus(nextBlockId);
+        requestAnimationFrame(() => {
+            focus(newBlock.id);
+        })
     }
 
     return (
