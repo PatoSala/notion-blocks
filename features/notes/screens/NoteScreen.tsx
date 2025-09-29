@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import {
     View,
     Text,
     StyleSheet,
     ScrollView,
     Pressable,
+    Keyboard,
     KeyboardAvoidingView,
     Platform
 } from "react-native";
@@ -13,12 +15,11 @@ import { blocksData } from "../utils/initialBlocks";
 import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
 import Footer from "../components/Footer";
-import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
 import { BlocksContext } from "../../blocks/context/BlocksContext";
 
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
-    const { isKeyboardOpen } = useKeyboardStatus();
+    const refs = useRef({});
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
     const rootBlock : Block = blocks[pageId];
@@ -27,14 +28,19 @@ export default function NoteScreen() {
     const contextValue = {
         blocks,
         setBlocks,
-        addBlock: (block: Block) => {
+        addBlock: (block: Block, contentIndex: number) => {
             let parentBlock = blocks[block.parent];
-            parentBlock.content.push(block.id);
+            if (contentIndex === undefined) {
+                parentBlock.content.push(block.id);
+            } else {
+                parentBlock.content.splice(contentIndex, 0, block.id);
+            }
             setBlocks({
                 ...blocks,
                 [block.parent]: parentBlock,
                 [block.id]: block
             });
+            return block;
         },
         removeBlock: (block: Block) => {
             let parentBlock = blocks[block.parent];
@@ -45,25 +51,45 @@ export default function NoteScreen() {
                 [block.id]: block
             });
         },
-        isKeyboardOpen
+        registerRef: (id, ref) => {
+            refs.current[id] = ref;
+        },
+        unregisterRef: (id) => {
+            delete refs.current[id];
+        },
+        focus: (id) => {
+            refs.current[id]?.current?.focus();
+        }
     }
 
     const handleNewLineBlock = () => {
-        try {
-            if (rootBlockLastChild.properties.title.length > 0) {
-                const newBlock = new Block("parapraph", { title: "" }, [], pageId);
-                setBlocks({
-                    ...blocks,
-                    [pageId]: {
-                        ...blocks[pageId],
-                        content: [...blocks[pageId].content, newBlock.id]
-                    },
-                    [newBlock.id]: newBlock
-                });
-            }
-        } catch (error) {
-            console.log(error);
+        if (rootBlock.content.length === 0) {
+            const newBlock = new Block("parapraph", { title: "" }, [], pageId);
+            setBlocks({
+                ...blocks,
+                [pageId]: {
+                    ...blocks[pageId],
+                    content: [...blocks[pageId].content, newBlock.id]
+                },
+                [newBlock.id]: newBlock
+            });
+            return;
         }
+
+        if (rootBlockLastChild?.properties.title.length > 0) {
+            const newBlock = new Block("parapraph", { title: "" }, [], pageId);
+            setBlocks({
+                ...blocks,
+                [pageId]: {
+                    ...blocks[pageId],
+                    content: [...blocks[pageId].content, newBlock.id]
+                },
+                [newBlock.id]: newBlock
+            });
+            return;
+        }
+
+        refs.current[rootBlockLastChild.id]?.current?.focus();
     }
 
     return (
@@ -75,6 +101,7 @@ export default function NoteScreen() {
             <BlocksContext value={contextValue}>
                 <ScrollView
                     contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top }}
+                    keyboardShouldPersistTaps="always"
                 >
                     <Text style={styles.pageTitle}>{blocks[pageId].properties.title}</Text>
 
@@ -91,7 +118,7 @@ export default function NoteScreen() {
                     />
                 </ScrollView>
             </BlocksContext>
-            {isKeyboardOpen && <Footer />}
+            {Keyboard.isVisible() && <Footer />}
         </KeyboardAvoidingView>
 
     )
