@@ -60,13 +60,19 @@ export default function NoteScreen() {
                 [block.id]: block
             });
         },
+        textInputRefs: refs,
         registerRef: (id, ref) => {
             refs.current[id] = ref;
         },
         unregisterRef: (id) => {
             delete refs.current[id];
         },
-        focus: (id) => {
+        /**
+         * @param {string} id - The id of the block to focus
+         * @param {object} selection - The selection to set
+         */
+        focus: (id: string, selection: object) => {
+            selection ? refs.current[id]?.current?.setSelection(selection) : null;
             refs.current[id]?.current?.focus();
         }
     }
@@ -134,7 +140,7 @@ export default function NoteScreen() {
                     <Pressable
                         style={{
                             flex: 1,
-                            backgroundColor: "red"
+                            backgroundColor: "white"
                         }}
                         onPress={handleNewLineBlock}
                     />

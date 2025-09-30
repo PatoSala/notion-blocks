@@ -13,13 +13,13 @@ export default function BlockElement({ blockId } : Props) {
     const textInputRef = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
-
     const {
         blocks,
         setBlocks,
         updateBlock,
         removeBlock,
         addBlock,
+        textInputRefs,
         registerRef,
         unregisterRef,
         focus
@@ -45,61 +45,81 @@ export default function BlockElement({ blockId } : Props) {
     }
 
     const handleRemoveTextBlockOnBackspacePress = ({ nativeEvent }) => {
-        if (nativeEvent.key === "Backspace" && blockData.properties.title === "") {
+        if (nativeEvent.key === "Backspace") {
             const siblings = parentBlock.content;
             const index = siblings.indexOf(blockId);
             const prevBlockId = siblings[index - 1];
 
-            if (prevBlockId) {
-                focus(prevBlockId);
+            if (value === "") {
+                if (prevBlockId) {
+                    focus(prevBlockId);
+                }
+
+                requestAnimationFrame(() => {
+                    removeBlock(blockData);
+                });
             }
 
-            requestAnimationFrame(() => {
-                removeBlock(blockData);
-            });
+            if (value.length > 0 && selection.start === 0 && selection.end === 0) {
+                
+                textInputRefs.current[prevBlockId].current.setNativeProps({
+                    text: blocks[prevBlockId].properties.title + value,
+                })
+
+                if (prevBlockId) {
+                    focus(prevBlockId);
+                }
+
+                requestAnimationFrame(() => {
+                    removeBlock(blockData);
+                });
+                
+            }
+            
         }
+
+        
     }
 
     const handleSubmitEditing = () => {
         const siblings = parentBlock.content;
         const index = siblings.indexOf(blockId);
         let newBlockIndex = index + 1;
-        // If cursor at the start of the block
-        if (selection.start === 0 && selection.end === 0) {
-            newBlockIndex = index;
-            console.log("Cursor at the start of the block");
-        }
-
-        // If cursor somewhere in between
-        if ((selection.start === selection.end) && (selection.start > 0 && selection.end > 0) && (selection.start < blockData.properties.title.length && selection.end < blockData.properties.title.length)) {
-            console.log("Cursor somewhere in between");
-        };
-
-        // If text is selected
-        if (selection.start !== selection.end) {
-            console.log("Text is selected");
-            const textBeforeSelection = blockData.properties.title.slice(0, selection.start);
-            console.log(textBeforeSelection);
-            const textAfterSelection = blockData.properties.title.slice(selection.end);
-            console.log(textAfterSelection);
-
-           setValue(textBeforeSelection);
-        }
-
-        // If cursor at the end of the block
-        if (selection.start === blockData.properties.title.length && selection.end === blockData.properties.title.length) {
-            newBlockIndex = index + 1;
-            console.log("Cursor at the end of the block");
-        }
-        let newBlock = addBlock(new Block({
+        let newBlockProps = {
             type: "text",
             properties: {
                 title: ""
             },
-            content: [],
             parent: blockData.parent,
             parent_table: blockData.parent_table
-        }), newBlockIndex);
+        }
+
+        // If cursor at the start of the block
+        if (selection.start === 0 && selection.end === 0) {
+            newBlockIndex = index;
+        }
+
+        // If cursor somewhere in between
+        if ((selection.start === selection.end) && (selection.start > 0 && selection.end > 0) && (selection.start < value.length && selection.end < value.length)) {
+            const textBeforeSelection = value.slice(0, selection.start);
+            const textAfterSelection = value.slice(selection.end);
+            newBlockProps.properties.title = textAfterSelection;
+            setValue(textBeforeSelection);
+        };
+
+        // If text is selected
+        if (selection.start !== selection.end) {
+            const textBeforeSelection = value.slice(0, selection.start);
+            const textAfterSelection = value.slice(selection.end);
+            newBlockProps.properties.title = textAfterSelection;
+            setValue(textBeforeSelection);
+        }
+
+        // If cursor at the end of the block
+        if (selection.start === value.length && selection.end === value.length) {
+            newBlockIndex = index + 1;
+        }
+        let newBlock = addBlock(new Block(newBlockProps), newBlockIndex);
         
         if (selection.start === 0 && selection.end === 0) return;
 
@@ -112,18 +132,15 @@ export default function BlockElement({ blockId } : Props) {
         <View style={styles.container}>
             <TextInput
                 ref={textInputRef}
-                value={value}
                 style={styles.input}
-                onChangeText={setValue}
+                value={value}
                 onBlur={handleOnBlur}
+                onChangeText={(text) => setValue(text)}
                 onKeyPress={handleRemoveTextBlockOnBackspacePress}
                 onSubmitEditing={handleSubmitEditing}
-                autoFocus={(Keyboard.isVisible() || blockData.properties.title === "") && isLastChild}
-                submitBehavior="submit"
+                autoFocus={(Keyboard.isVisible() || value === "") && isLastChild}
                 onSelectionChange={({ nativeEvent }) => setSelection(nativeEvent.selection)}
-            >
-                {blockData.properties.title}
-            </TextInput>
+            />
         </View>
     )
 }
