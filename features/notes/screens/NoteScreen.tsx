@@ -19,6 +19,8 @@ import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
 import Footer from "../components/Footer";
 import { BlocksContext } from "../../blocks/context/BlocksContext";
+import * as Crypto from 'expo-crypto';
+import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
 
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
@@ -26,82 +28,64 @@ export default function NoteScreen() {
     const { isKeyboardOpen } = useKeyboardStatus();
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
+    const [editorState, setEditorState] = useState({});
     const rootBlock : Block = blocks[pageId];
-    const rootBlockLastChild : Block = blocks[rootBlock.content[rootBlock.content.length - 1]];
 
-    const contextValue = {
-        blocks,
-        setBlocks,
-        updateBlock: (block: Block, contentIndex?: number) => {
-            setBlocks({
-                ...blocks,
-                [block.id]: block
-            });
-        },
-        addBlock: (block: Block, contentIndex: number) => {
+    
 
-            // Update parent content
-            let parentBlock = blocks[block.parent];
-            if (contentIndex === undefined) {
-                parentBlock.content.push(block.id);
-            } else {
-                parentBlock.content.splice(contentIndex, 0, block.id);
-            }
-            setBlocks({
-                ...blocks,
-                [block.parent]: parentBlock, // Set updated parent
-                [block.id]: block // Set new block
-            });
-            return block;
-        },
-        splitBlock: (block: Block, selection,) => {
-            const originalBlock = blocks[block.id];
-            const textBeforeSelection = originalBlock.content.slice(0, selection.start);
-            const textAfterSelection = originalBlock.content.slice(selection.end);
-            contextValue.updateBlock({
-                ...originalBlock,
-                properties: {
-                    ...originalBlock.properties,
-                    title: textBeforeSelection
-                }
-            })
-            const newBlock = new Block({
-                type: originalBlock.type,
-                properties: {
-                    title: textAfterSelection
-                },
-                content: [],
-                parent: originalBlock.parent
-            });
-            contextValue.addBlock(newBlock);
-            
-            return newBlock;
-        },
-        removeBlock: (block: Block) => {
-            let parentBlock = blocks[block.parent];
-            parentBlock.content.splice(parentBlock.content.indexOf(block.id), 1);
-            setBlocks({
-                ...blocks,
-                [block.parent]: parentBlock,
-                [block.id]: block
-            });
-        },
-        textInputRefs: refs,
-        registerRef: (id, ref) => {
-            refs.current[id] = ref;
-        },
-        unregisterRef: (id) => {
-            delete refs.current[id];
-        },
-        /**
-         * @param {string} id - The id of the block to focus
-         * @param {object} selection - The selection to set
-         */
-        focus: (id: string, selection: object) => {
-            selection ? refs.current[id]?.current?.setSelection(selection) : null;
-            refs.current[id]?.current?.focus();
-        }
+    function insertBlock(newBlock: Block) {
+        const updatedBlock = updateBlock(blocks[pageId], {
+            content: insertBlockIdIntoContent(blocks[pageId].content, newBlock.id, {})
+        });
+        setBlocks({
+            ...blocks,
+            [pageId]: updatedBlock,
+            [newBlock.id]: newBlock
+        });
     }
+
+    function splitBlock(block: Block, selection: { start: number, end: number }) {
+        const textBeforeSelection = block.properties.title.substring(0, selection.start);
+        const textAfterSelection = block.properties.title.substring(selection.end);
+        console.log(textBeforeSelection, textAfterSelection);
+        const updatedBlock = updateBlock(block, {
+            properties: {
+                title: textBeforeSelection
+            }
+        });
+        console.log(updatedBlock);
+        const newBlock = new Block({
+            type: block.type,
+            properties: {
+                title: textAfterSelection
+            },
+            parent: block.parent,
+            parent_table: block.parent_table
+        });
+        const updatedParentBlock = updateBlock(blocks[block.parent], {
+            content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
+                prevBlockId: block.id
+            })
+        });
+
+        setBlocks({
+            ...blocks,
+            [block.id]: updatedBlock,
+            [newBlock.id]: newBlock,
+            [block.parent]: updatedParentBlock
+        });
+    }
+
+    const handleOnBlur = (blockId: string, text: string) => {
+        const updatedBlock = updateBlock(blocks[blockId], {
+            properties: {
+                title: text
+            }
+        });
+        setBlocks({ ...blocks, [blockId]: updatedBlock });
+    };
+
+    const handleSubmitEditing = splitBlock;
 
     const handleNewLineBlock = () => {
         const newBlock = new Block({
@@ -113,21 +97,7 @@ export default function NoteScreen() {
             parent: pageId
         });
 
-        // If there are no blocks
-        if (rootBlock.content.length === 0) {
-            contextValue.addBlock(newBlock, 0);
-            return;
-        }
-
-        // If the last block is not empty
-        if (rootBlockLastChild?.properties.title.length > 0) {
-            contextValue.addBlock(newBlock);
-            return;
-        }
-
-        requestAnimationFrame(() => {
-            refs.current[rootBlockLastChild.id]?.current?.focus();
-        })
+        insertBlock(newBlock);
     }
 
     return (
@@ -135,26 +105,37 @@ export default function NoteScreen() {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            <BlocksContext value={contextValue}>
-                <ScrollView
-                    contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top }}
-                    keyboardShouldPersistTaps="always"
-                >
-                    <TextInput style={styles.pageTitle}>{rootBlock.properties.title}</TextInput>
+            
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top }}
+                keyboardShouldPersistTaps="always"
+            >
+                <BlockElement
+                    blockId={pageId}
+                    block={rootBlock}
+                    title={rootBlock.properties.title}
+                    handleOnBlur={handleOnBlur}
+                />
 
-                    {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
-                        return <BlockElement key={blockId} blockId={blockId}/>
-                    })}
-                    
-                    <Pressable
-                        style={{
-                            flex: 1,
-                            backgroundColor: "red"
-                        }}
-                        onPress={handleNewLineBlock}
+                {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
+                    return <BlockElement
+                        key={blockId}
+                        blockId={blockId}
+                        block={blocks[blockId]}
+                        title={blocks[blockId].properties.title}
+                        handleOnBlur={handleOnBlur}
+                        handleSubmitEditing={handleSubmitEditing}
                     />
-                </ScrollView>
-            </BlocksContext>
+                })}
+                
+                <Pressable
+                    style={{
+                        flex: 1,
+                        backgroundColor: "red"
+                    }}
+                    onPress={handleNewLineBlock}
+                />
+            </ScrollView>
             {isKeyboardOpen && <Footer />}
         </KeyboardAvoidingView>
 

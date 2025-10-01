@@ -8,7 +8,6 @@ export const blocksData : Record<string, IBlock> = {
             title: "Hello World"
         },
         content: [],
-        parent: "",
-        parent_table: "lists"
+        parent: ""
     }
 }
