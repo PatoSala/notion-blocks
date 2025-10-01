@@ -10,15 +10,16 @@ interface Props {
 }
 
 export default function BlockElement({ blockId } : Props) {
+
     const textInputRef = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
     const {
         blocks,
-        setBlocks,
         updateBlock,
         removeBlock,
         addBlock,
+        splitBlock,
         textInputRefs,
         registerRef,
         unregisterRef,
@@ -73,18 +74,14 @@ export default function BlockElement({ blockId } : Props) {
                 requestAnimationFrame(() => {
                     removeBlock(blockData);
                 });
-                
             }
-            
         }
-
-        
     }
 
     const handleSubmitEditing = () => {
         const siblings = parentBlock.content;
         const index = siblings.indexOf(blockId);
-        let newBlockIndex = index + 1;
+        let newBlockIndex = index - 1;
         let newBlockProps = {
             type: "text",
             properties: {
@@ -94,6 +91,14 @@ export default function BlockElement({ blockId } : Props) {
             parent_table: blockData.parent_table
         }
 
+        if (value === "") {
+            let newBlock = addBlock(new Block(newBlockProps), newBlockIndex);
+            requestAnimationFrame(() => {
+                focus(blockId);
+            });
+            return;
+        }
+
         // If cursor at the start of the block
         if (selection.start === 0 && selection.end === 0) {
             newBlockIndex = index;
@@ -101,10 +106,11 @@ export default function BlockElement({ blockId } : Props) {
 
         // If cursor somewhere in between
         if ((selection.start === selection.end) && (selection.start > 0 && selection.end > 0) && (selection.start < value.length && selection.end < value.length)) {
-            const textBeforeSelection = value.slice(0, selection.start);
+            /* const textBeforeSelection = value.slice(0, selection.start);
             const textAfterSelection = value.slice(selection.end);
             newBlockProps.properties.title = textAfterSelection;
-            setValue(textBeforeSelection);
+            setValue(textBeforeSelection); */
+            splitBlock(blockData, selection);
         };
 
         // If text is selected
@@ -120,12 +126,10 @@ export default function BlockElement({ blockId } : Props) {
             newBlockIndex = index + 1;
         }
         let newBlock = addBlock(new Block(newBlockProps), newBlockIndex);
-        
+
         if (selection.start === 0 && selection.end === 0) return;
 
-        requestAnimationFrame(() => {
-            focus(newBlock.id);
-        });
+        
     }
 
     return (
@@ -135,6 +139,7 @@ export default function BlockElement({ blockId } : Props) {
                 style={styles.input}
                 value={value}
                 onBlur={handleOnBlur}
+                /* selectionState={} */
                 onChangeText={(text) => setValue(text)}
                 onKeyPress={handleRemoveTextBlockOnBackspacePress}
                 onSubmitEditing={handleSubmitEditing}

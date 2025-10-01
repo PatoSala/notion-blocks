@@ -8,7 +8,8 @@ import {
     Pressable,
     Keyboard,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Alert
 } from "react-native";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -31,13 +32,15 @@ export default function NoteScreen() {
     const contextValue = {
         blocks,
         setBlocks,
-        updateBlock: (block: Block) => {
+        updateBlock: (block: Block, contentIndex?: number) => {
             setBlocks({
                 ...blocks,
                 [block.id]: block
             });
         },
         addBlock: (block: Block, contentIndex: number) => {
+
+            // Update parent content
             let parentBlock = blocks[block.parent];
             if (contentIndex === undefined) {
                 parentBlock.content.push(block.id);
@@ -46,10 +49,33 @@ export default function NoteScreen() {
             }
             setBlocks({
                 ...blocks,
-                [block.parent]: parentBlock,
-                [block.id]: block
+                [block.parent]: parentBlock, // Set updated parent
+                [block.id]: block // Set new block
             });
             return block;
+        },
+        splitBlock: (block: Block, selection,) => {
+            const originalBlock = blocks[block.id];
+            const textBeforeSelection = originalBlock.content.slice(0, selection.start);
+            const textAfterSelection = originalBlock.content.slice(selection.end);
+            contextValue.updateBlock({
+                ...originalBlock,
+                properties: {
+                    ...originalBlock.properties,
+                    title: textBeforeSelection
+                }
+            })
+            const newBlock = new Block({
+                type: originalBlock.type,
+                properties: {
+                    title: textAfterSelection
+                },
+                content: [],
+                parent: originalBlock.parent
+            });
+            contextValue.addBlock(newBlock);
+            
+            return newBlock;
         },
         removeBlock: (block: Block) => {
             let parentBlock = blocks[block.parent];
@@ -78,47 +104,30 @@ export default function NoteScreen() {
     }
 
     const handleNewLineBlock = () => {
+        const newBlock = new Block({
+            type: "text",
+            properties: {
+                title: ""
+            },
+            content: [],
+            parent: pageId
+        });
+
+        // If there are no blocks
         if (rootBlock.content.length === 0) {
-            const newBlock = new Block({
-                type: "text",
-                properties: {
-                    title: ""
-                },
-                content: [],
-                parent: pageId
-            });
-            setBlocks({
-                ...blocks,
-                [pageId]: {
-                    ...blocks[pageId],
-                    content: [...blocks[pageId].content, newBlock.id]
-                },
-                [newBlock.id]: newBlock
-            });
+            contextValue.addBlock(newBlock, 0);
             return;
         }
 
+        // If the last block is not empty
         if (rootBlockLastChild?.properties.title.length > 0) {
-            const newBlock = new Block({
-                type: "text",
-                properties: {
-                    title: ""
-                },
-                content: [],
-                parent: pageId
-            });
-            setBlocks({
-                ...blocks,
-                [pageId]: {
-                    ...blocks[pageId],
-                    content: [...blocks[pageId].content, newBlock.id]
-                },
-                [newBlock.id]: newBlock
-            });
+            contextValue.addBlock(newBlock);
             return;
         }
 
-        refs.current[rootBlockLastChild.id]?.current?.focus();
+        requestAnimationFrame(() => {
+            refs.current[rootBlockLastChild.id]?.current?.focus();
+        })
     }
 
     return (
@@ -131,16 +140,16 @@ export default function NoteScreen() {
                     contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top }}
                     keyboardShouldPersistTaps="always"
                 >
-                    <TextInput style={styles.pageTitle}>{blocks[pageId].properties.title}</TextInput>
+                    <TextInput style={styles.pageTitle}>{rootBlock.properties.title}</TextInput>
 
-                    {blocks[pageId].content.map((blockId: string) => {
+                    {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
                         return <BlockElement key={blockId} blockId={blockId}/>
                     })}
                     
                     <Pressable
                         style={{
                             flex: 1,
-                            backgroundColor: "white"
+                            backgroundColor: "red"
                         }}
                         onPress={handleNewLineBlock}
                     />
