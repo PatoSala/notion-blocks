@@ -1,8 +1,5 @@
-import { useContext, useState, useRef, useEffect } from "react";
-import { BlocksContext } from "../../blocks/context/BlocksContext";
+import { useContext, useState, useRef, useEffect, useImperativeHandle } from "react";
 import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
-import { useDetectKeyPress } from "../hooks/useDetectKeyPress";
-import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 import { Block } from "../interfaces/Block.interface";
 
 interface Props {
@@ -31,6 +28,20 @@ export default function BlockElement({
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
+    /* useImperativeHandle(ref, () => {
+        return {
+            focus: () => {
+                ref.current?.focus();
+            },
+            focusWithSelection: (selection: { start: number, end: number }) => {
+                ref.current?.focus();
+                if (selection) {
+                    setSelection(selection);
+                }
+            }
+        }
+    }, []); */
+
     useEffect(() => {
         registerRef && registerRef(blockId, ref);
         return () => {
@@ -45,6 +56,7 @@ export default function BlockElement({
                 style={styles[block.type]}
                 selection={selection}
                 value={title}
+                submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => handleOnChangeText && handleOnChangeText(blockId, text)}
                 onSelectionChange={({ nativeEvent }) => setSelection(nativeEvent.selection)}
                 onSubmitEditing={() => handleSubmitEditing && handleSubmitEditing(block, selection)}

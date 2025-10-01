@@ -1,15 +1,10 @@
 import { useRef } from "react";
 import {
-    View,
-    Text,
-    TextInput,
     StyleSheet,
     ScrollView,
     Pressable,
-    Keyboard,
     KeyboardAvoidingView,
-    Platform,
-    Alert
+    Platform
 } from "react-native";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,8 +13,6 @@ import { blocksData } from "../utils/initialBlocks";
 import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
 import Footer from "../components/Footer";
-import { BlocksContext } from "../../blocks/context/BlocksContext";
-import * as Crypto from 'expo-crypto';
 import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
 
 export default function NoteScreen() {
@@ -81,7 +74,7 @@ export default function NoteScreen() {
         });
     }
 
-    function mergeBlocks() {}
+    function mergeBlock(block: Block) {}
 
     function removeBlock(blockId: string) {
         const block = blocks[blockId];
@@ -101,7 +94,7 @@ export default function NoteScreen() {
         });
     }
 
-    function moveBlock() {}
+    function moveBlocks() {}
 
     /** Event handlers */
     function handleOnChangeText(blockId: string, text: string) {
@@ -134,22 +127,47 @@ export default function NoteScreen() {
         if (block.type === "text") {
             splitBlock(block, selection);
             // Focus new block
-            refs.current[block.id]?.current.focus();
+            const parentBlock = blocks[block.parent];
+            const currentBlockIndex = parentBlock.content?.indexOf(block.id);
+            const newBlockId = parentBlock.content[currentBlockIndex + 1];
+            requestAnimationFrame(() => {
+                refs.current[newBlockId]?.current.focus();
+                setTimeout(() => {
+                    refs.current[newBlockId]?.current.setNativeProps({
+                        selection: {
+                            start: 0,
+                            end: 0
+                        }
+                    });
+                }, 300);
+            });
         }
     };
 
     const handleNewLineBlock = () => {
-        const newBlock = new Block({
-            type: "text",
-            properties: {
-                title: ""
-            },
-            content: [],
-            parent: pageId
-        });
+        if (rootBlock.content.length === 0 || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0) {
+            const newBlock = new Block({
+                type: "text",
+                properties: {
+                    title: ""
+                },
+                content: [],
+                parent: pageId
+            });
 
-        insertBlock(newBlock);
-        // Focus new block
+            insertBlock(newBlock);
+            // Focus new block
+            requestAnimationFrame(() => {
+                refs.current[newBlock.id]?.current.focus();
+            });
+        } else {
+            // Focus new block
+            requestAnimationFrame(() => {
+                refs.current[rootBlock.content[rootBlock.content.length - 1]]?.current.focus();
+
+                
+            });
+        }
     }
 
     return (
