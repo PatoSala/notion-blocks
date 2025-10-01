@@ -33,4 +33,6 @@ export function insertBlockIdIntoContent(
   return contentArray;
 }
 
+export function findPrevBlock() {}
+
 

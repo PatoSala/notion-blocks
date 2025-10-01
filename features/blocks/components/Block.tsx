@@ -13,6 +13,8 @@ interface Props {
     handleSubmitEditing?: () => void;
     handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
     handleOnChangeText?: (text: string) => void;
+    registerRef?: (blockId: string, ref: any) => void;
+    unregisterRef?: (blockId: string) => void;
 }
 
 export default function BlockElement({
@@ -22,11 +24,19 @@ export default function BlockElement({
     handleOnBlur,
     handleSubmitEditing,
     handleOnChangeText,
-    handleOnKeyPress
-
+    handleOnKeyPress,
+    registerRef,
+    unregisterRef
 } : Props) {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
+
+    useEffect(() => {
+        registerRef && registerRef(blockId, ref);
+        return () => {
+            unregisterRef && unregisterRef(blockId);
+        };
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -39,7 +49,6 @@ export default function BlockElement({
                 onSelectionChange={({ nativeEvent }) => setSelection(nativeEvent.selection)}
                 onSubmitEditing={() => handleSubmitEditing && handleSubmitEditing(block, selection)}
                 onKeyPress={(event) => handleOnKeyPress && handleOnKeyPress(event, blockId)}
-                returnKeyType="done"
             />
         </View>
     )

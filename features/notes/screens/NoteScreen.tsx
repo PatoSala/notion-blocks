@@ -28,9 +28,16 @@ export default function NoteScreen() {
     const { isKeyboardOpen } = useKeyboardStatus();
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
-    console.dir(blocks);
-    const [editorState, setEditorState] = useState({});
     const rootBlock : Block = blocks[pageId];
+
+    /** Editor state actions */
+    function registerRef(blockId: string, ref: any) {
+        refs.current[blockId] = ref;
+    }
+
+    function unregisterRef(blockId: string) {
+        delete refs.current[blockId];
+    }
 
     /** Block actions */
     function insertBlock(newBlock: Block) {
@@ -74,6 +81,8 @@ export default function NoteScreen() {
         });
     }
 
+    function mergeBlocks() {}
+
     function removeBlock(blockId: string) {
         const block = blocks[blockId];
         const parentBlock = blocks[block.parent];
@@ -90,7 +99,6 @@ export default function NoteScreen() {
             ...blocksState,
             [updatedParentBlock.id]: updatedParentBlock
         });
-        
     }
 
     function moveBlock() {}
@@ -107,7 +115,14 @@ export default function NoteScreen() {
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string) {
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length === 0) {
+            const currentBlock = blocks[blockId];
+            const parentBlock = blocks[currentBlock.parent];
+            const currentBlockIndex = parentBlock.content?.indexOf(blockId);
+            const isFirstChild = currentBlockIndex === 0;
+            const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
             removeBlock(blockId);
+            // Focus previous block
+            refs.current[prevBlockId]?.current.focus();
         }
     }
 
@@ -118,6 +133,8 @@ export default function NoteScreen() {
 
         if (block.type === "text") {
             splitBlock(block, selection);
+            // Focus new block
+            refs.current[block.id]?.current.focus();
         }
     };
 
@@ -132,6 +149,7 @@ export default function NoteScreen() {
         });
 
         insertBlock(newBlock);
+        // Focus new block
     }
 
     return (
@@ -151,6 +169,8 @@ export default function NoteScreen() {
                     handleOnChangeText={handleOnChangeText}
                     handleSubmitEditing={handleSubmitEditing}
                     /* handleOnBlur={handleOnBlur} */
+                    registerRef={registerRef}
+                    unregisterRef={unregisterRef}
                 />
 
                 {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
@@ -162,6 +182,8 @@ export default function NoteScreen() {
                         handleOnChangeText={handleOnChangeText}
                         handleSubmitEditing={handleSubmitEditing}
                         handleOnKeyPress={handleOnKeyPress}
+                        registerRef={registerRef}
+                        unregisterRef={unregisterRef}
                     />
                 })}
                 
