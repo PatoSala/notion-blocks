@@ -28,22 +28,28 @@ export default function BlockElement({
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
-    /* useImperativeHandle(ref, () => {
-        return {
+    const api = {
+        current: {
             focus: () => {
                 ref.current?.focus();
             },
-            focusWithSelection: (selection: { start: number, end: number }) => {
-                ref.current?.focus();
-                if (selection) {
+            focusWithSelection: (selection: { start: number; end: number }) => {
+                console.log("focusWithSelection", selection);
+                // async delay so selection applies reliably
+                requestAnimationFrame(() => {
+                    ref.current?.focus();
+                });
+                setTimeout(() => {
                     setSelection(selection);
-                }
-            }
+                }, 500);
+            },
+            getNode: () => ref.current, // optional helper
         }
-    }, []); */
+    };
 
     useEffect(() => {
-        registerRef && registerRef(blockId, ref);
+        registerRef && registerRef(blockId, api);
+        
         return () => {
             unregisterRef && unregisterRef(blockId);
         };

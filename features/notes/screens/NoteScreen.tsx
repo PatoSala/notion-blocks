@@ -4,7 +4,8 @@ import {
     ScrollView,
     Pressable,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Alert
 } from "react-native";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -130,16 +131,9 @@ export default function NoteScreen() {
             const parentBlock = blocks[block.parent];
             const currentBlockIndex = parentBlock.content?.indexOf(block.id);
             const newBlockId = parentBlock.content[currentBlockIndex + 1];
+
             requestAnimationFrame(() => {
                 refs.current[newBlockId]?.current.focus();
-                setTimeout(() => {
-                    refs.current[newBlockId]?.current.setNativeProps({
-                        selection: {
-                            start: 0,
-                            end: 0
-                        }
-                    });
-                }, 300);
             });
         }
     };
@@ -164,8 +158,6 @@ export default function NoteScreen() {
             // Focus new block
             requestAnimationFrame(() => {
                 refs.current[rootBlock.content[rootBlock.content.length - 1]]?.current.focus();
-
-                
             });
         }
     }
