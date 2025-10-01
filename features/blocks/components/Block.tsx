@@ -11,7 +11,8 @@ interface Props {
     title: string;
     handleOnBlur?: () => void;
     handleSubmitEditing?: () => void;
-    handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }) => void;
+    handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
+    handleOnChangeText?: (text: string) => void;
 }
 
 export default function BlockElement({
@@ -19,28 +20,26 @@ export default function BlockElement({
     block,
     title,
     handleOnBlur,
-    handleSubmitEditing
+    handleSubmitEditing,
+    handleOnChangeText,
+    handleOnKeyPress
+
 } : Props) {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
-    const [value, setValue] = useState(title);
-
-    useEffect(() => {
-        console.log("title changed");
-        setValue(title);
-    }, [title]);
 
     return (
         <View style={styles.container}>
             <TextInput
                 ref={ref}
                 style={styles[block.type]}
-                value={value}
                 selection={selection}
-                onChangeText={(text) => setValue(text)}
+                value={title}
+                onChangeText={(text) => handleOnChangeText && handleOnChangeText(blockId, text)}
                 onSelectionChange={({ nativeEvent }) => setSelection(nativeEvent.selection)}
                 onSubmitEditing={() => handleSubmitEditing && handleSubmitEditing(block, selection)}
-                onBlur={() => handleOnBlur && handleOnBlur(block.id, value)}
+                onKeyPress={(event) => handleOnKeyPress && handleOnKeyPress(event, blockId)}
+                returnKeyType="done"
             />
         </View>
     )

@@ -28,11 +28,11 @@ export default function NoteScreen() {
     const { isKeyboardOpen } = useKeyboardStatus();
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
+    console.dir(blocks);
     const [editorState, setEditorState] = useState({});
     const rootBlock : Block = blocks[pageId];
 
-    
-
+    /** Block actions */
     function insertBlock(newBlock: Block) {
         const updatedBlock = updateBlock(blocks[pageId], {
             content: insertBlockIdIntoContent(blocks[pageId].content, newBlock.id, {})
@@ -47,13 +47,11 @@ export default function NoteScreen() {
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
-        console.log(textBeforeSelection, textAfterSelection);
         const updatedBlock = updateBlock(block, {
             properties: {
                 title: textBeforeSelection
             }
         });
-        console.log(updatedBlock);
         const newBlock = new Block({
             type: block.type,
             properties: {
@@ -76,16 +74,52 @@ export default function NoteScreen() {
         });
     }
 
-    const handleOnBlur = (blockId: string, text: string) => {
+    function removeBlock(blockId: string) {
+        const block = blocks[blockId];
+        const parentBlock = blocks[block.parent];
+
+        const blocksState = blocks;
+        delete blocksState[blockId];
+
+        /** Update parent block's content array */
+        const updatedParentBlock = updateBlock(parentBlock, {
+            content: parentBlock.content.filter((id: string) => id !== blockId)
+        });
+
+        setBlocks({
+            ...blocksState,
+            [updatedParentBlock.id]: updatedParentBlock
+        });
+        
+    }
+
+    function moveBlock() {}
+
+    /** Event handlers */
+    function handleOnChangeText(blockId: string, text: string) {
         const updatedBlock = updateBlock(blocks[blockId], {
             properties: {
                 title: text
             }
         });
         setBlocks({ ...blocks, [blockId]: updatedBlock });
-    };
+    }
 
-    const handleSubmitEditing = splitBlock;
+    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string) {
+        if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length === 0) {
+            removeBlock(blockId);
+        }
+    }
+
+    const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
+        if (block.type === "page" && block.id === pageId) {
+            // Handle differently
+        }
+
+        if (block.type === "text") {
+            splitBlock(block, selection);
+        }
+    };
 
     const handleNewLineBlock = () => {
         const newBlock = new Block({
@@ -114,7 +148,9 @@ export default function NoteScreen() {
                     blockId={pageId}
                     block={rootBlock}
                     title={rootBlock.properties.title}
-                    handleOnBlur={handleOnBlur}
+                    handleOnChangeText={handleOnChangeText}
+                    handleSubmitEditing={handleSubmitEditing}
+                    /* handleOnBlur={handleOnBlur} */
                 />
 
                 {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
@@ -123,8 +159,9 @@ export default function NoteScreen() {
                         blockId={blockId}
                         block={blocks[blockId]}
                         title={blocks[blockId].properties.title}
-                        handleOnBlur={handleOnBlur}
+                        handleOnChangeText={handleOnChangeText}
                         handleSubmitEditing={handleSubmitEditing}
+                        handleOnKeyPress={handleOnKeyPress}
                     />
                 })}
                 
