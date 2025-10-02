@@ -48,30 +48,57 @@ export default function NoteScreen() {
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
-        const updatedBlock = updateBlock(block, {
-            properties: {
-                title: textBeforeSelection
-            }
-        });
-        const newBlock = new Block({
-            type: block.type,
-            properties: {
-                title: textAfterSelection
-            },
-            parent: block.parent,
-        });
-        const updatedParentBlock = updateBlock(blocks[block.parent], {
-            content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
-                prevBlockId: block.id
-            })
-        });
 
-        setBlocks({
-            ...blocks,
-            [block.id]: updatedBlock,
-            [newBlock.id]: newBlock,
-            [block.parent]: updatedParentBlock
-        });
+        if (block.id === pageId) {
+            const newBlock = new Block({
+                type: "text",
+                properties: {
+                    title: textAfterSelection
+                },
+                parent: block.id,
+            });
+
+            // Update parent block's content array (which is the current block in this case)
+            const updatedParentBlock = updateBlock(block, {
+                properties: {
+                    title: textBeforeSelection
+                },
+                content: insertBlockIdIntoContent(block.content, newBlock.id, {
+                    nextBlockId: block.content[0]
+                })
+            });
+
+            setBlocks({
+                ...blocks,
+                [block.id]: updatedParentBlock, // source and parent block
+                [newBlock.id]: newBlock // new block
+            });
+        } else {
+            const updatedBlock = updateBlock(block, {
+                properties: {
+                    title: textBeforeSelection
+                }
+            });
+            const newBlock = new Block({
+                type: "text",
+                properties: {
+                    title: textAfterSelection
+                },
+                parent: block.parent,
+            });
+            const updatedParentBlock = updateBlock(blocks[block.parent], {
+                content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
+                    prevBlockId: block.id
+                })
+            });
+
+            setBlocks({
+                ...blocks,
+                [block.id]: updatedBlock, // source block
+                [newBlock.id]: newBlock,    // new block
+                [block.parent]: updatedParentBlock // parent block
+            });
+        }
     }
 
     function mergeBlock(block: Block) {
@@ -153,12 +180,14 @@ export default function NoteScreen() {
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string, selection: { start: number, end: number }) {
+        const currentBlock = blocks[blockId];
+        const parentBlock = blocks[currentBlock.parent];
+        const currentBlockIndex = parentBlock.content?.indexOf(blockId);
+        const isFirstChild = currentBlockIndex === 0;
+        const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
+       
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length === 0) {
-            const currentBlock = blocks[blockId];
-            const parentBlock = blocks[currentBlock.parent];
-            const currentBlockIndex = parentBlock.content?.indexOf(blockId);
-            const isFirstChild = currentBlockIndex === 0;
-            const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
+            
             removeBlock(blockId);
             // Focus previous block
             refs.current[prevBlockId]?.current.focus();
@@ -167,12 +196,25 @@ export default function NoteScreen() {
 
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length > 0 && (selection.start === 0 && selection.end === 0)) {
             mergeBlock(blocks[blockId]);
+            // Focus previous block here
+            return;
         }
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
         if (block.type === "page" && block.id === pageId) {
             // Handle differently
+            splitBlock(block, selection);
+
+            let newBlockId = blocks[block.id].content[0];
+
+            requestAnimationFrame(() => {
+                refs.current[newBlockId]?.current.focusWithSelection({
+                    start: 0,
+                    end: 0
+                });
+            });
+            return;
         }
 
         if (block.type === "text") {
@@ -252,7 +294,6 @@ export default function NoteScreen() {
                 <Pressable
                     style={{
                         flex: 1,
-                        backgroundColor: "red"
                     }}
                     onPress={handleNewLineBlock}
                 />
