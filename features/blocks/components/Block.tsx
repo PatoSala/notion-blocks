@@ -25,10 +25,10 @@ export default function BlockElement({
     handleOnKeyPress,
     registerRef,
     unregisterRef,
-    selectionState,
 } : Props) {
     const ref = useRef<TextInput>(null);
-    const [selection, setSelection] = useState({ start: 0, end: 0 });
+    const [selection, setSelection] = useState({ start: 5, end: 5 });
+    console.log(selection);
 
     const api = {
         current: {
@@ -36,18 +36,19 @@ export default function BlockElement({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }) => {
-                console.log("focusWithSelection", selection);
-                setSelection(selection);
                 ref.current?.focus();
-                setTimeout(() => {
-                    ref.current?.setNativeProps({
-                        selection: selection
-                    });
-                }, 0);
+                setSelection(selection);
             },
             getNode: () => ref.current, // optional helper
         }
     };
+
+    // Matches individual block DOM with state value with
+    /* useEffect(() => {
+        ref.current?.setNativeProps({
+            text: title
+        })
+    }, []); */
 
     useEffect(() => {
         registerRef && registerRef(blockId, api);
@@ -62,13 +63,21 @@ export default function BlockElement({
             <TextInput
                 ref={ref}
                 style={styles[block.type]}
-                selection={selection}
                 value={title}
                 submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => handleOnChangeText && handleOnChangeText(blockId, text)}
-                onSelectionChange={({ nativeEvent }) => setSelection(nativeEvent.selection)}
-                onSubmitEditing={() => handleSubmitEditing && handleSubmitEditing(block, selection)}
-                onKeyPress={(event) => handleOnKeyPress && handleOnKeyPress(event, blockId, selection)}
+                onSelectionChange={({ nativeEvent }) => {
+                    // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
+                    /* setSelection(nativeEvent.selection); */
+                }}
+                selection={selection}
+                selectTextOnFocus
+                onSubmitEditing={(event) => {
+                    handleSubmitEditing && handleSubmitEditing(block, selection);
+                }}
+                onKeyPress={(event) => {
+                    handleOnKeyPress && handleOnKeyPress(event, blockId, selection);
+                }}
             />
         </View>
     )
