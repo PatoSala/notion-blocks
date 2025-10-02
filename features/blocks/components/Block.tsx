@@ -12,6 +12,7 @@ interface Props {
     handleOnChangeText?: (text: string) => void;
     registerRef?: (blockId: string, ref: any) => void;
     unregisterRef?: (blockId: string) => void;
+    selectionState?: { start: number, end: number };
 }
 
 export default function BlockElement({
@@ -23,7 +24,8 @@ export default function BlockElement({
     handleOnChangeText,
     handleOnKeyPress,
     registerRef,
-    unregisterRef
+    unregisterRef,
+    selectionState,
 } : Props) {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
@@ -35,13 +37,13 @@ export default function BlockElement({
             },
             focusWithSelection: (selection: { start: number; end: number }) => {
                 console.log("focusWithSelection", selection);
-                // async delay so selection applies reliably
-                requestAnimationFrame(() => {
-                    ref.current?.focus();
-                });
+                setSelection(selection);
+                ref.current?.focus();
                 setTimeout(() => {
-                    setSelection(selection);
-                }, 500);
+                    ref.current?.setNativeProps({
+                        selection: selection
+                    });
+                }, 0);
             },
             getNode: () => ref.current, // optional helper
         }
@@ -66,7 +68,7 @@ export default function BlockElement({
                 onChangeText={(text) => handleOnChangeText && handleOnChangeText(blockId, text)}
                 onSelectionChange={({ nativeEvent }) => setSelection(nativeEvent.selection)}
                 onSubmitEditing={() => handleSubmitEditing && handleSubmitEditing(block, selection)}
-                onKeyPress={(event) => handleOnKeyPress && handleOnKeyPress(event, blockId)}
+                onKeyPress={(event) => handleOnKeyPress && handleOnKeyPress(event, blockId, selection)}
             />
         </View>
     )

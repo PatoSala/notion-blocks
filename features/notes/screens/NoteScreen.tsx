@@ -59,7 +59,6 @@ export default function NoteScreen() {
                 title: textAfterSelection
             },
             parent: block.parent,
-            parent_table: block.parent_table
         });
         const updatedParentBlock = updateBlock(blocks[block.parent], {
             content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
@@ -75,7 +74,53 @@ export default function NoteScreen() {
         });
     }
 
-    function mergeBlock(block: Block) {}
+    function mergeBlock(block: Block) {
+        const sourceBlock = block;
+        const parentBlock = blocks[sourceBlock.parent];
+        const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
+        const isFirstChild = sourceBlockContentIndex === 0;
+        const targetBlock = isFirstChild
+            ? parentBlock
+            : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+
+        // Join targetBlock text with sourceBlock text
+        const sourceBlockText = sourceBlock.properties.title;
+        const targetBlockText = targetBlock.properties.title;
+
+        const copyOfBlocks = blocks;
+        delete copyOfBlocks[sourceBlock.id];
+
+        const updatedParentBlock = updateBlock(parentBlock, {
+            content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
+        });
+
+        if (targetBlock.id === parentBlock.id) {
+
+            const updatedTargetBlock = updateBlock(parentBlock, {
+                properties: {
+                    title: targetBlockText + sourceBlockText
+                },
+                content: updatedParentBlock.content
+            });
+            setBlocks({
+                ...copyOfBlocks,
+                [updatedTargetBlock.id]: updatedTargetBlock,
+            });
+
+        } else {
+            const updatedTargetBlock = updateBlock(targetBlock, {
+                properties: {
+                    title: targetBlockText + sourceBlockText
+                }
+            });
+
+            setBlocks({
+                ...copyOfBlocks,
+                [parentBlock.id]: updatedParentBlock,
+                [updatedTargetBlock.id]: updatedTargetBlock
+            });
+        }
+    }
 
     function removeBlock(blockId: string) {
         const block = blocks[blockId];
@@ -107,7 +152,7 @@ export default function NoteScreen() {
         setBlocks({ ...blocks, [blockId]: updatedBlock });
     }
 
-    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string) {
+    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string, selection: { start: number, end: number }) {
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length === 0) {
             const currentBlock = blocks[blockId];
             const parentBlock = blocks[currentBlock.parent];
@@ -117,6 +162,11 @@ export default function NoteScreen() {
             removeBlock(blockId);
             // Focus previous block
             refs.current[prevBlockId]?.current.focus();
+            return;
+        }
+
+        if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length > 0 && (selection.start === 0 && selection.end === 0)) {
+            mergeBlock(blocks[blockId]);
         }
     }
 
@@ -133,7 +183,10 @@ export default function NoteScreen() {
             const newBlockId = parentBlock.content[currentBlockIndex + 1];
 
             requestAnimationFrame(() => {
-                refs.current[newBlockId]?.current.focus();
+                refs.current[newBlockId]?.current.focusWithSelection({
+                    start: 0,
+                    end: 0
+                });
             });
         }
     };
@@ -178,7 +231,6 @@ export default function NoteScreen() {
                     title={rootBlock.properties.title}
                     handleOnChangeText={handleOnChangeText}
                     handleSubmitEditing={handleSubmitEditing}
-                    /* handleOnBlur={handleOnBlur} */
                     registerRef={registerRef}
                     unregisterRef={unregisterRef}
                 />
