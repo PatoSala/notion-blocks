@@ -5,7 +5,7 @@ import {
     Pressable,
     KeyboardAvoidingView,
     Platform,
-    Alert
+    FlatList
 } from "react-native";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -294,10 +294,53 @@ export default function NoteScreen() {
                 <Pressable
                     style={{
                         flex: 1,
+                        backgroundColor: "red"
                     }}
                     onPress={handleNewLineBlock}
                 />
             </ScrollView>
+
+            {/* <FlatList
+                data={blocks}
+                contentContainerStyle={{
+                    paddingTop: insets.top,
+                    flex: 1
+                }}
+                ListHeaderComponent={() => (
+                    <BlockElement
+                        blockId={pageId}
+                        block={rootBlock}
+                        title={rootBlock.properties.title}
+                        handleOnChangeText={handleOnChangeText}
+                        handleSubmitEditing={handleSubmitEditing}
+                        registerRef={registerRef}
+                        unregisterRef={unregisterRef}
+                    />
+                )}
+                ListFooterComponent={() => (
+                    <Pressable
+                        style={{
+                            flex: 1,
+                            height: "100%",
+                            backgroundColor: "blue"
+                        }}
+                        onPress={handleNewLineBlock}
+                    />
+                )}
+                renderItem={({ blockId }) => (
+                    <BlockElement
+                        key={blockId}
+                        blockId={blockId}
+                        block={blocks[blockId]}
+                        title={blocks[blockId].properties.title}
+                        handleOnChangeText={handleOnChangeText}
+                        handleSubmitEditing={handleSubmitEditing}
+                        handleOnKeyPress={handleOnKeyPress}
+                        registerRef={registerRef}
+                        unregisterRef={unregisterRef}
+                    />
+                )}
+            /> */}
             {isKeyboardOpen && <Footer />}
         </KeyboardAvoidingView>
 

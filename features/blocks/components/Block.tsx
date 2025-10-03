@@ -1,4 +1,4 @@
-import { useContext, useState, useRef, useEffect, useImperativeHandle } from "react";
+import { useContext, useState, useRef, useEffect, useImperativeHandle, memo } from "react";
 import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
 import { Block } from "../interfaces/Block.interface";
 
@@ -15,7 +15,7 @@ interface Props {
     selectionState?: { start: number, end: number };
 }
 
-export default function BlockElement({
+const BlockElement = memo(({
     blockId,
     block,
     title,
@@ -25,9 +25,9 @@ export default function BlockElement({
     handleOnKeyPress,
     registerRef,
     unregisterRef,
-} : Props) {
+} : Props) => {
     const ref = useRef<TextInput>(null);
-    const [selection, setSelection] = useState({ start: 5, end: 5 });
+    const [selection, setSelection] = useState({ start: 0, end: 0 });
     console.log(selection);
 
     const api = {
@@ -65,13 +65,14 @@ export default function BlockElement({
                 style={styles[block.type]}
                 value={title}
                 submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
-                onChangeText={(text) => handleOnChangeText && handleOnChangeText(blockId, text)}
+                onChangeText={(text) => {
+                    handleOnChangeText && handleOnChangeText(blockId, text);
+                }}
                 onSelectionChange={({ nativeEvent }) => {
                     // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
-                    /* setSelection(nativeEvent.selection); */
+                    setSelection(nativeEvent.selection);
                 }}
                 selection={selection}
-                selectTextOnFocus
                 onSubmitEditing={(event) => {
                     handleSubmitEditing && handleSubmitEditing(block, selection);
                 }}
@@ -81,7 +82,9 @@ export default function BlockElement({
             />
         </View>
     )
-}
+})
+
+export default BlockElement;
 
 const styles = StyleSheet.create({
     container: {
