@@ -28,7 +28,6 @@ const BlockElement = memo(({
 } : Props) => {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
-    console.log(selection);
 
     const api = {
         current: {
@@ -43,12 +42,6 @@ const BlockElement = memo(({
         }
     };
 
-    // Matches individual block DOM with state value with
-    /* useEffect(() => {
-        ref.current?.setNativeProps({
-            text: title
-        })
-    }, []); */
 
     useEffect(() => {
         registerRef && registerRef(blockId, api);

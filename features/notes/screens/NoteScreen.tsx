@@ -76,19 +76,19 @@ export default function NoteScreen() {
         } else {
             const updatedBlock = updateBlock(block, {
                 properties: {
-                    title: textBeforeSelection
+                    title: textAfterSelection
                 }
             });
             const newBlock = new Block({
                 type: "text",
                 properties: {
-                    title: textAfterSelection
+                    title: textBeforeSelection
                 },
                 parent: block.parent,
             });
             const updatedParentBlock = updateBlock(blocks[block.parent], {
                 content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
-                    prevBlockId: block.id
+                    nextBlockId: block.id
                 })
             });
 
@@ -115,12 +115,13 @@ export default function NoteScreen() {
         const targetBlockText = targetBlock.properties.title;
 
         const copyOfBlocks = blocks;
-        delete copyOfBlocks[sourceBlock.id];
+        delete copyOfBlocks[targetBlock.id];
 
         const updatedParentBlock = updateBlock(parentBlock, {
-            content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
+            content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
         });
 
+        // If the block to merge with is the parent block
         if (targetBlock.id === parentBlock.id) {
 
             const updatedTargetBlock = updateBlock(parentBlock, {
@@ -135,16 +136,18 @@ export default function NoteScreen() {
             });
 
         } else {
-            const updatedTargetBlock = updateBlock(targetBlock, {
+            // Remove prevBlock
+            // Update current one
+            const updatedSourceBlock = updateBlock(targetBlock, {
                 properties: {
                     title: targetBlockText + sourceBlockText
                 }
             });
-
+            console.log(updatedSourceBlock);
             setBlocks({
                 ...copyOfBlocks,
                 [parentBlock.id]: updatedParentBlock,
-                [updatedTargetBlock.id]: updatedTargetBlock
+                [updatedSourceBlock.id]: updatedSourceBlock
             });
         }
     }
@@ -224,12 +227,13 @@ export default function NoteScreen() {
             const currentBlockIndex = parentBlock.content?.indexOf(block.id);
             const newBlockId = parentBlock.content[currentBlockIndex + 1];
 
-            requestAnimationFrame(() => {
+            // In theory, If the new block is inserted before the current one focus wont be lost and should stay in the same position
+            /* requestAnimationFrame(() => {
                 refs.current[newBlockId]?.current.focusWithSelection({
                     start: 0,
                     end: 0
                 });
-            });
+            }); */
         }
     };
 
