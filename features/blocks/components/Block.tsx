@@ -28,6 +28,7 @@ const BlockElement = memo(({
 } : Props) => {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
+    const [isFocused, setIsFocused] = useState(false);
 
     const api = {
         current: {
@@ -40,12 +41,12 @@ const BlockElement = memo(({
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
                  * Setting selection before focusing prevents the cursor from reseting when value changes.
                  * */
+                console.log(selection);
                 setSelection(selection);
                 setTimeout(() => {
                     ref.current?.focus();
                 }, 0);
-            },
-            getNode: () => ref.current, // optional helper
+            }
         }
     };
 
@@ -58,11 +59,15 @@ const BlockElement = memo(({
     }, []);
 
     return (
-        <View style={[styles.container]}>
+        <View style={[styles.container, {
+            backgroundColor: isFocused ? "rgba(0, 0, 0, 0.1)" : "transparent"
+        }]}>
             <TextInput
                 ref={ref}
                 style={styles[block.type]}
                 value={title}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
                 submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
                     handleOnChangeText && handleOnChangeText(blockId, text);

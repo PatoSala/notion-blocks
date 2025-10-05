@@ -117,18 +117,17 @@ export default function NoteScreen() {
         const isFirstChild = sourceBlockContentIndex === 0;
         const targetBlock = isFirstChild
             ? parentBlock
-            : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+            : blocks[parentBlock.content[sourceBlockContentIndex - 1]]; // The block before the source block.
 
-        // Join targetBlock text with sourceBlock text
         const sourceBlockText = sourceBlock.properties.title;
         const targetBlockText = targetBlock.properties.title;
 
-        const copyOfBlocks = blocks;
-        delete copyOfBlocks[targetBlock.id];
+        /* const copyOfBlocks = blocks;
+        delete copyOfBlocks[targetBlock.id]; */
 
-        const updatedParentBlock = updateBlock(parentBlock, {
+        /* const updatedParentBlock = updateBlock(parentBlock, {
             content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
-        });
+        }); */
 
         // If the block to merge with is the parent block
         if (targetBlock.id === parentBlock.id) {
@@ -145,19 +144,36 @@ export default function NoteScreen() {
             });
 
         } else {
-            // Remove prevBlock
-            // Update current one
-            const updatedSourceBlock = updateBlock(targetBlock, {
+            /* const copyOfBlocks = blocks;
+            delete copyOfBlocks[targetBlock.id] */
+
+            /** Remove target block from parent's content array. */
+            const updatedParentBlock = updateBlock(parentBlock, {
+                content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
+            });
+
+            /** Update source block  */
+            const updatedSourceBlock = updateBlock(sourceBlock, {
                 properties: {
                     title: targetBlockText + sourceBlockText
                 }
             });
-            console.log(updatedSourceBlock);
+
+            /** Remove target block */
+            const copyOfBlocks = blocks;
+            delete copyOfBlocks[targetBlock.id]
+
+            /** Update state with changes */
             setBlocks({
                 ...copyOfBlocks,
                 [parentBlock.id]: updatedParentBlock,
                 [updatedSourceBlock.id]: updatedSourceBlock
             });
+
+            return {
+                prevTitle: sourceBlockText,
+                nextTitle: targetBlockText + sourceBlockText
+            }
         }
     }
 
@@ -198,17 +214,28 @@ export default function NoteScreen() {
         const isFirstChild = currentBlockIndex === 0;
         const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
        
+        /**
+         * If block is empty, remove block and focus previous block.
+         */
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length === 0) {
             
             removeBlock(blockId);
             // Focus previous block
-            refs.current[prevBlockId]?.current.focus();
+            refs.current[prevBlockId]?.current.focusWithSelection(selection);
             return;
         }
 
+        /**
+         * If block is not empty, merge block with previous block.
+         */
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length > 0 && (selection.start === 0 && selection.end === 0)) {
-            mergeBlock(blocks[blockId]);
+            const { prevTitle, nextTitle } = mergeBlock(blocks[blockId]);
             // Focus previous block here
+            const newCursorPosition = nextTitle.length - prevTitle.length;
+            refs.current[blockId]?.current.focusWithSelection({
+                start: newCursorPosition,
+                end: newCursorPosition
+            });
             return;
         }
     }
