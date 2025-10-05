@@ -122,31 +122,32 @@ export default function NoteScreen() {
         const sourceBlockText = sourceBlock.properties.title;
         const targetBlockText = targetBlock.properties.title;
 
-        /* const copyOfBlocks = blocks;
-        delete copyOfBlocks[targetBlock.id]; */
-
-        /* const updatedParentBlock = updateBlock(parentBlock, {
-            content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
-        }); */
-
         // If the block to merge with is the parent block
         if (targetBlock.id === parentBlock.id) {
-
-            const updatedTargetBlock = updateBlock(parentBlock, {
+            /** Remove target block from parent's content array and update title property. */
+            const updatedParentBlock = updateBlock(parentBlock, {
                 properties: {
                     title: targetBlockText + sourceBlockText
                 },
-                content: updatedParentBlock.content
+                content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
             });
+
+            /** Remove source block */
+            const copyOfBlocks = blocks;
+            delete copyOfBlocks[sourceBlock.id];
+
             setBlocks({
                 ...copyOfBlocks,
-                [updatedTargetBlock.id]: updatedTargetBlock,
+                [updatedParentBlock.id]: updatedParentBlock,
             });
 
-        } else {
-            /* const copyOfBlocks = blocks;
-            delete copyOfBlocks[targetBlock.id] */
+            return {
+                prevTitle: sourceBlockText,
+                newTitle: targetBlockText + sourceBlockText,
+                mergeResult: updatedParentBlock
+            }
 
+        } else {
             /** Remove target block from parent's content array. */
             const updatedParentBlock = updateBlock(parentBlock, {
                 content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
@@ -172,7 +173,8 @@ export default function NoteScreen() {
 
             return {
                 prevTitle: sourceBlockText,
-                nextTitle: targetBlockText + sourceBlockText
+                newTitle: targetBlockText + sourceBlockText,
+                mergeResult: updatedSourceBlock
             }
         }
     }
@@ -221,21 +223,26 @@ export default function NoteScreen() {
             
             removeBlock(blockId);
             // Focus previous block
-            refs.current[prevBlockId]?.current.focusWithSelection(selection);
+            requestAnimationFrame(() => {
+                refs.current[prevBlockId]?.current.focusWithSelection(selection);
+            });
             return;
         }
 
         /**
-         * If block is not empty, merge block with previous block.
+         * If block is not empty and cursor is at start, merge block with previous block.
          */
         if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length > 0 && (selection.start === 0 && selection.end === 0)) {
-            const { prevTitle, nextTitle } = mergeBlock(blocks[blockId]);
+            const { prevTitle, newTitle, mergeResult } = mergeBlock(blocks[blockId]);
             // Focus previous block here
-            const newCursorPosition = nextTitle.length - prevTitle.length;
-            refs.current[blockId]?.current.focusWithSelection({
-                start: newCursorPosition,
-                end: newCursorPosition
-            });
+            const newCursorPosition = newTitle.length - prevTitle.length;
+            console.log(newCursorPosition);
+            requestAnimationFrame(() => {
+                refs.current[mergeResult.id]?.current.focusWithSelection({
+                    start: newCursorPosition,
+                    end: newCursorPosition
+                });
+            })
             return;
         }
     }

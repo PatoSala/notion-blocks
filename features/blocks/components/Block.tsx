@@ -36,6 +36,7 @@ const BlockElement = memo(({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }) => {
+                console.log("focusWithSelection");
                 /** 
                  * The following comment was of help:
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
