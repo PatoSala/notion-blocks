@@ -35,13 +35,19 @@ const BlockElement = memo(({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }) => {
-                ref.current?.focus();
+                /** 
+                 * The following comment was of help:
+                 * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
+                 * Setting selection before focusing prevents the cursor from reseting when value changes.
+                 * */
                 setSelection(selection);
+                setTimeout(() => {
+                    ref.current?.focus();
+                }, 0);
             },
             getNode: () => ref.current, // optional helper
         }
     };
-
 
     useEffect(() => {
         registerRef && registerRef(blockId, api);
@@ -52,7 +58,7 @@ const BlockElement = memo(({
     }, []);
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container]}>
             <TextInput
                 ref={ref}
                 style={styles[block.type]}

@@ -223,17 +223,17 @@ export default function NoteScreen() {
         if (block.type === "text") {
             splitBlock(block, selection);
             // Focus new block
-            const parentBlock = blocks[block.parent];
+            /* const parentBlock = blocks[block.parent];
             const currentBlockIndex = parentBlock.content?.indexOf(block.id);
-            const newBlockId = parentBlock.content[currentBlockIndex + 1];
+            const newBlockId = parentBlock.content[currentBlockIndex + 1]; */
 
             // In theory, If the new block is inserted before the current one focus wont be lost and should stay in the same position
-            /* requestAnimationFrame(() => {
-                refs.current[newBlockId]?.current.focusWithSelection({
+            requestAnimationFrame(() => {
+                refs.current[block.id]?.current.focusWithSelection({
                     start: 0,
                     end: 0
                 });
-            }); */
+            });
         }
     };
 

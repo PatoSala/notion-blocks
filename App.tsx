@@ -7,8 +7,8 @@ import AltNotesScreen from './features/notes/screens/AltNotesScreen';
 export default function App() {
   return (
     <SafeAreaProvider>
-      {/* <NoteScreen /> */}
-      <AltNotesScreen />
+      <NoteScreen />
+      {/* <AltNotesScreen /> */}
       <StatusBar style="auto" />
     </SafeAreaProvider>
   );
