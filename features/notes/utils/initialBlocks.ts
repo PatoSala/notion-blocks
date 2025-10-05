@@ -5,9 +5,18 @@ export const blocksData : Record<string, IBlock> = {
         id: "1",
         type: "page",
         properties: {
-            title: "Hello World 0 "
+            title: "Page"
+        },
+        content: ["2"],
+        parent: ""
+    },
+    "2": {
+        id: "2",
+        type: "header",
+        properties: {
+            title: "Page"
         },
         content: [],
-        parent: ""
+        parent: "1"
     }
 }

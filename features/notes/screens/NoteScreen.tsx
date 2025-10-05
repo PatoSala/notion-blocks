@@ -5,7 +5,9 @@ import {
     Pressable,
     KeyboardAvoidingView,
     Platform,
-    FlatList
+    Keyboard,
+    View,
+    Text
 } from "react-native";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,10 +21,13 @@ import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateB
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
     const refs = useRef({});
-    const { isKeyboardOpen } = useKeyboardStatus();
+    const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
+    const [editorActions, setEditorActions] = useState({});
+    const [addBlockMenuOpen, setAddBlockMenuOpen] = useState(false);
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
     const rootBlock : Block = blocks[pageId];
+    const [focusedBlockId, setFocusedBlockId] = useState(null);
 
     /** Editor state actions */
     function registerRef(blockId: string, ref: any) {
@@ -216,6 +221,15 @@ export default function NoteScreen() {
         const isFirstChild = currentBlockIndex === 0;
         const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
        
+        
+        /**
+         * If prev block is empty and currentBlock is not first child, remove prev block.
+         */
+        if (event.nativeEvent.key === "Backspace" && !isFirstChild && blocks[prevBlockId].properties.title.length === 0) {
+            removeBlock(prevBlockId);
+
+            return;
+        }
         /**
          * If block is empty, remove block and focus previous block.
          */
@@ -224,7 +238,7 @@ export default function NoteScreen() {
             removeBlock(blockId);
             // Focus previous block
             requestAnimationFrame(() => {
-                refs.current[prevBlockId]?.current.focusWithSelection(selection);
+                refs.current[prevBlockId]?.current.focus();
             });
             return;
         }
@@ -236,7 +250,6 @@ export default function NoteScreen() {
             const { prevTitle, newTitle, mergeResult } = mergeBlock(blocks[blockId]);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
-            console.log(newCursorPosition);
             requestAnimationFrame(() => {
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
@@ -305,6 +318,36 @@ export default function NoteScreen() {
         }
     }
 
+    const handleInsertNewBlock = (prevBlockId: string, blockType: string) => {
+        const newBlock = new Block({
+            type: blockType,
+            properties: {
+                title: ""
+            },
+            content: [],
+            parent: pageId
+        });
+
+        // note: remember that the root block has no value for parent attribute.
+        const parentBlock = blocks[prevBlockId].parent;
+        const updateParentBlock = updateBlock(blocks[parentBlock], {
+            content: insertBlockIdIntoContent(blocks[parentBlock].content, newBlock.id, {
+                prevBlockId: prevBlockId
+            })
+        });
+
+        setBlocks({
+            ...blocks,
+            [updateParentBlock.id]: updateParentBlock,
+            [newBlock.id]: newBlock
+        });
+
+        // Focus new block
+        requestAnimationFrame(() => {
+            refs.current[newBlock.id]?.current.focus();
+        });
+    }
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -323,6 +366,9 @@ export default function NoteScreen() {
                     handleSubmitEditing={handleSubmitEditing}
                     registerRef={registerRef}
                     unregisterRef={unregisterRef}
+                    onFocus={() => {
+                        setFocusedBlockId(rootBlock.id);
+                    }}
                 />
 
                 {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
@@ -336,60 +382,68 @@ export default function NoteScreen() {
                         handleOnKeyPress={handleOnKeyPress}
                         registerRef={registerRef}
                         unregisterRef={unregisterRef}
+                        onFocus={() => {
+                            setFocusedBlockId(blockId);
+                        }}
                     />
                 })}
                 
                 <Pressable
                     style={{
                         flex: 1,
-                        backgroundColor: "red"
                     }}
                     onPress={handleNewLineBlock}
                 />
             </ScrollView>
 
-            {/* <FlatList
-                data={blocks}
-                contentContainerStyle={{
-                    paddingTop: insets.top,
-                    flex: 1
+            <Footer 
+                style={{
+                    width: "100%",
+                    position: isKeyboardOpen || addBlockMenuOpen ? "relative" : "absolute",
+                    bottom: isKeyboardOpen || addBlockMenuOpen ? 0 : -44
                 }}
-                ListHeaderComponent={() => (
-                    <BlockElement
-                        blockId={pageId}
-                        block={rootBlock}
-                        title={rootBlock.properties.title}
-                        handleOnChangeText={handleOnChangeText}
-                        handleSubmitEditing={handleSubmitEditing}
-                        registerRef={registerRef}
-                        unregisterRef={unregisterRef}
-                    />
-                )}
-                ListFooterComponent={() => (
-                    <Pressable
-                        style={{
-                            flex: 1,
-                            height: "100%",
-                            backgroundColor: "blue"
-                        }}
-                        onPress={handleNewLineBlock}
-                    />
-                )}
-                renderItem={({ blockId }) => (
-                    <BlockElement
-                        key={blockId}
-                        blockId={blockId}
-                        block={blocks[blockId]}
-                        title={blocks[blockId].properties.title}
-                        handleOnChangeText={handleOnChangeText}
-                        handleSubmitEditing={handleSubmitEditing}
-                        handleOnKeyPress={handleOnKeyPress}
-                        registerRef={registerRef}
-                        unregisterRef={unregisterRef}
-                    />
-                )}
-            /> */}
-            {isKeyboardOpen && <Footer />}
+                openAddBlockMenu={() => {
+                    setAddBlockMenuOpen(true);
+                    Keyboard.dismiss();
+                }}
+            />
+            {addBlockMenuOpen && (
+                <View style={[styles.blockOptionsContainer, {
+                    height: keyboardHeight,
+                }]}>
+                    <View style={styles.blockOptionsRow}>
+                        <Text>Blocks</Text>
+                    </View>
+
+                    <View style={styles.blockOptionsRow}>
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "text")}>
+                            <Text>Text</Text>
+                        </Pressable>
+
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "header")}>
+                            <Text>Heading 1</Text>
+                        </Pressable>
+                    </View>
+
+                    <View style={styles.blockOptionsRow}>
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "sub_header")}>
+                            <Text>Heading 2</Text>
+                        </Pressable>
+
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "sub_sub_header")}>
+                            <Text>Heading 3</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            )}
         </KeyboardAvoidingView>
 
     )
@@ -403,5 +457,27 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         marginLeft: 8
+    },
+    blockOptionsContainer: {
+        backgroundColor: "#f5f5f5",
+        padding: 16
+    },
+    blockOptionsRow: {
+        flexDirection: "row",
+        marginBottom: 8,
+    },
+    blockOptions: {
+        backgroundColor: "white",
+        height: 50,
+        minWidth: "50%",
+        borderRadius: 8,
+        justifyContent: "center",
+        paddingHorizontal: 16,
+        boxSizing: "border-box",
+        boxShadow: "0px 1px 0px rgba(0, 0, 0, 0.1)"
+    },
+    blockOptionsText: {
+        fontSize: 16,
+        fontWeight: "bold",
     }
 });

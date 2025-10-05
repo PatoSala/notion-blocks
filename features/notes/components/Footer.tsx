@@ -1,9 +1,26 @@
 import { View, Text, StyleSheet, Pressable, Keyboard } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons, FontAwesome6 } from "@expo/vector-icons";
 
-export default function Footer() {
+export default function Footer({
+    style,
+    openAddBlockMenu
+}) {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
+            <Pressable
+                onPress={() => openAddBlockMenu()}
+                style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+            >
+                <MaterialIcons name="add" size={24} color="black" />
+            </Pressable>
+
+            <Pressable
+                onPress={() => Keyboard.dismiss()}
+                style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+            >
+                <FontAwesome6 name="arrows-rotate" size={24} color="black" />
+            </Pressable>
+
             <Pressable
                 onPress={() => Keyboard.dismiss()}
                 style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
@@ -17,6 +34,7 @@ export default function Footer() {
 const styles = StyleSheet.create({
     container: {
         height: 44,
+        flexDirection: "row",
         boxShadow: "0px -1px 0px rgba(0, 0, 0, 0.1)"
     },
     button: {

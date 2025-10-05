@@ -7,6 +7,7 @@ interface Props {
     block: Block;
     title: string;
     handleOnBlur?: () => void;
+    onFocus?: () => void;
     handleSubmitEditing?: () => void;
     handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
     handleOnChangeText?: (text: string) => void;
@@ -20,6 +21,7 @@ const BlockElement = memo(({
     block,
     title,
     handleOnBlur,
+    onFocus,
     handleSubmitEditing,
     handleOnChangeText,
     handleOnKeyPress,
@@ -28,7 +30,6 @@ const BlockElement = memo(({
 } : Props) => {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
-    const [isFocused, setIsFocused] = useState(false);
 
     const api = {
         current: {
@@ -36,16 +37,15 @@ const BlockElement = memo(({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }) => {
-                console.log("focusWithSelection");
                 /** 
                  * The following comment was of help:
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
                  * Setting selection before focusing prevents the cursor from reseting when value changes.
                  * */
-                console.log(selection);
                 setSelection(selection);
                 setTimeout(() => {
                     ref.current?.focus();
+                    ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
                 }, 0);
             }
         }
@@ -60,15 +60,11 @@ const BlockElement = memo(({
     }, []);
 
     return (
-        <View style={[styles.container, {
-            backgroundColor: isFocused ? "rgba(0, 0, 0, 0.1)" : "transparent"
-        }]}>
+        <View style={[styles.container]}>
             <TextInput
                 ref={ref}
                 style={styles[block.type]}
                 value={title}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
                 submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
                     handleOnChangeText && handleOnChangeText(blockId, text);
@@ -77,6 +73,7 @@ const BlockElement = memo(({
                     // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
                     setSelection(nativeEvent.selection);
                 }}
+                onFocus={onFocus}
                 selection={selection}
                 onSubmitEditing={(event) => {
                     handleSubmitEditing && handleSubmitEditing(block, selection);
@@ -98,11 +95,23 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     page: {
-        fontSize: 24,
-        fontWeight: "bold"
+        fontSize: 28,
+        fontWeight: "800"
     },
     text: {
-        fontSize: 17,
-        height: 44
+        fontSize: 16,
+        fontWeight: "normal"
+    },
+    header: {
+        fontWeight: "bold",
+        fontSize: 28
+    },
+    sub_header: {
+        fontWeight: "bold",
+        fontSize: 22
+    },
+    sub_sub_header: {
+        fontWeight: "bold",
+        fontSize: 18
     }
 });
