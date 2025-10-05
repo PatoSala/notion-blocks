@@ -45,6 +45,15 @@ export default function NoteScreen() {
         });
     }
 
+    /**
+     * 
+     * @param block 
+     * @param selection 
+     * 
+     * Split block into two blocks.
+     * A new block will be inserted before the source block with the text before the cursor.
+     * The source block will be updated with the text after the cursor.
+     */
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
@@ -222,12 +231,13 @@ export default function NoteScreen() {
 
         if (block.type === "text") {
             splitBlock(block, selection);
-            // Focus new block
-            /* const parentBlock = blocks[block.parent];
-            const currentBlockIndex = parentBlock.content?.indexOf(block.id);
-            const newBlockId = parentBlock.content[currentBlockIndex + 1]; */
-
-            // In theory, If the new block is inserted before the current one focus wont be lost and should stay in the same position
+            
+            /** 
+             * In theory, If the new block is inserted before the current one focus wont be lost and should stay in the same position.
+             * TextInput re-renders when changing its value through state.
+             * The re-render resets cursor position at the end of the input.
+             * To mantain cursor position we need to set selection before focusing.
+             */
             requestAnimationFrame(() => {
                 refs.current[block.id]?.current.focusWithSelection({
                     start: 0,
