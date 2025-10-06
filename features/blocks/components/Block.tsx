@@ -104,14 +104,20 @@ const styles = StyleSheet.create({
     },
     header: {
         fontWeight: "bold",
-        fontSize: 28
+        fontSize: 28,
+        paddingTop: 32,
+        paddingBottom: 8
     },
     sub_header: {
         fontWeight: "bold",
-        fontSize: 22
+        fontSize: 22,
+        paddingTop: 24,
+        paddingBottom: 4
     },
     sub_sub_header: {
         fontWeight: "bold",
-        fontSize: 18
+        fontSize: 18,
+        paddingTop: 20,
+        paddingBottom: 4
     }
 });
