@@ -87,7 +87,7 @@ const BlockElement = memo(({
                     handleSubmitEditing && handleSubmitEditing(block, selection);
                 }}
                 onKeyPress={(event) => {
-                    event.nativeEvent.key === "Submit" ? handleSubmitEditing && handleSubmitEditing(block, selection) : null;
+                    event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selection) : null;
                     handleOnKeyPress && handleOnKeyPress(event, blockId, selection);
                 }}
             />
