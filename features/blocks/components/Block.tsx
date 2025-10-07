@@ -66,7 +66,10 @@ const BlockElement = memo(({
             <TextInput
                 ref={ref}
                 style={styles[block.type]}
+                multiline
                 value={title}
+                cursorColor={"black"}
+                selectionColor={"black"}
                 submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
                     handleOnChangeText && handleOnChangeText(blockId, text);
@@ -100,29 +103,45 @@ const styles = StyleSheet.create({
     },
     page: {
         fontSize: 30,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        lineHeight: 36,
+        minHeight: 36,
+        paddingTop: 36,
+        paddingBottom: 4,
+        flexWrap: "wrap"
     },
     text: {
         fontSize: 16,
         fontWeight: "normal",
-        paddingVertical: 6
+        paddingVertical: 6,
+        lineHeight: 24,
+        minHeight: 24
     },
     header: {
         fontWeight: "bold",
         fontSize: 28,
         paddingTop: 32,
-        paddingBottom: 8
+        paddingBottom: 8,
+        lineHeight: 34,
+        minHeight: 34,
+        flexWrap: "wrap"
     },
     sub_header: {
         fontWeight: "bold",
         fontSize: 22,
         paddingTop: 24,
-        paddingBottom: 4
+        paddingBottom: 4,
+        lineHeight: 30,
+        minHeight: 30,
+        flexWrap: "wrap"
     },
     sub_sub_header: {
         fontWeight: "bold",
         fontSize: 18,
         paddingTop: 20,
-        paddingBottom: 4
+        paddingBottom: 4,
+        lineHeight: 26,
+        minHeight: 26,
+        flexWrap: "wrap"
     }
 });

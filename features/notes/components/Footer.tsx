@@ -57,10 +57,11 @@ export default function Footer({
                             <Pressable
                                 onPress={() => {
                                     if (activeTab) {
-                                        setActiveTab(null);
-                                        setShowSoftInputOnFocus(true);
                                         focusedBlockRef.current.focus();
-                                        //
+                                        requestAnimationFrame(() => {
+                                            setActiveTab(null);
+                                            setShowSoftInputOnFocus(true);
+                                        });
                                     } else {
                                         Keyboard.dismiss();
                                         setShowSoftInputOnFocus(true);
