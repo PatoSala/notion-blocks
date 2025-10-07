@@ -103,6 +103,7 @@ export default function NoteScreen() {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
+        // If splitting root block, insert new text block below
         if (block.id === pageId) {
             const newBlock = new Block({
                 type: "text",
@@ -129,13 +130,14 @@ export default function NoteScreen() {
             });
         } else {
             const updatedBlock = updateBlock(block, {
-                type: "text",
+                type: selection.start === 0 && selection.end === 0 ? block.type : "text",
                 properties: {
                     title: textAfterSelection
                 }
             });
+            // Will be inserted before the source block, pushing the source block down
             const newBlock = new Block({
-                type: block.type,
+                type: selection.start === 0 && selection.end === 0 ? "text" : block.type,
                 properties: {
                     title: textBeforeSelection
                 },
@@ -156,6 +158,16 @@ export default function NoteScreen() {
         }
     }
 
+    /**
+     * 
+     * @param block 
+     * @returns 
+     * 
+     * Merge block with the block text before it.
+     * Appends the text from the target block at the beginning of the source block.
+     * The source block type will be replaced with the target block type.
+     * Last of all, the target block is removed.
+     */
     function mergeBlock(block: Block) {
         const sourceBlock = block;
         const parentBlock = blocks[sourceBlock.parent];
@@ -273,33 +285,11 @@ export default function NoteScreen() {
         const currentBlockIndex = parentBlock.content?.indexOf(blockId);
         const isFirstChild = currentBlockIndex === 0;
         const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
-       
-        
-        /**
-         * If prev block is empty and currentBlock is not first child, remove prev block.
-         */
-        if (event.nativeEvent.key === "Backspace" && !isFirstChild && blocks[prevBlockId].properties.title.length === 0) {
-            removeBlock(prevBlockId);
-
-            return;
-        }
-        /**
-         * If block is empty, remove block and focus previous block.
-         */
-        if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length === 0) {
-            
-            removeBlock(blockId);
-            // Focus previous block
-            requestAnimationFrame(() => {
-                refs.current[prevBlockId]?.current.focus();
-            });
-            return;
-        }
 
         /**
          * If block is not empty and cursor is at start, merge block with previous block.
          */
-        if (event.nativeEvent.key === "Backspace" && blocks[blockId].properties.title.length > 0 && (selection.start === 0 && selection.end === 0)) {
+        if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
             const { prevTitle, newTitle, mergeResult } = mergeBlock(blocks[blockId]);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
@@ -314,6 +304,7 @@ export default function NoteScreen() {
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
+        // If block is current page (root block)
         if (block.type === "page" && block.id === pageId) {
             // Handle differently
             splitBlock(block, selection);
@@ -417,7 +408,7 @@ export default function NoteScreen() {
         >
             
             <ScrollView
-                contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top }}
+                contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
                 keyboardShouldPersistTaps="always"
             >
                 <BlockElement

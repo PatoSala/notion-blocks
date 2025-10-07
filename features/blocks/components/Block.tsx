@@ -79,6 +79,7 @@ const BlockElement = memo(({
                 smartInsertDelete={false}
                 onFocus={onFocus}
                 selection={selection}
+                selectTextOnFocus={false}
                 onSubmitEditing={(event) => {
                     handleSubmitEditing && handleSubmitEditing(block, selection);
                 }}
@@ -94,8 +95,7 @@ export default BlockElement;
 
 const styles = StyleSheet.create({
     container: {
-        paddingLeft: 8,
-        minHeight: 44,
+        paddingHorizontal: 8,
         justifyContent: "center"
     },
     page: {
@@ -104,7 +104,8 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 16,
-        fontWeight: "normal"
+        fontWeight: "normal",
+        paddingVertical: 6
     },
     header: {
         fontWeight: "bold",
