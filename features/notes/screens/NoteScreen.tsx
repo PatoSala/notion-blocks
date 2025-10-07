@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
     StyleSheet,
     ScrollView,
@@ -7,9 +7,10 @@ import {
     Platform,
     Keyboard,
     View,
-    Text
+    Text,
+    FlatList
 } from "react-native";
-import { useState } from "react";
+import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
 import { blocksData } from "../utils/initialBlocks";
@@ -33,6 +34,31 @@ export default function NoteScreen() {
 
     /** Editor configs */
     const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(false);
+    const footerActions = [
+        {
+            title: "add-block",
+            onPress: () => setAddBlockMenuOpen(true),
+            Icon:  <Ionicons name="add-outline" size={24} color="black" />
+        },
+        {
+            title: "turn-block-into",
+            onPress: () => setTurnBlockIntoMenuOpen(true),
+            Icon:  <Ionicons name="repeat-outline" size={24} color="black" />
+        },
+        {
+            title: "close-all-menus",
+            onPress: () => {
+                setAddBlockMenuOpen(false);
+                setTurnBlockIntoMenuOpen(false);
+            },
+            Icon:  <Ionicons name="close-circle-outline" size={24} color="black" />
+        },
+        {
+            title: "keyboard-hide",
+            onPress: () => Keyboard.dismiss(),
+            Icon:  <MaterialCommunityIcons name="keyboard-close-outline" size={24} color="black" />
+        }
+    ]
 
     /** Editor state actions */
     function registerRef(blockId: string, ref: any) {
@@ -427,7 +453,8 @@ export default function NoteScreen() {
 
             <Footer 
                 hidden={!(isKeyboardOpen || addBlockMenuOpen || turnBlockIntoMenuOpen)}
-                openAddBlockMenu={() => {
+                actions={footerActions}
+                /* openAddBlockMenu={() => {
                     setShowSoftInputOnFocus(false);
                     setAddBlockMenuOpen(true);
                     setTurnBlockIntoMenuOpen(false);
@@ -449,8 +476,9 @@ export default function NoteScreen() {
                     setShowSoftInputOnFocus(true);
                     setAddBlockMenuOpen(false);
                     setTurnBlockIntoMenuOpen(false);
-                }}
+                }} */
             />
+            
             {addBlockMenuOpen && (
                 <View style={[styles.blockOptionsContainer, {
                     height: keyboardHeight,

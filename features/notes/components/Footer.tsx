@@ -1,12 +1,10 @@
-import { View, Text, StyleSheet, Pressable, Keyboard } from "react-native";
+import { View, Text, StyleSheet, Pressable, Keyboard, FlatList } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 
 export default function Footer({
     hidden,
     style,
-    openAddBlockMenu,
-    openTurnBlockIntoMenu,
-    closeAllMenus
+    actions
 }) {
     return (
         <View style={[styles.container, style, {
@@ -14,33 +12,18 @@ export default function Footer({
             position: !hidden ? "relative" : "absolute",
             bottom: !hidden ? 0 : -44
         }]}>
-            <Pressable
-                onPress={() => openAddBlockMenu()}
-                style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
-            >
-                <MaterialIcons name="add" size={24} color="black" />
-            </Pressable>
-
-            <Pressable
-                onPress={() => openTurnBlockIntoMenu()}
-                style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
-            >
-                <FontAwesome6 name="arrows-rotate" size={24} color="black" />
-            </Pressable>
-
-            <Pressable
-                onPress={() => Keyboard.dismiss()}
-                style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
-            >
-                <MaterialCommunityIcons name="keyboard-close-outline" size={24} color="black" />
-            </Pressable>
-
-            <Pressable
-                onPress={() => closeAllMenus()}
-                style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
-            >
-                <Ionicons name="close-circle-outline" size={24} color="black" />
-            </Pressable>
+            <FlatList
+                horizontal
+                contentContainerStyle={{
+                    flexGrow: 1
+                }}
+                data={actions}
+                renderItem={({ item }) => (
+                    <Pressable onPress={item.onPress} style={styles.button}>
+                        {item.Icon}
+                    </Pressable>
+                )}
+            />
         </View>
     )
 }
