@@ -14,6 +14,7 @@ import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
 import { blocksData } from "../utils/initialBlocks";
+import { sampleData } from "../utils/sampleData";
 import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
 import Footer from "../components/Footer";
@@ -25,15 +26,10 @@ const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
     const refs = useRef({}); // TextInputs refs
-    const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
-    const [editorActions, setEditorActions] = useState({});
     const pageId : string = "1";
-    const [blocks, setBlocks] = useState(blocksData);
+    const [blocks, setBlocks] = useState(sampleData);
     const rootBlock : Block = blocks[pageId];
     const [focusedBlockId, setFocusedBlockId] = useState(null);
-
-    const [addBlockMenuOpen, setAddBlockMenuOpen] = useState(false);
-    const [turnBlockIntoMenuOpen, setTurnBlockIntoMenuOpen] = useState(false);
 
     /** Editor configs */
     const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(true);
@@ -406,31 +402,16 @@ export default function NoteScreen() {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            
-            <ScrollView
+            <FlatList
                 contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
+                data={rootBlock.content}
                 keyboardShouldPersistTaps="always"
-            >
-                <BlockElement
-                    blockId={pageId}
-                    block={rootBlock}
-                    title={rootBlock.properties.title}
-                    handleOnChangeText={handleOnChangeText}
-                    handleSubmitEditing={handleSubmitEditing}
-                    registerRef={registerRef}
-                    showSoftInputOnFocus={showSoftInputOnFocus}
-                    unregisterRef={unregisterRef}
-                    onFocus={() => {
-                        setFocusedBlockId(rootBlock.id);
-                    }}
-                />
-
-                {rootBlock.content.length > 0 && rootBlock.content.map((blockId: string) => {
+                extraData={rootBlock.content}
+                ListHeaderComponent={() => {
                     return <BlockElement
-                        key={blockId}
-                        blockId={blockId}
-                        block={blocks[blockId]}
-                        title={blocks[blockId].properties.title}
+                        blockId={pageId}
+                        block={rootBlock}
+                        title={rootBlock.properties.title}
                         handleOnChangeText={handleOnChangeText}
                         handleSubmitEditing={handleSubmitEditing}
                         handleOnKeyPress={handleOnKeyPress}
@@ -438,18 +419,40 @@ export default function NoteScreen() {
                         registerRef={registerRef}
                         unregisterRef={unregisterRef}
                         onFocus={() => {
-                            setFocusedBlockId(blockId);
+                            setFocusedBlockId(rootBlock.id);
                         }}
                     />
-                })}
-                
-                <Pressable
-                    style={{
-                        flex: 1,
-                    }}
-                    onPress={handleNewLineBlock}
-                />
-            </ScrollView>
+                }}
+                renderItem={({ item }) => {
+                    const blockId = item;
+                    return (
+                        <BlockElement
+                            key={blockId}
+                            blockId={blockId}
+                            block={blocks[blockId]}
+                            title={blocks[blockId].properties.title}
+                            handleOnChangeText={handleOnChangeText}
+                            handleSubmitEditing={handleSubmitEditing}
+                            handleOnKeyPress={handleOnKeyPress}
+                            showSoftInputOnFocus={showSoftInputOnFocus}
+                            registerRef={registerRef}
+                            unregisterRef={unregisterRef}
+                            onFocus={() => {
+                                setFocusedBlockId(blockId);
+                            }}
+                        />
+                    )
+                }}
+                ListFooterComponent={() => (
+                    <Pressable
+                        style={{
+                            flexGrow: 1,
+                            height: "100%",
+                        }}
+                        onPress={handleNewLineBlock}
+                    />
+                )}
+            />
 
             <Footer 
                 actions={footerActions}

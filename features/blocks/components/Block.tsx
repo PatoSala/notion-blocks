@@ -70,7 +70,7 @@ const BlockElement = memo(({
                 value={title}
                 cursorColor={"black"}
                 selectionColor={"black"}
-                submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
+                submitBehavior="newline" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
                     handleOnChangeText && handleOnChangeText(blockId, text);
                 }}
@@ -87,6 +87,7 @@ const BlockElement = memo(({
                     handleSubmitEditing && handleSubmitEditing(block, selection);
                 }}
                 onKeyPress={(event) => {
+                    event.nativeEvent.key === "Submit" ? handleSubmitEditing && handleSubmitEditing(block, selection) : null;
                     handleOnKeyPress && handleOnKeyPress(event, blockId, selection);
                 }}
             />
