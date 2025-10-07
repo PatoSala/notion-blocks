@@ -8,26 +8,21 @@ export function useKeyboardStatus() {
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
         'keyboardDidShow',
-        () => {
-            setIsKeyboardOpen(true); // Keyboard is open
+        (e) => {
+            setIsKeyboardOpen(true);
+            setKeyboardHeight(e.endCoordinates.height);
         }
         );
         const keyboardDidHideListener = Keyboard.addListener(
         'keyboardDidHide',
         () => {
-            setIsKeyboardOpen(false); // Keyboard is closed
+            setIsKeyboardOpen(false);
         }
         );
-        const getKeyboardHeightListener = Keyboard.addListener('keyboardDidShow', (e) => {
-            setKeyboardHeight(e.endCoordinates.height);
-        });
-        
 
-        // Clean up listeners on component unmount
         return () => {
             keyboardDidShowListener.remove();
             keyboardDidHideListener.remove();
-            getKeyboardHeightListener.remove();
         };
     }, []);
 

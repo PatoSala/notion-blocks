@@ -76,6 +76,7 @@ const BlockElement = memo(({
                     setSelection(nativeEvent.selection);
                 }}
                 showSoftInputOnFocus={showSoftInputOnFocus}
+                smartInsertDelete={false}
                 onFocus={onFocus}
                 selection={selection}
                 onSubmitEditing={(event) => {

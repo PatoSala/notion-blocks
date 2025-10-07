@@ -1,30 +1,103 @@
+import { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Keyboard, FlatList } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
+import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
+
+import InsertBlockSection from "./tabs/InsertBlockSection";
+import ReplaceBlockSection from "./tabs/ReplaceBlockSection";
 
 export default function Footer({
-    hidden,
     style,
-    actions
+    actions,
+    setShowSoftInputOnFocus,
+    focusedBlockRef,
+    focusedBlockId,
+    handleInsertBlock,
+    handleTurnBlockInto
 }) {
+    const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
+
+    const [activeTab, setActiveTab] = useState(null);
+    const shouldBeHidden = isKeyboardOpen === false && activeTab === null;
+
     return (
-        <View style={[styles.container, style, {
-             width: "100%",
-            position: !hidden ? "relative" : "absolute",
-            bottom: !hidden ? 0 : -44
-        }]}>
-            <FlatList
-                horizontal
-                contentContainerStyle={{
-                    flexGrow: 1
-                }}
-                data={actions}
-                renderItem={({ item }) => (
-                    <Pressable onPress={item.onPress} style={styles.button}>
-                        {item.Icon}
-                    </Pressable>
-                )}
-            />
-        </View>
+        <>
+            <View style={[styles.container, style, {
+                width: "100%",
+                position: shouldBeHidden ? "absolute" : "relative",
+                bottom: shouldBeHidden ? -44 : 0
+            }]}>
+                <FlatList
+                    horizontal
+                    contentContainerStyle={{
+                        flexGrow: 1
+                    }}
+                    keyboardShouldPersistTaps="always"
+                    data={actions}
+                    renderItem={({ item, index }) => (
+                        <Pressable
+                            key={index}
+                            onPress={() => {
+                                setActiveTab(item.key);
+                                item.onPress();
+                            }}
+                            style={({ pressed }) => [
+                                styles.button,
+                                {
+                                    backgroundColor: activeTab === item.key ? "#f1f1f1" : "transparent",
+                                    opacity: pressed ? 0.5 : 1
+                                }
+                            ]}
+                        >
+                            {item.Icon}
+                        </Pressable>
+                    )}
+                    ListFooterComponent={() => (
+                        <>
+                            <Pressable
+                                onPress={() => {
+                                    if (activeTab) {
+                                        setActiveTab(null);
+                                        setShowSoftInputOnFocus(true);
+                                        focusedBlockRef.current.focus();
+                                        //
+                                    } else {
+                                        Keyboard.dismiss();
+                                        setShowSoftInputOnFocus(true);
+                                    }
+                                }}
+                                style={({ pressed }) => [
+                                    styles.button,
+                                    {
+                                        opacity: pressed ? 0.5 : 1
+                                    }
+                                ]}
+                            >
+                                {activeTab
+                                ? (
+                                    <Ionicons name="close-circle-outline" size={24} color="black" />
+                                )
+                                : (
+                                    <MaterialCommunityIcons name="keyboard-close-outline" size={24} color="black" />
+                                )}
+                            </Pressable>
+                        </>
+                    )}
+                />
+            </View>
+            {activeTab && (
+                <View style={[styles.tabSectionContainer, { height: keyboardHeight }]}>
+                    {activeTab === "add-block" ? <InsertBlockSection
+                        focusedBlockId={focusedBlockId}
+                        handleInsertBlock={handleInsertBlock}
+                    /> : null}
+                    {activeTab === "turn-block-into" ? <ReplaceBlockSection
+                        focusedBlockId={focusedBlockId}
+                        handleTurnBlockInto={handleTurnBlockInto}
+                    /> : null}
+                </View>
+            )}
+        </>
     )
 }
 
@@ -38,6 +111,10 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+    },
+    tabSectionContainer: {
+        backgroundColor: "#f5f5f5",
+        padding: 16
     }
 });

@@ -19,9 +19,12 @@ import BlockElement from "../../blocks/components/Block";
 import Footer from "../components/Footer";
 import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
 
+// Temporary
+const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
+
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
-    const refs = useRef({});
+    const refs = useRef({}); // TextInputs refs
     const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
     const [editorActions, setEditorActions] = useState({});
     const pageId : string = "1";
@@ -33,30 +36,32 @@ export default function NoteScreen() {
     const [turnBlockIntoMenuOpen, setTurnBlockIntoMenuOpen] = useState(false);
 
     /** Editor configs */
-    const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(false);
+    const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(true);
     const footerActions = [
         {
-            title: "add-block",
-            onPress: () => setAddBlockMenuOpen(true),
+            key: "add-block",
+            onPress: () => {
+                /* setAddBlockMenuOpen(true); */
+                Keyboard.dismiss();
+                setShowSoftInputOnFocus(false);
+                requestAnimationFrame(() => {
+                    refs.current[focusedBlockId]?.current.focus();
+                });
+            },
             Icon:  <Ionicons name="add-outline" size={24} color="black" />
         },
         {
-            title: "turn-block-into",
-            onPress: () => setTurnBlockIntoMenuOpen(true),
-            Icon:  <Ionicons name="repeat-outline" size={24} color="black" />
-        },
-        {
-            title: "close-all-menus",
+            key: "turn-block-into",
             onPress: () => {
-                setAddBlockMenuOpen(false);
-                setTurnBlockIntoMenuOpen(false);
+                /* setTurnBlockIntoMenuOpen(true);
+                setAddBlockMenuOpen(false); */
+                Keyboard.dismiss();
+                setShowSoftInputOnFocus(false);
+                requestAnimationFrame(() => {
+                    refs.current[focusedBlockId]?.current.focus();
+                });
             },
-            Icon:  <Ionicons name="close-circle-outline" size={24} color="black" />
-        },
-        {
-            title: "keyboard-hide",
-            onPress: () => Keyboard.dismiss(),
-            Icon:  <MaterialCommunityIcons name="keyboard-close-outline" size={24} color="black" />
+            Icon:  <Ionicons name="repeat-outline" size={24} color="black" />
         }
     ]
 
@@ -124,12 +129,13 @@ export default function NoteScreen() {
             });
         } else {
             const updatedBlock = updateBlock(block, {
+                type: "text",
                 properties: {
                     title: textAfterSelection
                 }
             });
             const newBlock = new Block({
-                type: "text",
+                type: block.type,
                 properties: {
                     title: textBeforeSelection
                 },
@@ -195,6 +201,7 @@ export default function NoteScreen() {
 
             /** Update source block  */
             const updatedSourceBlock = updateBlock(sourceBlock, {
+                type: targetBlock.type,
                 properties: {
                     title: targetBlockText + sourceBlockText
                 }
@@ -322,7 +329,7 @@ export default function NoteScreen() {
             return;
         }
 
-        if (block.type === "text") {
+        if (textBasedBlockTypes.includes(block.type)) {
             splitBlock(block, selection);
             
             /** 
@@ -420,6 +427,7 @@ export default function NoteScreen() {
                     handleOnChangeText={handleOnChangeText}
                     handleSubmitEditing={handleSubmitEditing}
                     registerRef={registerRef}
+                    showSoftInputOnFocus={showSoftInputOnFocus}
                     unregisterRef={unregisterRef}
                     onFocus={() => {
                         setFocusedBlockId(rootBlock.id);
@@ -435,6 +443,7 @@ export default function NoteScreen() {
                         handleOnChangeText={handleOnChangeText}
                         handleSubmitEditing={handleSubmitEditing}
                         handleOnKeyPress={handleOnKeyPress}
+                        showSoftInputOnFocus={showSoftInputOnFocus}
                         registerRef={registerRef}
                         unregisterRef={unregisterRef}
                         onFocus={() => {
@@ -452,108 +461,13 @@ export default function NoteScreen() {
             </ScrollView>
 
             <Footer 
-                hidden={!(isKeyboardOpen || addBlockMenuOpen || turnBlockIntoMenuOpen)}
                 actions={footerActions}
-                /* openAddBlockMenu={() => {
-                    setShowSoftInputOnFocus(false);
-                    setAddBlockMenuOpen(true);
-                    setTurnBlockIntoMenuOpen(false);
-                    requestAnimationFrame(() => {
-                        refs.current[focusedBlockId]?.current.focus();
-                        Keyboard.dismiss();
-                    })
-                }}
-                openTurnBlockIntoMenu={() => {
-                    setShowSoftInputOnFocus(false);
-                    setTurnBlockIntoMenuOpen(true);
-                    setAddBlockMenuOpen(false);
-                    requestAnimationFrame(() => {
-                        refs.current[focusedBlockId]?.current.focus();
-                        Keyboard.dismiss();
-                    })
-                }}
-                closeAllMenus={() => {
-                    setShowSoftInputOnFocus(true);
-                    setAddBlockMenuOpen(false);
-                    setTurnBlockIntoMenuOpen(false);
-                }} */
+                setShowSoftInputOnFocus={setShowSoftInputOnFocus}
+                focusedBlockRef={refs.current[focusedBlockId]}
+                focusedBlockId={focusedBlockId}
+                handleInsertBlock={handleInsertNewBlock}
+                handleTurnBlockInto={handleTurnBlockInto}
             />
-            
-            {addBlockMenuOpen && (
-                <View style={[styles.blockOptionsContainer, {
-                    height: keyboardHeight,
-                }]}>
-                    <View style={styles.blockOptionsRow}>
-                        <Text>Blocks</Text>
-                    </View>
-
-                    <View style={styles.blockOptionsRow}>
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "text")}>
-                            <Text>Text</Text>
-                        </Pressable>
-
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "header")}>
-                            <Text>Heading 1</Text>
-                        </Pressable>
-                    </View>
-
-                    <View style={styles.blockOptionsRow}>
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "sub_header")}>
-                            <Text>Heading 2</Text>
-                        </Pressable>
-
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "sub_sub_header")}>
-                            <Text>Heading 3</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            )}
-
-            {turnBlockIntoMenuOpen && (
-                <View style={[styles.blockOptionsContainer, {
-                    height: keyboardHeight,
-                }]}>
-                    <View style={styles.blockOptionsRow}>
-                        <Text>Turn into</Text>
-                    </View>
-
-                    <View style={styles.blockOptionsRow}>
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "text")}>
-                            <Text>Text</Text>
-                        </Pressable>
-
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "header")}>
-                            <Text>Heading 1</Text>
-                        </Pressable>
-                    </View>
-
-                    <View style={styles.blockOptionsRow}>
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "sub_header")}>
-                            <Text>Heading 2</Text>
-                        </Pressable>
-
-                        <Pressable style={({ pressed}) => ([{
-                            opacity: pressed ? 0.5 : 1
-                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "sub_sub_header")}>
-                            <Text>Heading 3</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            )}
         </KeyboardAvoidingView>
 
     )
