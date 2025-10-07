@@ -14,6 +14,7 @@ interface Props {
     registerRef?: (blockId: string, ref: any) => void;
     unregisterRef?: (blockId: string) => void;
     selectionState?: { start: number, end: number };
+    showSoftInputOnFocus?: boolean;
 }
 
 const BlockElement = memo(({
@@ -27,6 +28,7 @@ const BlockElement = memo(({
     handleOnKeyPress,
     registerRef,
     unregisterRef,
+    showSoftInputOnFocus
 } : Props) => {
     const ref = useRef<TextInput>(null);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
@@ -73,6 +75,7 @@ const BlockElement = memo(({
                     // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
                     setSelection(nativeEvent.selection);
                 }}
+                showSoftInputOnFocus={showSoftInputOnFocus}
                 onFocus={onFocus}
                 selection={selection}
                 onSubmitEditing={(event) => {
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     page: {
-        fontSize: 28,
+        fontSize: 30,
         fontWeight: "800"
     },
     text: {

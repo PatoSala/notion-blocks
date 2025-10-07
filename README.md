@@ -2,4 +2,4 @@
 
 # React Native Blocks
 
-A block based text editor fully built with react-native. Inspired by [the data model behind Notion’s flexibility.](https://www.notion.com/blog/data-model-behind-notion)
+A block based text editor built entirely with React Native. Inspired by [the data model behind Notion’s flexibility.](https://www.notion.com/blog/data-model-behind-notion)

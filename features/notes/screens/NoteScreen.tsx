@@ -23,11 +23,16 @@ export default function NoteScreen() {
     const refs = useRef({});
     const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
     const [editorActions, setEditorActions] = useState({});
-    const [addBlockMenuOpen, setAddBlockMenuOpen] = useState(false);
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(blocksData);
     const rootBlock : Block = blocks[pageId];
     const [focusedBlockId, setFocusedBlockId] = useState(null);
+
+    const [addBlockMenuOpen, setAddBlockMenuOpen] = useState(false);
+    const [turnBlockIntoMenuOpen, setTurnBlockIntoMenuOpen] = useState(false);
+
+    /** Editor configs */
+    const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(false);
 
     /** Editor state actions */
     function registerRef(blockId: string, ref: any) {
@@ -39,6 +44,10 @@ export default function NoteScreen() {
     }
 
     /** Block actions */
+
+    /**
+     * Note: Currently the function below it's only insering into the root block.
+     */
     function insertBlock(newBlock: Block) {
         const updatedBlock = updateBlock(blocks[pageId], {
             content: insertBlockIdIntoContent(blocks[pageId].content, newBlock.id, {})
@@ -204,6 +213,17 @@ export default function NoteScreen() {
 
     function moveBlocks() {}
 
+    /**
+     * Note: Only text based blocks can be turned into other block types.
+     */
+    function turnBlockInto(blockId: string, blockType: string) {
+        const updatedBlock = updateBlock(blocks[blockId], {
+            type: blockType
+        });
+        setBlocks({ ...blocks, [blockId]: updatedBlock });
+        return updatedBlock;
+    }
+
     /** Event handlers */
     function handleOnChangeText(blockId: string, text: string) {
         const updatedBlock = updateBlock(blocks[blockId], {
@@ -318,6 +338,7 @@ export default function NoteScreen() {
         }
     }
 
+    /* Editor actions */
     const handleInsertNewBlock = (prevBlockId: string, blockType: string) => {
         const newBlock = new Block({
             type: blockType,
@@ -345,6 +366,14 @@ export default function NoteScreen() {
         // Focus new block
         requestAnimationFrame(() => {
             refs.current[newBlock.id]?.current.focus();
+        });
+    }
+
+    const handleTurnBlockInto = (blockId: string, blockType: string) => {
+        const updatedBlock = turnBlockInto(blockId, blockType);
+        // Focus new block
+        requestAnimationFrame(() => {
+            refs.current[updatedBlock.id]?.current.focus();
         });
     }
 
@@ -397,14 +426,29 @@ export default function NoteScreen() {
             </ScrollView>
 
             <Footer 
-                style={{
-                    width: "100%",
-                    position: isKeyboardOpen || addBlockMenuOpen ? "relative" : "absolute",
-                    bottom: isKeyboardOpen || addBlockMenuOpen ? 0 : -44
-                }}
+                hidden={!(isKeyboardOpen || addBlockMenuOpen || turnBlockIntoMenuOpen)}
                 openAddBlockMenu={() => {
+                    setShowSoftInputOnFocus(false);
                     setAddBlockMenuOpen(true);
-                    Keyboard.dismiss();
+                    setTurnBlockIntoMenuOpen(false);
+                    requestAnimationFrame(() => {
+                        refs.current[focusedBlockId]?.current.focus();
+                        Keyboard.dismiss();
+                    })
+                }}
+                openTurnBlockIntoMenu={() => {
+                    setShowSoftInputOnFocus(false);
+                    setTurnBlockIntoMenuOpen(true);
+                    setAddBlockMenuOpen(false);
+                    requestAnimationFrame(() => {
+                        refs.current[focusedBlockId]?.current.focus();
+                        Keyboard.dismiss();
+                    })
+                }}
+                closeAllMenus={() => {
+                    setShowSoftInputOnFocus(true);
+                    setAddBlockMenuOpen(false);
+                    setTurnBlockIntoMenuOpen(false);
                 }}
             />
             {addBlockMenuOpen && (
@@ -439,6 +483,44 @@ export default function NoteScreen() {
                         <Pressable style={({ pressed}) => ([{
                             opacity: pressed ? 0.5 : 1
                         }, styles.blockOptions])} onPress={() => handleInsertNewBlock(focusedBlockId, "sub_sub_header")}>
+                            <Text>Heading 3</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            )}
+
+            {turnBlockIntoMenuOpen && (
+                <View style={[styles.blockOptionsContainer, {
+                    height: keyboardHeight,
+                }]}>
+                    <View style={styles.blockOptionsRow}>
+                        <Text>Turn into</Text>
+                    </View>
+
+                    <View style={styles.blockOptionsRow}>
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "text")}>
+                            <Text>Text</Text>
+                        </Pressable>
+
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "header")}>
+                            <Text>Heading 1</Text>
+                        </Pressable>
+                    </View>
+
+                    <View style={styles.blockOptionsRow}>
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "sub_header")}>
+                            <Text>Heading 2</Text>
+                        </Pressable>
+
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "sub_sub_header")}>
                             <Text>Heading 3</Text>
                         </Pressable>
                     </View>
