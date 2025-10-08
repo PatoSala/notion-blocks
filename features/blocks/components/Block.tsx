@@ -65,6 +65,7 @@ const BlockElement = memo(({
         <View style={[styles.container]}>
             <TextInput
                 ref={ref}
+                scrollEnabled={false}
                 style={styles[block.type]}
                 multiline
                 value={title}
