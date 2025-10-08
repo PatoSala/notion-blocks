@@ -30,33 +30,45 @@ const BlockElement = memo(({
     unregisterRef,
     showSoftInputOnFocus
 } : Props) => {
+    console.log("Rendering block", block.id);
     const ref = useRef<TextInput>(null);
-    const [selection, setSelection] = useState({ start: 0, end: 0 });
+    /* const [selection, setSelection] = useState({ start: 0, end: 0 }); */
+
+    const selectionRef = useRef({ start: 0, end: 0 });
 
     const api = {
         current: {
             focus: () => {
                 ref.current?.focus();
             },
-            focusWithSelection: (selection: { start: number; end: number }) => {
-                console.log("Setting selection...", selection);
+            focusWithSelection: (selection: { start: number; end: number }, text?: string) => {
+                /* console.log("Setting selection...", selection); */
                 /** 
                  * The following comment was of help:
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
                  * Setting selection before focusing prevents the cursor from reseting when value changes.
                  * */
-                setSelection(selection);
+                /* setSelection(selection); */
                 setTimeout(() => {
                     ref.current?.focus();
                     ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
+                    selectionRef.current = selection;
                 }, 0);
             }
         }
     };
 
     useEffect(() => {
+        console.log("Block mounted", blockId);
+        // Synx native input with state
+        /* ref.current?.setNativeProps({ text: block.properties.title }); */
+
+        // Register ref on block mount. This will allow us to set focus/selection from the parent.
         registerRef && registerRef(blockId, api);
-        
+        selectionRef.current = {
+            start: block.properties.title.length,
+            end: block.properties.title.length
+        }
         return () => {
             unregisterRef && unregisterRef(blockId);
         };
@@ -69,31 +81,34 @@ const BlockElement = memo(({
                 scrollEnabled={false}
                 style={styles[block.type]}
                 multiline
-                value={title}
+                value={block.properties.title}
                 cursorColor={"black"}
                 selectionColor={"black"}
                 submitBehavior="newline" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
+                    console.log("onChangeText", text);
                     handleOnChangeText && handleOnChangeText(blockId, text);
                 }}
                 onSelectionChange={({ nativeEvent }) => {
                     console.log("onSelectionChange", nativeEvent.selection);
+                    selectionRef.current = nativeEvent.selection;
+                    console.log("selectionRef.current", selectionRef.current);
                     // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
-                    setSelection(nativeEvent.selection);
+                    /* setSelection(nativeEvent.selection); */
                 }}
                 showSoftInputOnFocus={showSoftInputOnFocus}
                 smartInsertDelete={false}
                 onFocus={onFocus}
-                selection={selection}
                 selectTextOnFocus={false}
-                onSubmitEditing={(event) => {
-                    handleSubmitEditing && handleSubmitEditing(block, selection);
-                }}
+                /* onSubmitEditing={(event) => {
+                    handleSubmitEditing && handleSubmitEditing(block, selectionRef.current);
+                }} */
                 onKeyPress={(event) => {
-                    event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selection) : null;
-                    event.nativeEvent.key === "Backspace" ? handleOnKeyPress && handleOnKeyPress(event, blockId, selection) : null;
+                    event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selectionRef.current) : null;
+                    event.nativeEvent.key === "Backspace" ? handleOnKeyPress && handleOnKeyPress(event, blockId, selectionRef.current) : null;
                 }}
-            />
+            >
+            </TextInput>
         </View>
     )
 })

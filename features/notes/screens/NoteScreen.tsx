@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import {
     StyleSheet,
     ScrollView,
@@ -302,7 +302,7 @@ export default function NoteScreen() {
             const { prevTitle, newTitle, mergeResult } = mergeBlock(blocks[blockId]);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
-            console.log("New cursor position: ", newCursorPosition);
+            /* console.log("New cursor position: ", newCursorPosition); */
             requestAnimationFrame(() => {
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
@@ -314,7 +314,7 @@ export default function NoteScreen() {
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
-        console.log("Splitting block...", block.id, selection);
+        /* console.log("Splitting block...", block.id, selection); */
         // If block is current page (root block)
         if (block.type === "page" && block.id === pageId) {
             // Handle differently
@@ -422,12 +422,12 @@ export default function NoteScreen() {
                 contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
                 data={rootBlock.content}
                 keyboardShouldPersistTaps="always"
-                extraData={rootBlock.content}
                 ListHeaderComponent={() => {
                     return <BlockElement
+                        key={pageId}
                         blockId={pageId}
                         block={rootBlock}
-                        title={rootBlock.properties.title}
+                        /* title={rootBlock.properties.title} */
                         handleOnChangeText={handleOnChangeText}
                         handleSubmitEditing={handleSubmitEditing}
                         handleOnKeyPress={handleOnKeyPress}
@@ -446,7 +446,7 @@ export default function NoteScreen() {
                             key={blockId}
                             blockId={blockId}
                             block={blocks[blockId]}
-                            title={blocks[blockId].properties.title}
+                            /* title={blocks[blockId].properties.title} */
                             handleOnChangeText={handleOnChangeText}
                             handleSubmitEditing={handleSubmitEditing}
                             handleOnKeyPress={handleOnKeyPress}

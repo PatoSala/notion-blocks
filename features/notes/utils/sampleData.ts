@@ -16,7 +16,7 @@ export const sampleData : Record<string, IBlock> = {
         properties: {
             title: "Inspired by the data model behind Notion’s flexibility."
         },
-        content: ["2"],
+        content: [],
         parent: "1"
     },
     "3": {
