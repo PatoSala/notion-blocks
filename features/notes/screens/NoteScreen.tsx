@@ -94,6 +94,8 @@ export default function NoteScreen() {
      * Split block into two blocks.
      * A new block will be inserted before the source block with the text before the cursor.
      * The source block will be updated with the text after the cursor.
+     * 
+     * [Note: Review return statements]
      */
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
@@ -124,6 +126,12 @@ export default function NoteScreen() {
                 [block.id]: updatedParentBlock, // source and parent block
                 [newBlock.id]: newBlock // new block
             });
+
+            /** Review */
+            return {
+                splitResult: newBlock,
+                updatedBlock: updatedParentBlock
+            }
         } else {
             const updatedBlock = updateBlock(block, {
                 type: selection.start === 0 && selection.end === 0 ? block.type : "text",
@@ -151,6 +159,11 @@ export default function NoteScreen() {
                 [newBlock.id]: newBlock,    // new block
                 [block.parent]: updatedParentBlock // parent block
             });
+
+            /** Review */
+            return {
+                splitResult: updatedBlock,
+            }
         }
     }
 
@@ -228,7 +241,7 @@ export default function NoteScreen() {
 
             return {
                 prevTitle: sourceBlockText,
-                newTitle: targetBlockText + sourceBlockText,
+                newTitle: updatedSourceBlock.properties.title,
                 mergeResult: updatedSourceBlock
             }
         }
@@ -289,6 +302,7 @@ export default function NoteScreen() {
             const { prevTitle, newTitle, mergeResult } = mergeBlock(blocks[blockId]);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
+            console.log("New cursor position: ", newCursorPosition);
             requestAnimationFrame(() => {
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
@@ -300,6 +314,7 @@ export default function NoteScreen() {
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
+        console.log("Splitting block...", block.id, selection);
         // If block is current page (root block)
         if (block.type === "page" && block.id === pageId) {
             // Handle differently
@@ -317,7 +332,7 @@ export default function NoteScreen() {
         }
 
         if (textBasedBlockTypes.includes(block.type)) {
-            splitBlock(block, selection);
+            const { splitResult } = splitBlock(block, selection);
             
             /** 
              * In theory, If the new block is inserted before the current one focus wont be lost and should stay in the same position.
@@ -326,11 +341,12 @@ export default function NoteScreen() {
              * To mantain cursor position we need to set selection before focusing.
              */
             requestAnimationFrame(() => {
-                refs.current[block.id]?.current.focusWithSelection({
+                refs.current[splitResult.id]?.current.focusWithSelection({
                     start: 0,
                     end: 0
                 });
             });
+            return;
         }
     };
 

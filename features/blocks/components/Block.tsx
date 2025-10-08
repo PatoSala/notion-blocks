@@ -39,6 +39,7 @@ const BlockElement = memo(({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }) => {
+                console.log("Setting selection...", selection);
                 /** 
                  * The following comment was of help:
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
@@ -76,6 +77,7 @@ const BlockElement = memo(({
                     handleOnChangeText && handleOnChangeText(blockId, text);
                 }}
                 onSelectionChange={({ nativeEvent }) => {
+                    console.log("onSelectionChange", nativeEvent.selection);
                     // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
                     setSelection(nativeEvent.selection);
                 }}
@@ -89,7 +91,7 @@ const BlockElement = memo(({
                 }}
                 onKeyPress={(event) => {
                     event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selection) : null;
-                    handleOnKeyPress && handleOnKeyPress(event, blockId, selection);
+                    event.nativeEvent.key === "Backspace" ? handleOnKeyPress && handleOnKeyPress(event, blockId, selection) : null;
                 }}
             />
         </View>
