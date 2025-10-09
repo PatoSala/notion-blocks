@@ -28,7 +28,11 @@ export default function NoteScreen() {
     const refs = useRef({}); // TextInputs refs
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(sampleData);
+    console.log("--- blocks state ---")
+    console.log(Object.keys(blocks).forEach(block => console.log(block)));
     const rootBlock : Block = blocks[pageId];
+    console.log("--- root content ---")
+    console.log(rootBlock.content?.forEach(block => console.log(block)));
     const [focusedBlockId, setFocusedBlockId] = useState(null);
 
     /** Editor configs */
@@ -100,8 +104,6 @@ export default function NoteScreen() {
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
-        console.log(textBeforeSelection);
-        console.log(textAfterSelection);
 
         // If splitting root block, insert new text block below
         if (block.id === rootBlock.id) {
@@ -112,7 +114,6 @@ export default function NoteScreen() {
                 },
                 parent: block.id,
             });
-
             // Update parent block's content array (which is the current block in this case)
             const updatedParentBlock = updateBlock(block, {
                 properties: {
@@ -122,12 +123,17 @@ export default function NoteScreen() {
                     nextBlockId: block.content[0]
                 })
             });
-
             setBlocks({
                 ...blocks,
-                [block.id]: updatedParentBlock, // source and parent block
-                [newBlock.id]: newBlock // new block
+                [newBlock.id]: newBlock, // new block
+                [updatedParentBlock.id]: updatedParentBlock // source and parent block
             });
+
+            /* setBlocks({
+                ...blocks,
+                [newBlock.id]: newBlock, // new block
+                [block.id]: updatedParentBlock // source and parent block
+            }); */
 
             /** Review */
             return {
@@ -411,7 +417,7 @@ export default function NoteScreen() {
         />
     ), [rootBlock.properties.title]);
 
-    /* const renderItem = useCallback(({ item: blockId }) => (
+    const renderItem = useCallback(({ item: blockId }) => (
         <BlockElement
             key={blockId}
             blockId={blockId}
@@ -426,7 +432,7 @@ export default function NoteScreen() {
                 setFocusedBlockId(blockId);
             }}
         />
-    ), []); */
+    ), []);
 
     return (
         <KeyboardAvoidingView
@@ -457,9 +463,9 @@ export default function NoteScreen() {
                 ListFooterComponent={<Pressable
                         style={{
                             flexGrow: 1,
-                            height: "100%",
+                            height: "100%"
                         }}
-                        onPress={handleNewLineBlock}
+                        onPress={() => handleNewLineBlock()}
                     />}
             />
 

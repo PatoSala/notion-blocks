@@ -105,7 +105,6 @@ const BlockElement = memo(({
                     );
                 }}
                 onKeyPress={(event) => {
-                    /* event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selectionRef.current) : null; */
                     event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
                         event,
                         updateBlock(block, {
@@ -121,7 +120,7 @@ const BlockElement = memo(({
             </TextInput>
         </View>
     )
-})
+});
 
 export default BlockElement;
 
