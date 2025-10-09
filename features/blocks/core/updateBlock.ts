@@ -1,5 +1,10 @@
 import { Block } from "../interfaces/Block.interface";
 
+/**
+ * @param block Block to update
+ * @param updatedData Updated block data
+ * @returns Updated block
+ */
 export function updateBlock(block: Block, updatedData: Partial<Block>) {
     const updatedBlock = { ...block, ...updatedData };
     return updatedBlock;

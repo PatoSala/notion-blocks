@@ -288,14 +288,14 @@ export default function NoteScreen() {
         setBlocks({ ...blocks, [blockId]: updatedBlock });
     }
 
-    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string, selection: { start: number, end: number }) {
+    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, block: Block, selection: { start: number, end: number }) {
         console.log(selection)
-        if (blockId === pageId) return;
+        if (block.id === pageId) return;
         /**
          * If block is not empty and cursor is at start, merge block with previous block.
          */
         if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
-            const { prevTitle, newTitle, mergeResult } = mergeBlock(blocks[blockId]);
+            const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
             /* console.log("New cursor position: ", newCursorPosition); */

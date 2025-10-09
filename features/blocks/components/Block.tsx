@@ -1,6 +1,7 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo } from "react";
 import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
 import { Block } from "../interfaces/Block.interface";
+import { updateBlock } from "../core";
 
 interface Props {
     item: string;
@@ -35,7 +36,6 @@ const BlockElement = memo(({
     if (block === undefined) {
         return <Text>Block not found. Id: {blockId}</Text>
     }
-    console.log("Rendering block", block.properties.title);
     const ref = useRef<TextInput>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(block.properties.title);
@@ -88,22 +88,37 @@ const BlockElement = memo(({
                 showSoftInputOnFocus={showSoftInputOnFocus}
                 smartInsertDelete={false}
                 onFocus={onFocus}
-                
+                defaultValue={valueRef.current}
                 selectTextOnFocus={false}
-                /* onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)} */
+                onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
                 onSubmitEditing={() => {
                     // Find way to update block value when pressing submit
-                    handleOnChangeText && handleOnChangeText(blockId, valueRef.current);
+                    /* handleOnChangeText && handleOnChangeText(blockId, valueRef.current); */
                     
-                    handleSubmitEditing && handleSubmitEditing(block, selectionRef.current);
+                    handleSubmitEditing && handleSubmitEditing(
+                        updateBlock(block, {
+                            properties:
+                            { 
+                                title: valueRef.current
+                            }
+                        }),
+                        selectionRef.current
+                    );
                 }}
                 onKeyPress={(event) => {
-                    console.log(selectionRef.current);
                     /* event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selectionRef.current) : null; */
-                    event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(event, blockId, selectionRef.current) : null;
+                    event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
+                        event,
+                        updateBlock(block, {
+                            properties:
+                            { 
+                                title: valueRef.current
+                            }
+                        }),
+                        selectionRef.current
+                    ) : null;
                 }}
             >
-                {valueRef.current} {/* For some reason, this prevents text blinking on submit */}
             </TextInput>
         </View>
     )
