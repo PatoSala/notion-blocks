@@ -289,12 +289,8 @@ export default function NoteScreen() {
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, blockId: string, selection: { start: number, end: number }) {
-        const currentBlock = blocks[blockId];
-        const parentBlock = blocks[currentBlock.parent];
-        const currentBlockIndex = parentBlock.content?.indexOf(blockId);
-        const isFirstChild = currentBlockIndex === 0;
-        const prevBlockId = isFirstChild ? parentBlock.id : parentBlock.content[currentBlockIndex - 1];
-
+        console.log(selection)
+        if (blockId === pageId) return;
         /**
          * If block is not empty and cursor is at start, merge block with previous block.
          */
@@ -422,8 +418,7 @@ export default function NoteScreen() {
                 contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
                 data={rootBlock.content}
                 keyboardShouldPersistTaps="always"
-                ListHeaderComponent={() => {
-                    return <BlockElement
+                ListHeaderComponent={<BlockElement
                         key={pageId}
                         blockId={pageId}
                         block={rootBlock}
@@ -437,13 +432,13 @@ export default function NoteScreen() {
                         onFocus={() => {
                             setFocusedBlockId(rootBlock.id);
                         }}
-                    />
-                }}
+                    />}
                 renderItem={({ item }) => {
                     const blockId = item;
                     return (
                         <BlockElement
                             key={blockId}
+                            item={item}
                             blockId={blockId}
                             block={blocks[blockId]}
                             /* title={blocks[blockId].properties.title} */

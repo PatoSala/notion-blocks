@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
 import { Block } from "../interfaces/Block.interface";
 
 interface Props {
+    item: string;
     blockId: string;
     block: Block;
     title: string;
@@ -10,7 +11,7 @@ interface Props {
     onFocus?: () => void;
     handleSubmitEditing?: () => void;
     handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
-    handleOnChangeText?: (text: string) => void;
+    handleOnChangeText?: (blockId: string, text: string) => void;
     registerRef?: (blockId: string, ref: any) => void;
     unregisterRef?: (blockId: string) => void;
     selectionState?: { start: number, end: number };
@@ -30,11 +31,14 @@ const BlockElement = memo(({
     unregisterRef,
     showSoftInputOnFocus
 } : Props) => {
-    console.log("Rendering block", block.id);
-    const ref = useRef<TextInput>(null);
-    /* const [selection, setSelection] = useState({ start: 0, end: 0 }); */
 
-    const selectionRef = useRef({ start: 0, end: 0 });
+    if (block === undefined) {
+        return <Text>Block not found. Id: {blockId}</Text>
+    }
+    console.log("Rendering block", block.properties.title);
+    const ref = useRef<TextInput>(null);
+    const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
+    const valueRef = useRef(block.properties.title);
 
     const api = {
         current: {
@@ -42,33 +46,24 @@ const BlockElement = memo(({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }, text?: string) => {
-                /* console.log("Setting selection...", selection); */
                 /** 
                  * The following comment was of help:
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
                  * Setting selection before focusing prevents the cursor from reseting when value changes.
                  * */
-                /* setSelection(selection); */
-                setTimeout(() => {
-                    ref.current?.focus();
-                    ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
-                    selectionRef.current = selection;
-                }, 0);
+                ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
+                selectionRef.current = selection;
+                ref.current?.focus();
             }
         }
     };
 
     useEffect(() => {
-        console.log("Block mounted", blockId);
-        // Synx native input with state
-        /* ref.current?.setNativeProps({ text: block.properties.title }); */
+        // Sync native input with state
 
         // Register ref on block mount. This will allow us to set focus/selection from the parent.
         registerRef && registerRef(blockId, api);
-        selectionRef.current = {
-            start: block.properties.title.length,
-            end: block.properties.title.length
-        }
+        
         return () => {
             unregisterRef && unregisterRef(blockId);
         };
@@ -81,33 +76,34 @@ const BlockElement = memo(({
                 scrollEnabled={false}
                 style={styles[block.type]}
                 multiline
-                value={block.properties.title}
                 cursorColor={"black"}
                 selectionColor={"black"}
-                submitBehavior="newline" // Prevents keyboard from flickering when focusing a new block
+                submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
-                    console.log("onChangeText", text);
-                    handleOnChangeText && handleOnChangeText(blockId, text);
+                    valueRef.current = text;
                 }}
                 onSelectionChange={({ nativeEvent }) => {
-                    console.log("onSelectionChange", nativeEvent.selection);
                     selectionRef.current = nativeEvent.selection;
-                    console.log("selectionRef.current", selectionRef.current);
-                    // The problem is that even if selection is passed on mount, when the text is set on mount, the selection is lost
-                    /* setSelection(nativeEvent.selection); */
                 }}
                 showSoftInputOnFocus={showSoftInputOnFocus}
                 smartInsertDelete={false}
                 onFocus={onFocus}
+                
                 selectTextOnFocus={false}
-                /* onSubmitEditing={(event) => {
+                /* onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)} */
+                onSubmitEditing={() => {
+                    // Find way to update block value when pressing submit
+                    handleOnChangeText && handleOnChangeText(blockId, valueRef.current);
+                    
                     handleSubmitEditing && handleSubmitEditing(block, selectionRef.current);
-                }} */
+                }}
                 onKeyPress={(event) => {
-                    event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selectionRef.current) : null;
-                    event.nativeEvent.key === "Backspace" ? handleOnKeyPress && handleOnKeyPress(event, blockId, selectionRef.current) : null;
+                    console.log(selectionRef.current);
+                    /* event.nativeEvent.key === "Enter" ? handleSubmitEditing && handleSubmitEditing(block, selectionRef.current) : null; */
+                    event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(event, blockId, selectionRef.current) : null;
                 }}
             >
+                {valueRef.current} {/* For some reason, this prevents text blinking on submit */}
             </TextInput>
         </View>
     )
