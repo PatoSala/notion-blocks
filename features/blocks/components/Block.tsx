@@ -4,7 +4,6 @@ import { Block } from "../interfaces/Block.interface";
 import { updateBlock } from "../core";
 
 interface Props {
-    item: string;
     blockId: string;
     block: Block;
     title: string;

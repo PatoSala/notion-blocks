@@ -100,9 +100,11 @@ export default function NoteScreen() {
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
+        console.log(textBeforeSelection);
+        console.log(textAfterSelection);
 
         // If splitting root block, insert new text block below
-        if (block.id === pageId) {
+        if (block.id === rootBlock.id) {
             const newBlock = new Block({
                 type: "text",
                 properties: {
@@ -191,7 +193,7 @@ export default function NoteScreen() {
 
         // If the block to merge with is the parent block
         if (targetBlock.id === parentBlock.id) {
-            /** Remove target block from parent's content array and update title property. */
+            /** Remove source block from parent's content array and update title property. */
             const updatedParentBlock = updateBlock(parentBlock, {
                 properties: {
                     title: targetBlockText + sourceBlockText
@@ -289,7 +291,6 @@ export default function NoteScreen() {
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, block: Block, selection: { start: number, end: number }) {
-        console.log(selection)
         if (block.id === pageId) return;
         /**
          * If block is not empty and cursor is at start, merge block with previous block.
@@ -310,24 +311,8 @@ export default function NoteScreen() {
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
-        /* console.log("Splitting block...", block.id, selection); */
-        // If block is current page (root block)
-        if (block.type === "page" && block.id === pageId) {
-            // Handle differently
-            splitBlock(block, selection);
-
-            let newBlockId = blocks[block.id].content[0];
-
-            requestAnimationFrame(() => {
-                refs.current[newBlockId]?.current.focusWithSelection({
-                    start: 0,
-                    end: 0
-                });
-            });
-            return;
-        }
-
-        if (textBasedBlockTypes.includes(block.type)) {
+        /** If block is text based or root block */
+        if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
             const { splitResult } = splitBlock(block, selection);
             
             /** 
@@ -409,6 +394,40 @@ export default function NoteScreen() {
         });
     }
 
+    const ListHeaderComponent = useCallback(() => (
+        <BlockElement
+            key={pageId}
+            blockId={pageId}
+            block={rootBlock}
+            handleOnChangeText={handleOnChangeText}
+            handleSubmitEditing={handleSubmitEditing}
+            handleOnKeyPress={handleOnKeyPress}
+            showSoftInputOnFocus={showSoftInputOnFocus}
+            registerRef={registerRef}
+            unregisterRef={unregisterRef}
+            onFocus={() => {
+                setFocusedBlockId(rootBlock.id);
+            }}
+        />
+    ), [rootBlock.properties.title]);
+
+    /* const renderItem = useCallback(({ item: blockId }) => (
+        <BlockElement
+            key={blockId}
+            blockId={blockId}
+            block={blocks[blockId]}
+            handleOnChangeText={handleOnChangeText}
+            handleSubmitEditing={handleSubmitEditing}
+            handleOnKeyPress={handleOnKeyPress}
+            showSoftInputOnFocus={showSoftInputOnFocus}
+            registerRef={registerRef}
+            unregisterRef={unregisterRef}
+            onFocus={() => {
+                setFocusedBlockId(blockId);
+            }}
+        />
+    ), []); */
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -418,11 +437,12 @@ export default function NoteScreen() {
                 contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
                 data={rootBlock.content}
                 keyboardShouldPersistTaps="always"
-                ListHeaderComponent={<BlockElement
-                        key={pageId}
-                        blockId={pageId}
-                        block={rootBlock}
-                        /* title={rootBlock.properties.title} */
+                ListHeaderComponent={<ListHeaderComponent />}
+                renderItem={({ item: blockId }) => (
+                    <BlockElement
+                        key={blockId}
+                        blockId={blockId}
+                        block={blocks[blockId]}
                         handleOnChangeText={handleOnChangeText}
                         handleSubmitEditing={handleSubmitEditing}
                         handleOnKeyPress={handleOnKeyPress}
@@ -430,39 +450,17 @@ export default function NoteScreen() {
                         registerRef={registerRef}
                         unregisterRef={unregisterRef}
                         onFocus={() => {
-                            setFocusedBlockId(rootBlock.id);
+                            setFocusedBlockId(blockId);
                         }}
-                    />}
-                renderItem={({ item }) => {
-                    const blockId = item;
-                    return (
-                        <BlockElement
-                            key={blockId}
-                            item={item}
-                            blockId={blockId}
-                            block={blocks[blockId]}
-                            /* title={blocks[blockId].properties.title} */
-                            handleOnChangeText={handleOnChangeText}
-                            handleSubmitEditing={handleSubmitEditing}
-                            handleOnKeyPress={handleOnKeyPress}
-                            showSoftInputOnFocus={showSoftInputOnFocus}
-                            registerRef={registerRef}
-                            unregisterRef={unregisterRef}
-                            onFocus={() => {
-                                setFocusedBlockId(blockId);
-                            }}
-                        />
-                    )
-                }}
-                ListFooterComponent={() => (
-                    <Pressable
+                    />
+                )}
+                ListFooterComponent={<Pressable
                         style={{
                             flexGrow: 1,
                             height: "100%",
                         }}
                         onPress={handleNewLineBlock}
-                    />
-                )}
+                    />}
             />
 
             <Footer 
