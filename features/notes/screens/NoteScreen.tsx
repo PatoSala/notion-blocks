@@ -138,7 +138,6 @@ export default function NoteScreen() {
                     title: textAfterSelection
                 }
             });
-            console.log("NEW TITLE", updatedBlock.properties.title);
             // Will be inserted before the source block, pushing the source block down
             const newBlock = new Block({
                 type: selection.start === 0 && selection.end === 0 ? "text" : block.type,
@@ -313,13 +312,6 @@ export default function NoteScreen() {
         if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
             const { splitResult } = splitBlock(block, selection);
             
-            /** 
-             * In theory, If the new block is inserted before the current one focus wont be lost and should stay in the same position.
-             * TextInput re-renders when changing its value through state.
-             * The re-render resets cursor position at the end of the input.
-             * To mantain cursor position we need to set selection before focusing.
-             */
-            console.log("SPLIT RESULT", splitResult.properties.title);
             requestAnimationFrame(() => {
                 refs.current[splitResult.id]?.current.focusWithSelection({
                     start: 0,
@@ -453,36 +445,6 @@ export default function NoteScreen() {
 
                 <ListFooterComponent />
             </ScrollView>
-
-            {/* <FlatList
-                contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
-                data={rootBlock.content}
-                keyboardShouldPersistTaps="always"
-                ListHeaderComponent={<ListHeaderComponent />}
-                renderItem={({ item: blockId }) => (
-                    <BlockElement
-                        key={blockId}
-                        blockId={blockId}
-                        block={blocks[blockId]}
-                        handleOnChangeText={handleOnChangeText}
-                        handleSubmitEditing={handleSubmitEditing}
-                        handleOnKeyPress={handleOnKeyPress}
-                        showSoftInputOnFocus={showSoftInputOnFocus}
-                        registerRef={registerRef}
-                        unregisterRef={unregisterRef}
-                        onFocus={() => {
-                            setFocusedBlockId(blockId);
-                        }}
-                    />
-                )}
-                ListFooterComponent={<Pressable
-                        style={{
-                            flexGrow: 1,
-                            height: "100%"
-                        }}
-                        onPress={() => handleNewLineBlock()}
-                    />}
-            /> */}
 
             <Footer 
                 actions={footerActions}
