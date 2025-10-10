@@ -33,6 +33,7 @@ const BlockElement = memo(({
 } : Props) => {
 
     if (block === undefined) {
+        /** Setting this to null might be a good hotfix. */
         return <Text>Block not found. Id: {blockId}</Text>
     }
     const ref = useRef<TextInput>(null);
@@ -58,8 +59,6 @@ const BlockElement = memo(({
     };
 
     useEffect(() => {
-        // Sync native input with state
-
         // Register ref on block mount. This will allow us to set focus/selection from the parent.
         registerRef && registerRef(blockId, api);
         
@@ -91,9 +90,6 @@ const BlockElement = memo(({
                 selectTextOnFocus={false}
                 onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
                 onSubmitEditing={() => {
-                    // Find way to update block value when pressing submit
-                    /* handleOnChangeText && handleOnChangeText(blockId, valueRef.current); */
-                    
                     handleSubmitEditing && handleSubmitEditing(
                         updateBlock(block, {
                             properties:

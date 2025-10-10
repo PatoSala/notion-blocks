@@ -28,11 +28,7 @@ export default function NoteScreen() {
     const refs = useRef({}); // TextInputs refs
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(sampleData);
-    console.log("--- blocks state ---")
-    console.log(Object.keys(blocks).forEach(block => console.log(block)));
     const rootBlock : Block = blocks[pageId];
-    console.log("--- root content ---")
-    console.log(rootBlock.content?.forEach(block => console.log(block)));
     const [focusedBlockId, setFocusedBlockId] = useState(null);
 
     /** Editor configs */
@@ -107,10 +103,11 @@ export default function NoteScreen() {
 
         // If splitting root block, insert new text block below
         if (block.id === rootBlock.id) {
+            const newBlockText = textAfterSelection;
             const newBlock = new Block({
                 type: "text",
                 properties: {
-                    title: textAfterSelection
+                    title: newBlockText
                 },
                 parent: block.id,
             });
@@ -128,12 +125,6 @@ export default function NoteScreen() {
                 [newBlock.id]: newBlock, // new block
                 [updatedParentBlock.id]: updatedParentBlock // source and parent block
             });
-
-            /* setBlocks({
-                ...blocks,
-                [newBlock.id]: newBlock, // new block
-                [block.id]: updatedParentBlock // source and parent block
-            }); */
 
             /** Review */
             return {
@@ -415,24 +406,7 @@ export default function NoteScreen() {
                 setFocusedBlockId(rootBlock.id);
             }}
         />
-    ), [rootBlock.properties.title]);
-
-    const renderItem = useCallback(({ item: blockId }) => (
-        <BlockElement
-            key={blockId}
-            blockId={blockId}
-            block={blocks[blockId]}
-            handleOnChangeText={handleOnChangeText}
-            handleSubmitEditing={handleSubmitEditing}
-            handleOnKeyPress={handleOnKeyPress}
-            showSoftInputOnFocus={showSoftInputOnFocus}
-            registerRef={registerRef}
-            unregisterRef={unregisterRef}
-            onFocus={() => {
-                setFocusedBlockId(blockId);
-            }}
-        />
-    ), []);
+    ), [rootBlock]); // dependency array set in rootBlock.properties.title was causing the RNB-14 bug.
 
     return (
         <KeyboardAvoidingView
