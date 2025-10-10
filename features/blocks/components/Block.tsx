@@ -123,8 +123,7 @@ export default BlockElement;
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 8,
-        justifyContent: "center"
+        paddingHorizontal: 8
     },
     page: {
         fontSize: 30,
