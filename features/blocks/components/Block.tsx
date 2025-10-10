@@ -51,6 +51,9 @@ const BlockElement = memo(({
                  * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
                  * Setting selection before focusing prevents the cursor from reseting when value changes.
                  * */
+                if (text) valueRef.current = text;
+                console.log("TEXT", text);
+                console.log("VALUE", valueRef.current);
                 ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
                 selectionRef.current = selection;
                 ref.current?.focus();

@@ -138,6 +138,7 @@ export default function NoteScreen() {
                     title: textAfterSelection
                 }
             });
+            console.log("NEW TITLE", updatedBlock.properties.title);
             // Will be inserted before the source block, pushing the source block down
             const newBlock = new Block({
                 type: selection.start === 0 && selection.end === 0 ? "text" : block.type,
@@ -154,8 +155,8 @@ export default function NoteScreen() {
 
             setBlocks({
                 ...blocks,
-                [block.id]: updatedBlock, // source block
                 [newBlock.id]: newBlock,    // new block
+                [block.id]: updatedBlock, // source block
                 [block.parent]: updatedParentBlock // parent block
             });
 
@@ -308,6 +309,8 @@ export default function NoteScreen() {
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
+        console.log(block.properties.title);
+        console.log(selection);
         /** If block is text based or root block */
         if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
             const { splitResult } = splitBlock(block, selection);
@@ -322,7 +325,7 @@ export default function NoteScreen() {
                 refs.current[splitResult.id]?.current.focusWithSelection({
                     start: 0,
                     end: 0
-                });
+                }, splitResult.properties.title);
             });
             return;
         }
@@ -396,6 +399,7 @@ export default function NoteScreen() {
             key={pageId}
             blockId={pageId}
             block={rootBlock}
+            title={rootBlock.properties.title}
             handleOnChangeText={handleOnChangeText}
             handleSubmitEditing={handleSubmitEditing}
             handleOnKeyPress={handleOnKeyPress}
@@ -408,12 +412,50 @@ export default function NoteScreen() {
         />
     ), [rootBlock]); // dependency array set in rootBlock.properties.title was causing the RNB-14 bug.
 
+    const ListFooterComponent = () => (
+        <Pressable
+            onPress={handleNewLineBlock}
+            style={{
+                flexGrow: 1,
+                height: "100%"
+            }}
+        />
+    )
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            <FlatList
+
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
+                keyboardShouldPersistTaps="always"
+            >
+                <ListHeaderComponent />
+
+                {rootBlock.content?.map((blockId) => (
+                    <BlockElement
+                        key={blockId}
+                        blockId={blockId}
+                        block={blocks[blockId]}
+                        title={blocks[blockId].properties.title}
+                        handleOnChangeText={handleOnChangeText}
+                        handleSubmitEditing={handleSubmitEditing}
+                        handleOnKeyPress={handleOnKeyPress}
+                        showSoftInputOnFocus={showSoftInputOnFocus}
+                        registerRef={registerRef}
+                        unregisterRef={unregisterRef}
+                        onFocus={() => {
+                            setFocusedBlockId(blockId);
+                        }}
+                    />
+                ))}
+
+                <ListFooterComponent />
+            </ScrollView>
+
+            {/* <FlatList
                 contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
                 data={rootBlock.content}
                 keyboardShouldPersistTaps="always"
@@ -441,7 +483,7 @@ export default function NoteScreen() {
                         }}
                         onPress={() => handleNewLineBlock()}
                     />}
-            />
+            /> */}
 
             <Footer 
                 actions={footerActions}
