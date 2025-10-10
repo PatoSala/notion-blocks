@@ -302,15 +302,13 @@ export default function NoteScreen() {
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
                     end: newCursorPosition
-                });
+                }, mergeResult.properties.title);
             })
             return;
         }
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
-        console.log(block.properties.title);
-        console.log(selection);
         /** If block is text based or root block */
         if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
             const { splitResult } = splitBlock(block, selection);
@@ -321,6 +319,7 @@ export default function NoteScreen() {
              * The re-render resets cursor position at the end of the input.
              * To mantain cursor position we need to set selection before focusing.
              */
+            console.log("SPLIT RESULT", splitResult.properties.title);
             requestAnimationFrame(() => {
                 refs.current[splitResult.id]?.current.focusWithSelection({
                     start: 0,

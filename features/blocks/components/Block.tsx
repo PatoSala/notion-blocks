@@ -38,7 +38,7 @@ const BlockElement = memo(({
     }
     const ref = useRef<TextInput>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
-    const valueRef = useRef(block.properties.title);
+    const valueRef = useRef(title);
 
     const api = {
         current: {
@@ -46,14 +46,12 @@ const BlockElement = memo(({
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }, text?: string) => {
-                /** 
-                 * The following comment was of help:
-                 * @link https://github.com/microsoft/react-native-windows/issues/6786#issuecomment-773730912 
-                 * Setting selection before focusing prevents the cursor from reseting when value changes.
-                 * */
-                if (text) valueRef.current = text;
-                console.log("TEXT", text);
-                console.log("VALUE", valueRef.current);
+                /** Find a better way to sync value on block update */
+                if (text !== undefined) {
+                    ref.current?.setNativeProps({ text });
+                    valueRef.current = text;
+                }
+
                 ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
                 selectionRef.current = selection;
                 ref.current?.focus();
