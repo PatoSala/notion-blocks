@@ -293,6 +293,17 @@ export default function NoteScreen() {
          * If block is not empty and cursor is at start, merge block with previous block.
          */
         if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
+            // The following is like an "optimistic update", we set the block's content before update
+            const sourceBlock = block;
+            const parentBlock = blocks[sourceBlock.parent];
+            const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
+            const isFirstChild = sourceBlockContentIndex === 0;
+            const targetBlock = isFirstChild
+                ? parentBlock
+                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+
+            refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+
             const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
@@ -301,7 +312,7 @@ export default function NoteScreen() {
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
                     end: newCursorPosition
-                }, mergeResult.properties.title);
+                }, /* mergeResult.properties.title */);
             })
             return;
         }
@@ -310,13 +321,22 @@ export default function NoteScreen() {
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
         /** If block is text based or root block */
         if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
+            const textBeforeSelection = block.properties.title.substring(0, selection.start);
+            const textAfterSelection = block.properties.title.substring(selection.end);
+
+            // The following is like an "optimistic update", we set the block's content before update
+            refs.current[block.id]?.current.focusWithSelection({
+                start: 0,
+                end: 0
+            }, textAfterSelection);
+
             const { splitResult } = splitBlock(block, selection);
             
             requestAnimationFrame(() => {
                 refs.current[splitResult.id]?.current.focusWithSelection({
                     start: 0,
                     end: 0
-                }, splitResult.properties.title);
+                }, /* splitResult.properties.title */);
             });
             return;
         }

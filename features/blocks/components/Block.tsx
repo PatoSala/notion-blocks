@@ -42,14 +42,20 @@ const BlockElement = memo(({
 
     const api = {
         current: {
+            setText: (text: string) => {
+                ref.current?.setNativeProps({ text });
+                valueRef.current = text;
+            },
             focus: () => {
                 ref.current?.focus();
             },
             focusWithSelection: (selection: { start: number; end: number }, text?: string) => {
                 /** Find a better way to sync value on block update */
                 if (text !== undefined) {
-                    ref.current?.setNativeProps({ text });
-                    valueRef.current = text;
+                    requestAnimationFrame(() => {
+                        ref.current?.setNativeProps({ text });
+                        valueRef.current = text;
+                    })
                 }
 
                 ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
@@ -58,6 +64,12 @@ const BlockElement = memo(({
             }
         }
     };
+
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            api.current.setText(title);
+        })
+    }, [title])
 
     useEffect(() => {
         // Register ref on block mount. This will allow us to set focus/selection from the parent.
@@ -73,13 +85,18 @@ const BlockElement = memo(({
             <TextInput
                 ref={ref}
                 scrollEnabled={false}
-                style={styles[block.type]}
+                style={[styles[block.type], {
+                    textAlignVertical: "top",
+                    flexShrink: 0,
+                    flexGrow: 1,
+                }]}
                 multiline
                 cursorColor={"black"}
                 selectionColor={"black"}
                 submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                 onChangeText={(text) => {
                     valueRef.current = text;
+
                 }}
                 onSelectionChange={({ nativeEvent }) => {
                     selectionRef.current = nativeEvent.selection;
@@ -113,8 +130,7 @@ const BlockElement = memo(({
                         selectionRef.current
                     ) : null;
                 }}
-            >
-            </TextInput>
+            />
         </View>
     )
 });
@@ -130,22 +146,23 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         lineHeight: 36,
         minHeight: 36,
-        paddingTop: 36,
-        paddingBottom: 4,
+        marginTop: 36,
+        marginBottom: 4,
         flexWrap: "wrap"
     },
     text: {
         fontSize: 16,
         fontWeight: "normal",
-        paddingVertical: 6,
+        marginVertical: 6,
         lineHeight: 24,
-        minHeight: 24
+        minHeight: 24,
+        flexWrap: "wrap"
     },
     header: {
         fontWeight: "bold",
         fontSize: 28,
-        paddingTop: 32,
-        paddingBottom: 8,
+        marginTop: 32,
+        marginBottom: 8,
         lineHeight: 34,
         minHeight: 34,
         flexWrap: "wrap"
@@ -153,8 +170,8 @@ const styles = StyleSheet.create({
     sub_header: {
         fontWeight: "bold",
         fontSize: 22,
-        paddingTop: 24,
-        paddingBottom: 4,
+        marginTop: 24,
+        marginBottom: 4,
         lineHeight: 30,
         minHeight: 30,
         flexWrap: "wrap"
@@ -162,8 +179,8 @@ const styles = StyleSheet.create({
     sub_sub_header: {
         fontWeight: "bold",
         fontSize: 18,
-        paddingTop: 20,
-        paddingBottom: 4,
+        marginTop: 20,
+        marginBottom: 4,
         lineHeight: 26,
         minHeight: 26,
         flexWrap: "wrap"
