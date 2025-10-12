@@ -25,11 +25,20 @@ const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
 
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
+    const scrollViewRef = useRef<ScrollView>(null);
     const refs = useRef({}); // TextInputs refs
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(sampleData);
     const rootBlock : Block = blocks[pageId];
     const [focusedBlockId, setFocusedBlockId] = useState(null);
+
+    const handleScrollTo = ({ x, y, animated } : { x: number, y: number, animated: boolean }) => {
+        scrollViewRef.current?.scrollTo({
+            x: x,
+            y: y,
+            animated: animated
+        });
+    }
 
     /** Editor configs */
     const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(true);
@@ -418,6 +427,7 @@ export default function NoteScreen() {
             handleOnKeyPress={handleOnKeyPress}
             showSoftInputOnFocus={showSoftInputOnFocus}
             registerRef={registerRef}
+            handleScrollTo={handleScrollTo}
             unregisterRef={unregisterRef}
             onFocus={() => {
                 setFocusedBlockId(rootBlock.id);
@@ -438,12 +448,13 @@ export default function NoteScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
 
             <ScrollView
+                ref={scrollViewRef}
                 contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
                 keyboardShouldPersistTaps="always"
+                automaticallyAdjustKeyboardInsets
             >
                 <ListHeaderComponent />
 
@@ -459,6 +470,7 @@ export default function NoteScreen() {
                         showSoftInputOnFocus={showSoftInputOnFocus}
                         registerRef={registerRef}
                         unregisterRef={unregisterRef}
+                        handleScrollTo={handleScrollTo}
                         onFocus={() => {
                             setFocusedBlockId(blockId);
                         }}

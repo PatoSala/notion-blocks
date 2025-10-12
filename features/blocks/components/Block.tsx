@@ -2,6 +2,7 @@ import { useContext, useState, useRef, useEffect, useImperativeHandle, memo } fr
 import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
 import { Block } from "../interfaces/Block.interface";
 import { updateBlock } from "../core";
+import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 
 interface Props {
     blockId: string;
@@ -16,6 +17,7 @@ interface Props {
     unregisterRef?: (blockId: string) => void;
     selectionState?: { start: number, end: number };
     showSoftInputOnFocus?: boolean;
+    handleScrollTo?: () => void;
 }
 
 const BlockElement = memo(({
@@ -29,7 +31,8 @@ const BlockElement = memo(({
     handleOnKeyPress,
     registerRef,
     unregisterRef,
-    showSoftInputOnFocus
+    showSoftInputOnFocus,
+    handleScrollTo
 } : Props) => {
 
     if (block === undefined) {
@@ -39,6 +42,7 @@ const BlockElement = memo(({
     const ref = useRef<TextInput>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
+    const { keyboardY } = useKeyboardStatus();
 
     const api = {
         current: {
@@ -61,6 +65,11 @@ const BlockElement = memo(({
                 ref.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
                 selectionRef.current = selection;
                 ref.current?.focus();
+            },
+            getPosition: () => {
+                ref.current?.measureInWindow((x, y, width, height) => {
+                    console.log(x, y, width, height);
+                })
             }
         }
     };
@@ -129,6 +138,17 @@ const BlockElement = memo(({
                         }),
                         selectionRef.current
                     ) : null;
+
+                    // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
+                    ref.current?.measureInWindow((x, y, width, height) => {
+                        if (y > keyboardY) {
+                            handleScrollTo && handleScrollTo({
+                                x: 0,
+                                y: y - 100,
+                                animated: true
+                            });
+                        }
+                    })
                 }}
             />
         </View>
