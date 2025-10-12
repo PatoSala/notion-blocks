@@ -303,17 +303,15 @@ export default function NoteScreen() {
          */
         if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
             // The following is like an "optimistic update", we set the block's content before update
-            if (block.properties.title.length > 0) {
-                const sourceBlock = block;
-                const parentBlock = blocks[sourceBlock.parent];
-                const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
-                const isFirstChild = sourceBlockContentIndex === 0;
-                const targetBlock = isFirstChild
-                    ? parentBlock
-                    : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+            const sourceBlock = block;
+            const parentBlock = blocks[sourceBlock.parent];
+            const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
+            const isFirstChild = sourceBlockContentIndex === 0;
+            const targetBlock = isFirstChild
+                ? parentBlock
+                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
 
-                refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
-            }
+            refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
 
             const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
             // Focus previous block here
