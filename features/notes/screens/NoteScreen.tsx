@@ -446,6 +446,7 @@ export default function NoteScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
 
             <ScrollView
