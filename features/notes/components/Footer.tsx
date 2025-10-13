@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Keyboard, FlatList } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
@@ -16,16 +16,40 @@ export default function Footer({
     handleTurnBlockInto
 }) {
     const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
+    const [activeTab, setActiveTab] = useState<string | "keyboard" | "none">("none");
+    const [hidden, setHidden] = useState(true);
 
-    const [activeTab, setActiveTab] = useState(null);
-    const shouldBeHidden = isKeyboardOpen === false && activeTab === null;
+    useEffect(() => {
+        if (isKeyboardOpen) {
+            setActiveTab("keyboard");
+            setHidden(false);
+        }
+    }, [isKeyboardOpen]);
+
+    const handleOpenKeyboard = () => {
+        setActiveTab("keyboard");
+        focusedBlockRef.current.focus();
+        setShowSoftInputOnFocus(true);
+    };
+
+    const handleKeyboardDismiss = () => {
+        Keyboard.dismiss();
+        setShowSoftInputOnFocus(true);
+        setActiveTab("none");
+        setHidden(true);
+    };
 
     return (
-        <>
+        <View style={{
+            position: "absolute",
+            bottom: hidden ? -keyboardHeight - 44 : 0,
+            left: 0,
+            right: 0
+        }}>
             <View style={[styles.container, style, {
                 width: "100%",
-                position: shouldBeHidden ? "absolute" : "relative",
-                bottom: shouldBeHidden ? -44 : 0
+                /* position: shouldBeHidden ? "absolute" : "relative",
+                bottom: shouldBeHidden ? -44 : 0 */
             }]}>
                 <FlatList
                     horizontal
@@ -56,15 +80,10 @@ export default function Footer({
                         <>
                             <Pressable
                                 onPress={() => {
-                                    if (activeTab) {
-                                        focusedBlockRef.current.focus();
-                                        requestAnimationFrame(() => {
-                                            setActiveTab(null);
-                                            setShowSoftInputOnFocus(true);
-                                        });
+                                    if (activeTab !== "keyboard") {
+                                        handleOpenKeyboard();
                                     } else {
-                                        Keyboard.dismiss();
-                                        setShowSoftInputOnFocus(true);
+                                        handleKeyboardDismiss();
                                     }
                                 }}
                                 style={({ pressed }) => [
@@ -74,7 +93,7 @@ export default function Footer({
                                     }
                                 ]}
                             >
-                                {activeTab
+                                {activeTab !== "keyboard"
                                 ? (
                                     <Ionicons name="close-circle-outline" size={24} color="black" />
                                 )
@@ -86,6 +105,7 @@ export default function Footer({
                     )}
                 />
             </View>
+
             {activeTab && (
                 <View style={[styles.tabSectionContainer, { height: keyboardHeight }]}>
                     {activeTab === "add-block" ? <InsertBlockSection
@@ -98,7 +118,7 @@ export default function Footer({
                     /> : null}
                 </View>
             )}
-        </>
+        </View>
     )
 }
 
@@ -116,6 +136,6 @@ const styles = StyleSheet.create({
     },
     tabSectionContainer: {
         backgroundColor: "#f5f5f5",
-        padding: 16
+        padding: 16,
     }
 });

@@ -46,9 +46,8 @@ export default function NoteScreen() {
         {
             key: "add-block",
             onPress: () => {
-                /* setAddBlockMenuOpen(true); */
-                Keyboard.dismiss();
                 setShowSoftInputOnFocus(false);
+                Keyboard.dismiss();
                 requestAnimationFrame(() => {
                     refs.current[focusedBlockId]?.current.focus();
                 });
@@ -58,10 +57,8 @@ export default function NoteScreen() {
         {
             key: "turn-block-into",
             onPress: () => {
-                /* setTurnBlockIntoMenuOpen(true);
-                setAddBlockMenuOpen(false); */
-                Keyboard.dismiss();
                 setShowSoftInputOnFocus(false);
+                Keyboard.dismiss();
                 requestAnimationFrame(() => {
                     refs.current[focusedBlockId]?.current.focus();
                 });
@@ -446,7 +443,7 @@ export default function NoteScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={"padding"}
         >
 
             <ScrollView
