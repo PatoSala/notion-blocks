@@ -42,7 +42,7 @@ export default function Footer({
     return (
         <View style={{
             position: "absolute",
-            bottom: hidden ? -keyboardHeight - 44 : 0,
+            bottom: hidden ? -keyboardHeight - 100 : 0,
             left: 0,
             right: 0,
             zIndex: 100,
