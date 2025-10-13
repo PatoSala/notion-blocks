@@ -1,4 +1,6 @@
-import { Pressable, Text, View, StyleSheet } from "react-native";
+import { Pressable, Text, View, StyleSheet, Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 export default function ReplaceBlockSection({
     focusedBlockId,
@@ -45,16 +47,17 @@ const styles = StyleSheet.create({
     blockOptionsRow: {
         flexDirection: "row",
         marginBottom: 8,
+        gap: 4
     },
     blockOptions: {
         backgroundColor: "white",
         height: 50,
-        minWidth: "50%",
+        width: width / 2 - 20,
         borderRadius: 8,
         justifyContent: "center",
         paddingHorizontal: 16,
         boxSizing: "border-box",
-        boxShadow: "0px 1px 0px rgba(0, 0, 0, 0.1)"
+        boxShadow: "0px 1px 0px rgba(0, 0, 0, 0.1)",
     },
     blockOptionsText: {
         fontSize: 16,

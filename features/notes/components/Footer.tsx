@@ -44,12 +44,12 @@ export default function Footer({
             position: "absolute",
             bottom: hidden ? -keyboardHeight - 44 : 0,
             left: 0,
-            right: 0
+            right: 0,
+            zIndex: 100,
+            backgroundColor: "white"
         }}>
             <View style={[styles.container, style, {
                 width: "100%",
-                /* position: shouldBeHidden ? "absolute" : "relative",
-                bottom: shouldBeHidden ? -44 : 0 */
             }]}>
                 <FlatList
                     horizontal

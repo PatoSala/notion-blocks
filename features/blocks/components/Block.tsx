@@ -42,7 +42,7 @@ const BlockElement = memo(({
     const ref = useRef<TextInput>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
-    const { keyboardY } = useKeyboardStatus();
+    const { keyboardY, keyboardHeight } = useKeyboardStatus();
 
     const api = {
         current: {
@@ -144,7 +144,7 @@ const BlockElement = memo(({
                         if (y > keyboardY) {
                             handleScrollTo && handleScrollTo({
                                 x: 0,
-                                y: y - 100,
+                                y: y - 44,
                                 animated: true
                             });
                         }
