@@ -1,8 +1,22 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo } from "react";
-import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
+import { Text, View, StyleSheet, TextInput, Dimensions } from "react-native";
 import { Block } from "../interfaces/Block.interface";
 import { updateBlock } from "../core";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
+import { Pressable } from "react-native-gesture-handler";
+
+import {
+  Gesture,
+  GestureDetector,
+} from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
+
+const { width } = Dimensions.get("window");
 
 interface Props {
     blockId: string;
@@ -18,6 +32,10 @@ interface Props {
     selectionState?: { start: number, end: number };
     showSoftInputOnFocus?: boolean;
     handleScrollTo?: () => void;
+    onLongPress?: () => void;
+    onPressOut?: () => void;
+    onPress?: () => void;
+    editable?: boolean;
 }
 
 const BlockElement = memo(({
@@ -26,6 +44,10 @@ const BlockElement = memo(({
     title,
     handleOnBlur,
     onFocus,
+    onLongPress,
+    onPress,
+    editable,
+    onPressOut,
     handleSubmitEditing,
     handleOnChangeText,
     handleOnKeyPress,
@@ -43,6 +65,7 @@ const BlockElement = memo(({
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
     const { keyboardY, keyboardHeight } = useKeyboardStatus();
+    const [isEditable, setIsEditable] = useState(true);
 
     const api = {
         current: {
@@ -89,69 +112,131 @@ const BlockElement = memo(({
         };
     }, []);
 
+    const [isDragging, setIsDragging] = useState(false);
+
+    const dragX = useSharedValue(0);
+    const dragY = useSharedValue(0);
+    const opacity = useSharedValue(0);
+
+    const longPress = Gesture.LongPress()
+        .minDuration(300)
+        .onStart((e) => {
+        runOnJS(setIsDragging)(true);
+            dragX.value = e.x;
+            dragY.value = e.y;
+            opacity.value = withTiming(1, { duration: 150 });
+        });
+
+    // Drag gesture for the floating clone
+    const drag = Gesture.Pan()
+        .onUpdate((e) => {
+            dragX.value = e.translationX;
+            dragY.value = e.translationY;
+        })
+        .onEnd(() => {
+            opacity.value = withTiming(0, { duration: 150 }, () =>
+                runOnJS(setIsDragging)(false)
+            );
+        });
+
+    // Combine both gestures: once long press activates, drag takes over
+    const composed = Gesture.Simultaneous(longPress, drag);
+
+    const cloneStyle = useAnimatedStyle(() => ({
+        position: "absolute",
+        left: dragX.value - width * 0.4, // center horizontally under finger
+        top: dragY.value - 25, // adjust to center vertically
+        opacity: opacity.value,
+        transform: [{ scale: withTiming(isDragging ? 1.05 : 1) }],
+    }));
+
     return (
-        <View style={[styles.container]}>
-            <TextInput
-                ref={ref}
-                scrollEnabled={false}
-                style={[styles[block.type], {
-                    textAlignVertical: "top",
-                    flexShrink: 0,
-                    flexGrow: 1,
-                }]}
-                multiline
-                cursorColor={"black"}
-                selectionColor={"black"}
-                submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
-                onChangeText={(text) => {
-                    valueRef.current = text;
+        <>
+            <GestureDetector gesture={composed}>
+                <View style={[styles.container]}>
+                    <TextInput
+                        ref={ref}
+                        editable={isEditable}
+                        scrollEnabled={false}
+                        style={[styles[block.type], {
+                            textAlignVertical: "top",
+                            flexShrink: 0,
+                            flexGrow: 1,
+                        }]}
+                        multiline
+                        cursorColor={"black"}
+                        selectionColor={"black"}
+                        submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
+                        onChangeText={(text) => {
+                            valueRef.current = text;
 
-                }}
-                onSelectionChange={({ nativeEvent }) => {
-                    selectionRef.current = nativeEvent.selection;
-                }}
-                showSoftInputOnFocus={showSoftInputOnFocus}
-                smartInsertDelete={false}
-                onFocus={onFocus}
-                defaultValue={valueRef.current}
-                selectTextOnFocus={false}
-                onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
-                onSubmitEditing={() => {
-                    handleSubmitEditing && handleSubmitEditing(
-                        updateBlock(block, {
-                            properties:
-                            { 
-                                title: valueRef.current
-                            }
-                        }),
-                        selectionRef.current
-                    );
-                }}
-                onKeyPress={(event) => {
-                    event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
-                        event,
-                        updateBlock(block, {
-                            properties:
-                            { 
-                                title: valueRef.current
-                            }
-                        }),
-                        selectionRef.current
-                    ) : null;
+                        }}
+                        onSelectionChange={({ nativeEvent }) => {
+                            selectionRef.current = nativeEvent.selection;
+                        }}
+                        showSoftInputOnFocus={showSoftInputOnFocus}
+                        smartInsertDelete={false}
+                        onFocus={onFocus}
+                        defaultValue={valueRef.current}
+                        selectTextOnFocus={false}
+                        onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
+                        onSubmitEditing={() => {
+                            handleSubmitEditing && handleSubmitEditing(
+                                updateBlock(block, {
+                                    properties:
+                                    { 
+                                        title: valueRef.current
+                                    }
+                                }),
+                                selectionRef.current
+                            );
+                        }}
+                        onKeyPress={(event) => {
+                            event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
+                                event,
+                                updateBlock(block, {
+                                    properties:
+                                    { 
+                                        title: valueRef.current
+                                    }
+                                }),
+                                selectionRef.current
+                            ) : null;
 
-                    // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
-                    ref.current?.measureInWindow((x, y, width, height) => {
-                        if (y > keyboardY) {
-                            handleScrollTo && handleScrollTo({
-                                x: 0,
-                                y: y - 44,
-                                animated: true
-                            });
-                        }
-                    })
-                }}
-            />
-        </View>
+                            // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
+                            ref.current?.measureInWindow((x, y, width, height) => {
+                                if (y > keyboardY) {
+                                    handleScrollTo && handleScrollTo({
+                                        x: 0,
+                                        y: y - 44,
+                                        animated: true
+                                    });
+                                }
+                            })
+                        }}
+                    />
+                </View>
+            </GestureDetector>
+
+            {isDragging && (
+                <Animated.View style={[styles.clone, cloneStyle]}>
+                    <View style={[styles.container]}>
+                        <TextInput
+                            scrollEnabled={false}
+                            style={[styles[block.type], {
+                                textAlignVertical: "top",
+                                flexShrink: 0,
+                                flexGrow: 1,
+                            }]}
+                            multiline
+                            editable={false}
+                            defaultValue={valueRef.current}
+                            
+                        />
+                    </View>
+                </Animated.View>
+            )}
+        </>
     )
 });
 

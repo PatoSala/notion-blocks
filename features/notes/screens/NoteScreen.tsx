@@ -1,4 +1,10 @@
-import { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback } from "react";
+import { GestureHandlerRootView, Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import {
     StyleSheet,
     ScrollView,
@@ -31,6 +37,8 @@ export default function NoteScreen() {
     const [blocks, setBlocks] = useState(sampleData);
     const rootBlock : Block = blocks[pageId];
     const [focusedBlockId, setFocusedBlockId] = useState(null);
+    const [ghostBlockId, setGhostBlockId] = useState(null);
+    const [editable, setEditable] = useState(false);
 
     const handleScrollTo = ({ x, y, animated } : { x: number, y: number, animated: boolean }) => {
         scrollViewRef.current?.scrollTo({
@@ -411,6 +419,35 @@ export default function NoteScreen() {
         });
     }
 
+    /** Gestures */
+    const offset = useSharedValue({ x: 0, y: 0 });
+    const start = useSharedValue({ x: 0, y: 0 });
+    const popupPosition = useSharedValue({ x: 0, y: 0 });
+    const popupAlpha = useSharedValue(0);
+
+    const longPress = Gesture.LongPress()
+        .minDuration(400)
+        .onStart(() => {
+            console.log("Long press started");
+        })
+
+    const dragGesture = Gesture.Pan()
+        .onStart((_e) => {
+            popupAlpha.value = withTiming(0);
+        })
+        .onUpdate((e) => {
+            offset.value = {
+                x: e.translationX + start.value.x,
+                y: e.translationY + start.value.y,
+            };
+        })
+        .onEnd(() => {
+            start.value = {
+                x: offset.value.x,
+                y: offset.value.y,
+            };
+        });
+
     const ListHeaderComponent = useCallback(() => (
         <BlockElement
             key={pageId}
@@ -440,52 +477,86 @@ export default function NoteScreen() {
         />
     )
 
+    const GhostBlock = (blockComponent: React.ReactElement) => React.cloneElement(blockComponent)
+
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={"padding"}
-        >
-
-            <ScrollView
-                ref={scrollViewRef}
-                contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
-                keyboardShouldPersistTaps="always"
-                automaticallyAdjustKeyboardInsets
+        <GestureHandlerRootView>
+            <KeyboardAvoidingView
+                style={styles.container}
+                behavior={"padding"}
             >
-                <ListHeaderComponent />
 
-                {rootBlock.content?.map((blockId) => (
-                    <BlockElement
-                        key={blockId}
-                        blockId={blockId}
-                        block={blocks[blockId]}
-                        title={blocks[blockId].properties.title}
-                        handleOnChangeText={handleOnChangeText}
-                        handleSubmitEditing={handleSubmitEditing}
-                        handleOnKeyPress={handleOnKeyPress}
-                        showSoftInputOnFocus={showSoftInputOnFocus}
-                        registerRef={registerRef}
-                        unregisterRef={unregisterRef}
-                        handleScrollTo={handleScrollTo}
-                        onFocus={() => {
-                            setFocusedBlockId(blockId);
-                        }}
-                    />
-                ))}
+                <ScrollView
+                    ref={scrollViewRef}
+                    contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingHorizontal: 8 }}
+                    keyboardShouldPersistTaps="always"
+                    automaticallyAdjustKeyboardInsets
+                >
+                    <ListHeaderComponent />
 
-                <ListFooterComponent />
-            </ScrollView>
+                    {rootBlock.content?.map((blockId) => (
+                        <BlockElement
+                            key={blockId}
+                            blockId={blockId}
+                            block={blocks[blockId]}
+                            title={blocks[blockId].properties.title}
+                            handleOnChangeText={handleOnChangeText}
+                            handleSubmitEditing={handleSubmitEditing}
+                            handleOnKeyPress={handleOnKeyPress}
+                            showSoftInputOnFocus={showSoftInputOnFocus}
+                            registerRef={registerRef}
+                            unregisterRef={unregisterRef}
+                            handleScrollTo={handleScrollTo}
+                            onFocus={() => {
+                                setFocusedBlockId(blockId);
+                            }}
+                            onLongPress={() => setGhostBlockId(blockId)}
+                            /* onPress={() => setEditable(true)}
+                            editable={editable} */
+                            onPressOut={() => setGhostBlockId(undefined)}
+                        />
+                    ))}
 
-            <Footer 
-                actions={footerActions}
-                setShowSoftInputOnFocus={setShowSoftInputOnFocus}
-                focusedBlockRef={refs.current[focusedBlockId]}
-                focusedBlockId={focusedBlockId}
-                handleInsertBlock={handleInsertNewBlock}
-                handleTurnBlockInto={handleTurnBlockInto}
-            />
-        </KeyboardAvoidingView>
+                    <ListFooterComponent />
 
+                    {ghostBlockId
+                    ? (
+                        <View style={{
+                            opacity: 0,
+                            position: "absolute",
+                            top: 0
+                        }}>
+                            <BlockElement
+                                key={ghostBlockId}
+                                blockId={ghostBlockId}
+                                block={blocks[ghostBlockId]}
+                                title={blocks[ghostBlockId].properties.title}
+                                /* handleOnChangeText={handleOnChangeText}
+                                handleSubmitEditing={handleSubmitEditing}
+                                handleOnKeyPress={handleOnKeyPress}
+                                showSoftInputOnFocus={showSoftInputOnFocus}
+                                registerRef={registerRef}
+                                unregisterRef={unregisterRef} */
+                                /* handleScrollTo={handleScrollTo} */
+                                /* onFocus={() => {
+                                    setFocusedBlockId(blockId);
+                                }} */
+                            />
+                        </View>
+                    )
+                    : null}
+                </ScrollView>
+
+                <Footer 
+                    actions={footerActions}
+                    setShowSoftInputOnFocus={setShowSoftInputOnFocus}
+                    focusedBlockRef={refs.current[focusedBlockId]}
+                    focusedBlockId={focusedBlockId}
+                    handleInsertBlock={handleInsertNewBlock}
+                    handleTurnBlockInto={handleTurnBlockInto}
+                />
+            </KeyboardAvoidingView>
+        </GestureHandlerRootView>
     )
 }
 
