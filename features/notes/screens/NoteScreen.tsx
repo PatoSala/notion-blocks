@@ -25,6 +25,7 @@ import { blocksData } from "../utils/initialBlocks";
 import { sampleData } from "../utils/sampleData";
 import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
+import DragProvider from "../../blocks/components/DragProvider";
 import Footer from "../components/Footer";
 import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
 
@@ -450,85 +451,9 @@ export default function NoteScreen() {
         />
     )
 
-    const GhostBlock = () => (
-        <Animated.View style={[{
-            opacity: 1,
-            position: "absolute",
-            height: 60,
-            width: "100%",
-            backgroundColor: "red"
-        }, animatedStyles]}>
-            {/* <BlockElement
-                key={ghostBlockId}
-                blockId={ghostBlockId}
-                block={blocks[ghostBlockId]}
-                title={blocks[ghostBlockId].properties.title}
-            /> */}
-        </Animated.View>
-    )
-
-    /** Gestures */
-
-    const isPressed = useSharedValue(false);
-    const offset = useSharedValue({ x: 0, y: 0 });
-
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: offset.value.x },
-                { translateY: offset.value.y },
-                { scale: withSpring(isPressed.value ? 1.2 : 1) },
-            ],
-            backgroundColor: isPressed.value ? 'yellow' : 'blue',
-        };
-    });
-
-    const popupPosition = useSharedValue({ x: 0, y: 0 });
-    const popupAlpha = useSharedValue(0);
-
-    const scrollGesture = Gesture.Native()
-
-    const onBlockTap = Gesture.Tap()
-        .onStart(() => {
-            console.log("Tap started");
-        })
-
-    const blockLongPress = Gesture.LongPress()
-        .minDuration(1000)
-        .onBegin(() => {
-            console.log("Long press begun");
-        })
-        .onStart(() => {
-            console.log("Long press started");
-        })
     
-    const start = useSharedValue({ x: 0, y: 0 });
-    const blockDrag = Gesture.Pan()
-        .activateAfterLongPress(1000)
-        .onBegin(() => {
-            /* isPressed.value = true; */
-        })
-        .onStart((e) => {
-            isPressed.value = true;
-        })
-        .onUpdate((e) => {
-            offset.value = {
-                x: e.translationX + start.value.x,
-                y: e.translationY + start.value.y,
-            };
-        })
-        .onEnd(() => {
-            start.value = {
-                x: offset.value.x,
-                y: offset.value.y,
-            };
-        })
-        .onFinalize(() => {
-            isPressed.value = false;
-        });
 
-
-    const composed = Gesture.Exclusive(blockDrag, onBlockTap, scrollGesture);
+    
 
     return (
         <GestureHandlerRootView>
@@ -549,34 +474,37 @@ export default function NoteScreen() {
                 >
                     <ListHeaderComponent />
 
-                    {rootBlock.content?.map((blockId) => (
-                        <GestureDetector gesture={composed} key={blockId}>
-                            <View>
-                                <BlockElement
-                                    blockId={blockId}
-                                    block={blocks[blockId]}
-                                    title={blocks[blockId].properties.title}
-                                    handleOnChangeText={handleOnChangeText}
-                                    handleSubmitEditing={handleSubmitEditing}
-                                    handleOnKeyPress={handleOnKeyPress}
-                                    showSoftInputOnFocus={showSoftInputOnFocus}
-                                    registerRef={registerRef}
-                                    unregisterRef={unregisterRef}
-                                    handleScrollTo={handleScrollTo}
-                                    onFocus={() => {
-                                        setFocusedBlockId(blockId);
-                                    }}
-                                />
+                    {rootBlock.content?.map((blockId) => {
+                        return (
+                            <View key={blockId}>
+                                <DragProvider>
+                                    <View>
+                                        <BlockElement
+                                            blockId={blockId}
+                                            block={blocks[blockId]}
+                                            title={blocks[blockId].properties.title}
+                                            handleOnChangeText={handleOnChangeText}
+                                            handleSubmitEditing={handleSubmitEditing}
+                                            handleOnKeyPress={handleOnKeyPress}
+                                            showSoftInputOnFocus={showSoftInputOnFocus}
+                                            registerRef={registerRef}
+                                            unregisterRef={unregisterRef}
+                                            handleScrollTo={handleScrollTo}
+                                            onFocus={() => {
+                                                setFocusedBlockId(blockId);
+                                            }}
+                                        />
+                                    </View>
+                                </DragProvider>
                             </View>
-                        </GestureDetector>
-                    ))}
+                        )
+                    })}
 
 
                     <ListFooterComponent />
 
                 </ScrollView>
 
-                <GhostBlock />
 
                 <Footer 
                     actions={footerActions}
