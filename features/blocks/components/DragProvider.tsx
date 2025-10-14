@@ -5,8 +5,9 @@ import Animated,{
     withSpring
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import BlockElement from "./Block";
 
-export default function DragProvider({ children }) {
+export default function DragProvider({ children, block }) {
     /** Gestures */
     const isPressed = useSharedValue(false);
     const offset = useSharedValue({ x: 0, y: 0 });
@@ -16,9 +17,7 @@ export default function DragProvider({ children }) {
             transform: [
                 { translateX: offset.value.x },
                 { translateY: offset.value.y },
-                { scale: withSpring(isPressed.value ? 1.2 : 1) },
             ],
-            backgroundColor: isPressed.value ? 'yellow' : 'blue',
             display: isPressed.value === false ? 'none' : 'flex'
         };
     });
@@ -42,10 +41,10 @@ export default function DragProvider({ children }) {
             };
         })
         .onEnd(() => {
-            start.value = {
+            /* start.value = {
                 x: offset.value.x,
                 y: offset.value.y,
-            };
+            }; */
         })
         .onFinalize(() => {
             isPressed.value = false;
@@ -57,14 +56,13 @@ export default function DragProvider({ children }) {
             position: "absolute",
             height: "100%",
             width: "100%",
-            backgroundColor: "red"
         }, animatedStyles]}>
-            {/* <BlockElement
-                key={ghostBlockId}
-                blockId={ghostBlockId}
-                block={blocks[ghostBlockId]}
-                title={blocks[ghostBlockId].properties.title}
-            /> */}
+            <BlockElement
+                key={block.id}
+                blockId={block.id}
+                block={block}
+                title={block.properties.title}
+            />
         </Animated.View>
     )
 

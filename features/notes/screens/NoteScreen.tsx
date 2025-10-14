@@ -477,7 +477,7 @@ export default function NoteScreen() {
                     {rootBlock.content?.map((blockId) => {
                         return (
                             <View key={blockId}>
-                                <DragProvider>
+                                <DragProvider block={blocks[blockId]}>
                                     <View>
                                         <BlockElement
                                             blockId={blockId}
