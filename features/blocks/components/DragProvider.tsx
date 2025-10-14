@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import Animated,{
+import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring
@@ -17,8 +17,11 @@ export default function DragProvider({ children, block }) {
             transform: [
                 { translateX: offset.value.x },
                 { translateY: offset.value.y },
+                { scale: withSpring(isPressed.value ? 1.05 : 1) },
             ],
-            display: isPressed.value === false ? 'none' : 'flex'
+            display: isPressed.value === false ? 'none' : 'flex',
+            borderWidth: isPressed.value === true ? 1 : 0,
+            borderRadius: 5
         };
     });
 
