@@ -65,7 +65,6 @@ const BlockElement = memo(({
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
     const { keyboardY, keyboardHeight } = useKeyboardStatus();
-    const [isEditable, setIsEditable] = useState(true);
 
     const api = {
         current: {
@@ -112,7 +111,7 @@ const BlockElement = memo(({
         };
     }, []);
 
-    const [isDragging, setIsDragging] = useState(false);
+    /* const [isDragging, setIsDragging] = useState(false);
 
     const dragX = useSharedValue(0);
     const dragY = useSharedValue(0);
@@ -148,15 +147,14 @@ const BlockElement = memo(({
         top: dragY.value - 25, // adjust to center vertically
         opacity: opacity.value,
         transform: [{ scale: withTiming(isDragging ? 1.05 : 1) }],
-    }));
+    })); */
 
     return (
         <>
-            <GestureDetector gesture={composed}>
+            {/* <GestureDetector gesture={composed}> */}
                 <View style={[styles.container]}>
                     <TextInput
                         ref={ref}
-                        editable={isEditable}
                         scrollEnabled={false}
                         style={[styles[block.type], {
                             textAlignVertical: "top",
@@ -216,9 +214,9 @@ const BlockElement = memo(({
                         }}
                     />
                 </View>
-            </GestureDetector>
+            {/* </GestureDetector> */}
 
-            {isDragging && (
+            {/* {isDragging && (
                 <Animated.View style={[styles.clone, cloneStyle]}>
                     <View style={[styles.container]}>
                         <TextInput
@@ -235,7 +233,7 @@ const BlockElement = memo(({
                         />
                     </View>
                 </Animated.View>
-            )}
+            )} */}
         </>
     )
 });
