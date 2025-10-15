@@ -62,6 +62,7 @@ const BlockElement = memo(({
         return <Text>Block not found. Id: {blockId}</Text>
     }
     const ref = useRef<TextInput>(null);
+    const viewRef = useRef<View>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
     const { keyboardY, keyboardHeight } = useKeyboardStatus();
@@ -92,6 +93,11 @@ const BlockElement = memo(({
                 ref.current?.measureInWindow((x, y, width, height) => {
                     console.log(x, y, width, height);
                 })
+            },
+            measureLayout: (scrollviewRef) => {
+                viewRef.current?.measureLayout(scrollviewRef, (x, y, width, height) => {
+                    console.log(x, y, width, height);
+                })
             }
         }
     };
@@ -110,44 +116,6 @@ const BlockElement = memo(({
             unregisterRef && unregisterRef(blockId);
         };
     }, []);
-
-    /* const [isDragging, setIsDragging] = useState(false);
-
-    const dragX = useSharedValue(0);
-    const dragY = useSharedValue(0);
-    const opacity = useSharedValue(0);
-
-    const longPress = Gesture.LongPress()
-        .minDuration(300)
-        .onStart((e) => {
-        runOnJS(setIsDragging)(true);
-            dragX.value = e.x;
-            dragY.value = e.y;
-            opacity.value = withTiming(1, { duration: 150 });
-        });
-
-    // Drag gesture for the floating clone
-    const drag = Gesture.Pan()
-        .onUpdate((e) => {
-            dragX.value = e.translationX;
-            dragY.value = e.translationY;
-        })
-        .onEnd(() => {
-            opacity.value = withTiming(0, { duration: 150 }, () =>
-                runOnJS(setIsDragging)(false)
-            );
-        });
-
-    // Combine both gestures: once long press activates, drag takes over
-    const composed = Gesture.Simultaneous(longPress, drag);
-
-    const cloneStyle = useAnimatedStyle(() => ({
-        position: "absolute",
-        left: dragX.value - width * 0.4, // center horizontally under finger
-        top: dragY.value - 25, // adjust to center vertically
-        opacity: opacity.value,
-        transform: [{ scale: withTiming(isDragging ? 1.05 : 1) }],
-    })); */
 
     return (
         <>
@@ -214,26 +182,6 @@ const BlockElement = memo(({
                         }}
                     />
                 </View>
-            {/* </GestureDetector> */}
-
-            {/* {isDragging && (
-                <Animated.View style={[styles.clone, cloneStyle]}>
-                    <View style={[styles.container]}>
-                        <TextInput
-                            scrollEnabled={false}
-                            style={[styles[block.type], {
-                                textAlignVertical: "top",
-                                flexShrink: 0,
-                                flexGrow: 1,
-                            }]}
-                            multiline
-                            editable={false}
-                            defaultValue={valueRef.current}
-                            
-                        />
-                    </View>
-                </Animated.View>
-            )} */}
         </>
     )
 });

@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, Dimensions } from "react-native";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -7,7 +7,11 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import BlockElement from "./Block";
 
-export default function DragProvider({ children, block }) {
+const { height } = Dimensions.get("window");
+const TOP_THRESHOLD = 200; // Adjust as needed
+const BOTTOM_THRESHOLD = 200;
+
+export default function DragProvider({ children, block, scrollviewRef }) {
     /** Gestures */
     const isPressed = useSharedValue(false);
     const offset = useSharedValue({ x: 0, y: 0 });
@@ -17,7 +21,6 @@ export default function DragProvider({ children, block }) {
             transform: [
                 { translateX: offset.value.x },
                 { translateY: offset.value.y },
-                { scale: withSpring(isPressed.value ? 1.05 : 1) },
             ],
             display: isPressed.value === false ? 'none' : 'flex',
             borderWidth: isPressed.value === true ? 1 : 0,
@@ -42,6 +45,15 @@ export default function DragProvider({ children, block }) {
                 x: e.translationX + start.value.x,
                 y: e.translationY + start.value.y,
             };
+
+            if (e.absoluteY < TOP_THRESHOLD) {
+                console.log(scrollviewRef);
+                console.log("top");
+            }
+
+            if (e.absoluteY > height - BOTTOM_THRESHOLD) {
+                console.log("bottom");
+            }
         })
         .onEnd(() => {
             /* start.value = {

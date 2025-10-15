@@ -422,6 +422,7 @@ export default function NoteScreen() {
         });
     }
 
+    // Components
     const ListHeaderComponent = useCallback(() => (
         <BlockElement
             key={pageId}
@@ -451,10 +452,6 @@ export default function NoteScreen() {
         />
     )
 
-    
-
-    
-
     return (
         <GestureHandlerRootView>
             <KeyboardAvoidingView
@@ -477,7 +474,10 @@ export default function NoteScreen() {
                     {rootBlock.content?.map((blockId) => {
                         return (
                             <View key={blockId}>
-                                <DragProvider block={blocks[blockId]}>
+                                <DragProvider
+                                    block={blocks[blockId]}
+                                    scrollviewRef={scrollViewRef}
+                                >
                                     <View>
                                         <BlockElement
                                             blockId={blockId}
