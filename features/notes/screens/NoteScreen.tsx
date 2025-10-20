@@ -40,8 +40,11 @@ export default function NoteScreen() {
     const [blocks, setBlocks] = useState(sampleData);
     const rootBlock : Block = blocks[pageId];
     const [focusedBlockId, setFocusedBlockId] = useState(null);
-    const [ghostBlockId, setGhostBlockId] = useState(null);
-    const [editable, setEditable] = useState(false);
+    const scrollY = useSharedValue(0);
+
+    const handleScroll = (event: { nativeEvent: { contentOffset: { y: number; }; }; }) => {
+        scrollY.value = Math.round(event.nativeEvent.contentOffset.y);
+    };
 
     const handleScrollTo = ({ x, y, animated } : { x: number, y: number, animated: boolean }) => {
         scrollViewRef.current?.scrollTo({
@@ -452,6 +455,42 @@ export default function NoteScreen() {
         />
     )
 
+    // Ghost block
+    const isPressed = useSharedValue(false);
+    const offset = useSharedValue({ x: 0, y: 0 });
+    const [ghostBlockId, setGhostBlockId] = useState(null);
+
+    const setIsPressed = (value: boolean) => isPressed.value = value;
+    const setOffset = (value: { x: number, y: number }) => offset.value = value;
+
+    const start = useSharedValue({ x: 0, y: 0 });
+    const setStart = (value: { x: number, y: number }) => start.value = value; 
+    const animatedStyles = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { translateX: offset.value.x },
+                { translateY: offset.value.y },
+            ],
+            display: isPressed.value === false ? 'none' : 'flex',
+            borderWidth: isPressed.value === true ? 1 : 0,
+            borderRadius: 5
+        };
+    });
+
+    const GhostBlock = () => (
+        <Animated.View style={[{
+            opacity: 0.5,
+            position: "absolute",
+            width: "100%"
+        }, animatedStyles]}>
+            <BlockElement
+                blockId={ghostBlockId}
+                block={blocks[ghostBlockId]}
+                title={blocks[ghostBlockId].properties.title}
+            />
+        </Animated.View>
+    )
+
     return (
         <GestureHandlerRootView>
             <KeyboardAvoidingView
@@ -461,11 +500,13 @@ export default function NoteScreen() {
 
                 <ScrollView
                     ref={scrollViewRef}
+                    onScroll={handleScroll}
                     contentContainerStyle={{
                         flexGrow: 1,
                         paddingTop: insets.top,
                         paddingHorizontal: 8,
                     }}
+                    /* scrollEnabled={false} */
                     keyboardShouldPersistTaps="always"
                     automaticallyAdjustKeyboardInsets
                 >
@@ -476,7 +517,16 @@ export default function NoteScreen() {
                             <View key={blockId}>
                                 <DragProvider
                                     block={blocks[blockId]}
-                                    scrollviewRef={scrollViewRef}
+                                    scrollViewRef={scrollViewRef}
+                                    handleScrollTo={handleScrollTo}
+                                    scrollPosition={scrollY}
+
+                                    setIsPressed={setIsPressed}
+                                    setGhostBlockId={setGhostBlockId}
+                                    offset={offset}
+                                    setOffset={setOffset}
+                                    start={start}
+                                    setStart={setStart}
                                 >
                                     <View>
                                         <BlockElement
@@ -505,6 +555,7 @@ export default function NoteScreen() {
 
                 </ScrollView>
 
+                {isPressed.value === true && <GhostBlock />}
 
                 <Footer 
                     actions={footerActions}
@@ -522,6 +573,7 @@ export default function NoteScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        position: "relative",
     },
     pageTitle: {
         fontSize: 24,

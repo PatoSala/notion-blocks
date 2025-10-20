@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { View, Dimensions } from "react-native";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
-    withSpring
+    withSpring,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import BlockElement from "./Block";
 
@@ -11,12 +13,25 @@ const { height } = Dimensions.get("window");
 const TOP_THRESHOLD = 200; // Adjust as needed
 const BOTTOM_THRESHOLD = 200;
 
-export default function DragProvider({ children, block, scrollviewRef }) {
-    /** Gestures */
-    const isPressed = useSharedValue(false);
-    const offset = useSharedValue({ x: 0, y: 0 });
+export default function DragProvider({
+    children,
+    block,
+    handleScrollTo,
+    scrollPosition,
+    scrollViewRef,
 
-    const animatedStyles = useAnimatedStyle(() => {
+    setGhostBlockId,
+    setIsPressed,
+    offset,
+    setOffset,
+    start,
+    setStart
+}) {
+    /** Gestures */
+    /* const isPressed = useSharedValue(false);
+    const offset = useSharedValue({ x: 0, y: 0 }); */
+
+    /* const animatedStyles = useAnimatedStyle(() => {
         return {
             transform: [
                 { translateX: offset.value.x },
@@ -26,51 +41,63 @@ export default function DragProvider({ children, block, scrollviewRef }) {
             borderWidth: isPressed.value === true ? 1 : 0,
             borderRadius: 5
         };
-    });
+    }); */
 
     // scroll, tap
     const nativeGestures = Gesture.Native()
 
-    const start = useSharedValue({ x: 0, y: 0 });
+    /* const start = useSharedValue({ x: 0, y: 0 }); */
     const blockDrag = Gesture.Pan()
         .activateAfterLongPress(1000)
         .onBegin(() => {
             /* isPressed.value = true; */
         })
         .onStart((e) => {
-            isPressed.value = true;
+            scheduleOnRN(setIsPressed, true);
+            scheduleOnRN(setGhostBlockId, block.id);
+            // get all scrollview elements start and end positions
         })
         .onUpdate((e) => {
-            offset.value = {
+            
+
+            scheduleOnRN(setOffset, {
                 x: e.translationX + start.value.x,
                 y: e.translationY + start.value.y,
-            };
+            })
 
-            if (e.absoluteY < TOP_THRESHOLD) {
-                console.log(scrollviewRef);
-                console.log("top");
+            // Handle auto-scrolling
+            if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {
+                scheduleOnRN(handleScrollTo, {
+                    x: 0,
+                    y: scrollPosition.value - 150,
+                    animated: true,
+                });
             }
 
             if (e.absoluteY > height - BOTTOM_THRESHOLD) {
-                console.log("bottom");
+                scheduleOnRN(handleScrollTo, {
+                    x: 0,
+                    y: scrollPosition.value + 200,
+                    animated: true,
+                });
             }
         })
         .onEnd(() => {
-            /* start.value = {
+            /* scheduleOnRN(setStart, {
                 x: offset.value.x,
-                y: offset.value.y,
-            }; */
+                y: offset.value.y
+            }); */
         })
         .onFinalize(() => {
-            isPressed.value = false;
+            scheduleOnRN(setIsPressed, false);
+            scheduleOnRN(setGhostBlockId, null);
         });
     
-    const GhostBlock = () => (
+    /* const GhostBlock = () => (
         <Animated.View style={[{
             opacity: 0.5,
             position: "absolute",
-            height: "100%",
-            width: "100%",
+            width: "100%"
         }, animatedStyles]}>
             <BlockElement
                 key={block.id}
@@ -79,7 +106,7 @@ export default function DragProvider({ children, block, scrollviewRef }) {
                 title={block.properties.title}
             />
         </Animated.View>
-    )
+    ) */
 
 
     const composed = Gesture.Exclusive(blockDrag, nativeGestures);
@@ -88,7 +115,7 @@ export default function DragProvider({ children, block, scrollviewRef }) {
         <GestureDetector gesture={composed}>
             <View style={{ position: "relative" }}>
                 {children}
-                <GhostBlock />
+                {/* <GhostBlock /> */}
 
             </View>
         </GestureDetector>
