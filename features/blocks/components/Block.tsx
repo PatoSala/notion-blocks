@@ -1,10 +1,8 @@
-import { useContext, useState, useRef, useEffect, useImperativeHandle, memo } from "react";
-import { Text, View, StyleSheet, TextInput, Dimensions } from "react-native";
+import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
+import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
 import { Block } from "../interfaces/Block.interface";
 import { updateBlock } from "../core";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
-import { Pressable } from "react-native-gesture-handler";
-
 import {
   Gesture,
   GestureDetector,
@@ -12,6 +10,7 @@ import {
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useAnimatedRef,
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
@@ -36,6 +35,7 @@ interface Props {
     onPressOut?: () => void;
     onPress?: () => void;
     editable?: boolean;
+    scrollViewRef?: RefObject<ScrollView> | null;
 }
 
 const BlockElement = memo(({
@@ -48,6 +48,7 @@ const BlockElement = memo(({
     onPress,
     editable,
     onPressOut,
+    scrollViewRef,
     handleSubmitEditing,
     handleOnChangeText,
     handleOnKeyPress,
@@ -94,18 +95,31 @@ const BlockElement = memo(({
                     console.log(x, y, width, height);
                 })
             },
-            measureLayout: (scrollviewRef) => {
-                viewRef.current?.measureLayout(scrollviewRef, (x, y, width, height) => {
+            measureLayout: () => {
+                viewRef.current?.measure((x, y, width, height) => {
                     console.log(x, y, width, height);
                 })
             }
         }
     };
 
+    /* useLayoutEffect(() => {
+       // Measure block layout
+       if (scrollViewRef?.current !== null && viewRef.current !== null) {
+           api.current.measureLayout(scrollViewRef);
+       }
+    }, []); */
+
     useEffect(() => {
         requestAnimationFrame(() => {
             api.current.setText(title);
+
+            api.current.measureLayout();
         })
+
+        /* if (scrollViewRef?.current !== null && viewRef.current !== null) {
+           api.current.measureLayout(scrollViewRef);
+       } */
     }, [title])
 
     useEffect(() => {
@@ -116,72 +130,72 @@ const BlockElement = memo(({
             unregisterRef && unregisterRef(blockId);
         };
     }, []);
-
+    
     return (
         <>
-            {/* <GestureDetector gesture={composed}> */}
-                <View style={[styles.container]}>
-                    <TextInput
-                        ref={ref}
-                        scrollEnabled={false}
-                        style={[styles[block.type], {
-                            textAlignVertical: "top",
-                            flexShrink: 0,
-                            flexGrow: 1,
-                        }]}
-                        multiline
-                        cursorColor={"black"}
-                        selectionColor={"black"}
-                        submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
-                        onChangeText={(text) => {
-                            valueRef.current = text;
+            <View style={[styles.container]} ref={viewRef}>
+                <TextInput
+                    ref={ref}
+                    scrollEnabled={false}
+                    style={[styles[block.type], {
+                        textAlignVertical: "top",
+                        flexShrink: 0,
+                        flexGrow: 1,
+                    }]}
+                    multiline
+                    /* onLayout={() => scrollViewRef?.current !== null && api.current.measureLayout(scrollViewRef)}
+                    cursorColor={"black"} */
+                    selectionColor={"black"}
+                    submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
+                    onChangeText={(text) => {
+                        valueRef.current = text;
 
-                        }}
-                        onSelectionChange={({ nativeEvent }) => {
-                            selectionRef.current = nativeEvent.selection;
-                        }}
-                        showSoftInputOnFocus={showSoftInputOnFocus}
-                        smartInsertDelete={false}
-                        onFocus={onFocus}
-                        defaultValue={valueRef.current}
-                        selectTextOnFocus={false}
-                        onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
-                        onSubmitEditing={() => {
-                            handleSubmitEditing && handleSubmitEditing(
-                                updateBlock(block, {
-                                    properties:
-                                    { 
-                                        title: valueRef.current
-                                    }
-                                }),
-                                selectionRef.current
-                            );
-                        }}
-                        onKeyPress={(event) => {
-                            event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
-                                event,
-                                updateBlock(block, {
-                                    properties:
-                                    { 
-                                        title: valueRef.current
-                                    }
-                                }),
-                                selectionRef.current
-                            ) : null;
-
-                            // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
-                            ref.current?.measureInWindow((x, y, width, height) => {
-                                if (y > keyboardY) {
-                                    handleScrollTo && handleScrollTo({
-                                        x: 0,
-                                        y: y - 44,
-                                        animated: true
-                                    });
+                    }}
+                    onSelectionChange={({ nativeEvent }) => {
+                        selectionRef.current = nativeEvent.selection;
+                    }}
+                    showSoftInputOnFocus={showSoftInputOnFocus}
+                    smartInsertDelete={false}
+                    onFocus={onFocus}
+                    defaultValue={valueRef.current}
+                    selectTextOnFocus={false}
+                    onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
+                    onSubmitEditing={() => {
+                        handleSubmitEditing && handleSubmitEditing(
+                            updateBlock(block, {
+                                properties:
+                                { 
+                                    title: valueRef.current
                                 }
-                            })
-                        }}
-                    />
-                </View>
+                            }),
+                            selectionRef.current
+                        );
+                    }}
+                    onKeyPress={(event) => {
+                        event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
+                            event,
+                            updateBlock(block, {
+                                properties:
+                                { 
+                                    title: valueRef.current
+                                }
+                            }),
+                            selectionRef.current
+                        ) : null;
+
+                        // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
+                        ref.current?.measureInWindow((x, y, width, height) => {
+                            if (y > keyboardY) {
+                                handleScrollTo && handleScrollTo({
+                                    x: 0,
+                                    y: y - 44,
+                                    animated: true
+                                });
+                            }
+                        })
+                    }}
+                />
+            </View>
         </>
     )
 });

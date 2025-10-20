@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
-import { GestureHandlerRootView, Gesture, GestureDetector, ScrollView } from "react-native-gesture-handler";
+import { GestureHandlerRootView, Gesture, GestureDetector, /* ScrollView */ } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {
     StyleSheet,
-    /* ScrollView, */
+    ScrollView,
     Pressable,
     KeyboardAvoidingView,
     Platform,
@@ -540,6 +540,7 @@ export default function NoteScreen() {
                                             registerRef={registerRef}
                                             unregisterRef={unregisterRef}
                                             handleScrollTo={handleScrollTo}
+                                            scrollViewRef={scrollViewRef}
                                             onFocus={() => {
                                                 setFocusedBlockId(blockId);
                                             }}
