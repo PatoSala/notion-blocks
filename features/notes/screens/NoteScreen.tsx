@@ -26,6 +26,7 @@ import { sampleData } from "../utils/sampleData";
 import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
 import DragProvider from "../../blocks/components/DragProvider";
+import LayoutProvider from "../../blocks/components/LayoutProvider";
 import Footer from "../components/Footer";
 import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
 
@@ -514,7 +515,7 @@ export default function NoteScreen() {
 
                     {rootBlock.content?.map((blockId) => {
                         return (
-                            <View key={blockId}>
+                            <LayoutProvider key={blockId} blockId={blockId}>
                                 <DragProvider
                                     block={blocks[blockId]}
                                     scrollViewRef={scrollViewRef}
@@ -547,7 +548,7 @@ export default function NoteScreen() {
                                         />
                                     </View>
                                 </DragProvider>
-                            </View>
+                            </LayoutProvider>
                         )
                     })}
 

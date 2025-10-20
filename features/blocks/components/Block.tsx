@@ -114,7 +114,7 @@ const BlockElement = memo(({
         requestAnimationFrame(() => {
             api.current.setText(title);
 
-            api.current.measureLayout();
+            /* api.current.measureLayout(); */
         })
 
         /* if (scrollViewRef?.current !== null && viewRef.current !== null) {
