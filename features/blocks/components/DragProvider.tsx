@@ -26,7 +26,8 @@ export default function DragProvider({
     setOffset,
     start,
     setStart,
-    findBlockAtPosition
+    findBlockAtPosition,
+    setIndicatorPosition
 }) {
     /** Gestures */
     /* const isPressed = useSharedValue(false);
@@ -50,12 +51,17 @@ export default function DragProvider({
     /* const start = useSharedValue({ x: 0, y: 0 }); */
     const blockDrag = Gesture.Pan()
         .activateAfterLongPress(1000)
-        .onBegin(() => {
-            /* isPressed.value = true; */
+        .onBegin((e) => {
+            scheduleOnRN(setStart, {
+                x: 0,
+                y: e.absoluteY
+            })
         })
         .onStart((e) => {
             scheduleOnRN(setIsPressed, true);
             scheduleOnRN(setGhostBlockId, block.id);
+
+            
             // get all scrollview elements start and end positions
         })
         .onUpdate((e) => {
@@ -67,7 +73,7 @@ export default function DragProvider({
             scheduleOnRN(findBlockAtPosition, e.absoluteY);
 
             // Handle auto-scrolling
-            if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {
+            /* if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {
                 scheduleOnRN(handleScrollTo, {
                     x: 0,
                     y: scrollPosition.value - 150,
@@ -81,7 +87,7 @@ export default function DragProvider({
                     y: scrollPosition.value + 200,
                     animated: true,
                 });
-            }
+            } */
         })
         .onEnd(() => {
             /* scheduleOnRN(setStart, {
@@ -92,24 +98,11 @@ export default function DragProvider({
         .onFinalize(() => {
             scheduleOnRN(setIsPressed, false);
             scheduleOnRN(setGhostBlockId, null);
+            scheduleOnRN(setStart, { x: 0, y: 0 });
+            scheduleOnRN(setOffset, { x: 0, y: 0 });
+            scheduleOnRN(setIndicatorPosition, { y: 0 });
         });
     
-    /* const GhostBlock = () => (
-        <Animated.View style={[{
-            opacity: 0.5,
-            position: "absolute",
-            width: "100%"
-        }, animatedStyles]}>
-            <BlockElement
-                key={block.id}
-                blockId={block.id}
-                block={block}
-                title={block.properties.title}
-            />
-        </Animated.View>
-    ) */
-
-
     const composed = Gesture.Exclusive(blockDrag, nativeGestures);
 
     return (

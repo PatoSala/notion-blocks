@@ -471,8 +471,9 @@ export default function NoteScreen() {
         return {
             transform: [
                 { translateX: offset.value.x },
-                { translateY: offset.value.y },
+                /* { translateY: offset.value.y }, */
             ],
+            top: offset.value.y,
             display: isPressed.value === false ? 'none' : 'flex',
             borderWidth: isPressed.value === true ? 1 : 0,
             borderRadius: 5
@@ -496,16 +497,22 @@ export default function NoteScreen() {
     // Block measures
     const blockMeasuresRef = useRef({});
     const indicatorPosition = useSharedValue({ y: 0 });
+
     const registerBlockMeasure = (blockId: string, measures: { height: number, start: number, end: number }) => {
         blockMeasuresRef.current[blockId] = measures;
     }
 
+    const setIndicatorPosition = (value: { y: number }) => indicatorPosition.value = value;
+
     const findBlockAtPosition = (y: number) => {
+        const withScrollY = y + scrollY.value;
         for (const blockId in blockMeasuresRef.current) {
             const { start, end } = blockMeasuresRef.current[blockId];
-            if (y >= start && y <= end) {
-                console.log(blockId);
-                const closestTo = y - start > end - y ? "end" : "start";
+            if (withScrollY >= start && withScrollY <= end) {
+                
+                const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
+                /* console.log(blockId);
+                console.log(closestTo); */
 
                 indicatorPosition.value = {
                     y: blockMeasuresRef.current[blockId][closestTo]
@@ -515,13 +522,30 @@ export default function NoteScreen() {
         }
     }
 
+    const indicatorAnimatedStyles = useAnimatedStyle(() => {
+        return {
+            top: indicatorPosition.value.y
+        }
+    })
+
+    const Indicator = () => (
+        <Animated.View style={[
+            styles.indicator,
+            indicatorAnimatedStyles,
+            {
+                display: indicatorPosition.value.y === 0 ? "none" : "flex"
+            }
+        ]} />
+    )
+
+    console.log(indicatorPosition.value);
+
     return (
         <GestureHandlerRootView>
             <KeyboardAvoidingView
                 style={styles.container}
                 behavior={"padding"}
             >
-
                     <ScrollView
                         ref={scrollViewRef}
                         onScroll={handleScroll}
@@ -534,8 +558,9 @@ export default function NoteScreen() {
                         keyboardShouldPersistTaps="always"
                         automaticallyAdjustKeyboardInsets
                     >
+                        <Indicator />
+
                         <ListHeaderComponent />
-                        <IndicatorProvider position={indicatorPosition.value}>
 
                         {rootBlock.content?.map((blockId) => {
                             return (
@@ -557,6 +582,7 @@ export default function NoteScreen() {
                                         start={start}
                                         setStart={setStart}
                                         findBlockAtPosition={findBlockAtPosition}
+                                        setIndicatorPosition={setIndicatorPosition}
                                     >
                                         <View>
                                             <BlockElement
@@ -580,8 +606,6 @@ export default function NoteScreen() {
                                 </LayoutProvider>
                             )
                         })}
-                        </IndicatorProvider>
-
 
                         <ListFooterComponent />
 
@@ -632,5 +656,12 @@ const styles = StyleSheet.create({
     blockOptionsText: {
         fontSize: 16,
         fontWeight: "bold",
+    },
+    indicator: {
+        height: 3,
+        width: "100%",
+        opacity: 0.5,
+        backgroundColor: "#0277e4ff",
+        position: "absolute"
     }
 });

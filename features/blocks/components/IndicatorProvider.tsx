@@ -16,14 +16,22 @@ export default function IndicatorProvider({
 
     const animatedStyles = useAnimatedStyle(() => {
         return {
-            top: position.y,
+            transform: [
+                { translateY: position.y }
+            ],
         };
     });
 
     return (
         <>
             {children}
-            <Animated.View style={[styles.indicator, animatedStyles]} />
+            <Animated.View style={[
+                styles.indicator,
+                animatedStyles,
+                {
+                    display: position.y === 0 ? "none" : "flex"
+                }
+            ]} />
         </>
     );
 }
