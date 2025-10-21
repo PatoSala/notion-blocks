@@ -19,13 +19,14 @@ export default function DragProvider({
     handleScrollTo,
     scrollPosition,
     scrollViewRef,
-
+    
     setGhostBlockId,
     setIsPressed,
     offset,
     setOffset,
     start,
-    setStart
+    setStart,
+    findBlockAtPosition
 }) {
     /** Gestures */
     /* const isPressed = useSharedValue(false);
@@ -58,12 +59,12 @@ export default function DragProvider({
             // get all scrollview elements start and end positions
         })
         .onUpdate((e) => {
-            
-
             scheduleOnRN(setOffset, {
                 x: e.translationX + start.value.x,
                 y: e.translationY + start.value.y,
             })
+
+            scheduleOnRN(findBlockAtPosition, e.absoluteY);
 
             // Handle auto-scrolling
             if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {

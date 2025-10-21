@@ -1,7 +1,11 @@
 import { useRef, useLayoutEffect, use } from "react";
 import { View } from "react-native";
 
-export default function LayoutProvider({ children, blockId }) {
+export default function LayoutProvider({
+    children,
+    blockId,
+    registerBlockMeasure
+}) {
     const ref = useRef<View>(null);
 
     useLayoutEffect(() => {
@@ -12,7 +16,13 @@ export default function LayoutProvider({ children, blockId }) {
                 start-y: ${y}
                 end-y: ${y + height}
             `;
-            console.log(measures);
+
+            registerBlockMeasure(blockId, {
+                    blockId: blockId,
+                    height: height,
+                    start: y,
+                    end: y + height
+                });
         });
     }, []);
 

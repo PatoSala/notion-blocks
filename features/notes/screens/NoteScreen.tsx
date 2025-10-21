@@ -27,6 +27,7 @@ import { Block  } from "../../blocks/interfaces/Block.interface";
 import BlockElement from "../../blocks/components/Block";
 import DragProvider from "../../blocks/components/DragProvider";
 import LayoutProvider from "../../blocks/components/LayoutProvider";
+import IndicatorProvider from "../../blocks/components/IndicatorProvider";
 import Footer from "../components/Footer";
 import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
 
@@ -492,6 +493,28 @@ export default function NoteScreen() {
         </Animated.View>
     )
 
+    // Block measures
+    const blockMeasuresRef = useRef({});
+    const indicatorPosition = useSharedValue({ y: 0 });
+    const registerBlockMeasure = (blockId: string, measures: { height: number, start: number, end: number }) => {
+        blockMeasuresRef.current[blockId] = measures;
+    }
+
+    const findBlockAtPosition = (y: number) => {
+        for (const blockId in blockMeasuresRef.current) {
+            const { start, end } = blockMeasuresRef.current[blockId];
+            if (y >= start && y <= end) {
+                console.log(blockId);
+                const closestTo = y - start > end - y ? "end" : "start";
+
+                indicatorPosition.value = {
+                    y: blockMeasuresRef.current[blockId][closestTo]
+                }
+
+            }
+        }
+    }
+
     return (
         <GestureHandlerRootView>
             <KeyboardAvoidingView
@@ -499,64 +522,70 @@ export default function NoteScreen() {
                 behavior={"padding"}
             >
 
-                <ScrollView
-                    ref={scrollViewRef}
-                    onScroll={handleScroll}
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        paddingTop: insets.top,
-                        paddingHorizontal: 8,
-                    }}
-                    /* scrollEnabled={false} */
-                    keyboardShouldPersistTaps="always"
-                    automaticallyAdjustKeyboardInsets
-                >
-                    <ListHeaderComponent />
+                    <ScrollView
+                        ref={scrollViewRef}
+                        onScroll={handleScroll}
+                        contentContainerStyle={{
+                            flexGrow: 1,
+                            paddingTop: insets.top,
+                            paddingHorizontal: 8,
+                        }}
+                        /* scrollEnabled={false} */
+                        keyboardShouldPersistTaps="always"
+                        automaticallyAdjustKeyboardInsets
+                    >
+                        <ListHeaderComponent />
+                        <IndicatorProvider position={indicatorPosition.value}>
 
-                    {rootBlock.content?.map((blockId) => {
-                        return (
-                            <LayoutProvider key={blockId} blockId={blockId}>
-                                <DragProvider
-                                    block={blocks[blockId]}
-                                    scrollViewRef={scrollViewRef}
-                                    handleScrollTo={handleScrollTo}
-                                    scrollPosition={scrollY}
-
-                                    setIsPressed={setIsPressed}
-                                    setGhostBlockId={setGhostBlockId}
-                                    offset={offset}
-                                    setOffset={setOffset}
-                                    start={start}
-                                    setStart={setStart}
+                        {rootBlock.content?.map((blockId) => {
+                            return (
+                                <LayoutProvider
+                                    key={blockId}
+                                    blockId={blockId}
+                                    registerBlockMeasure={registerBlockMeasure}
                                 >
-                                    <View>
-                                        <BlockElement
-                                            blockId={blockId}
-                                            block={blocks[blockId]}
-                                            title={blocks[blockId].properties.title}
-                                            handleOnChangeText={handleOnChangeText}
-                                            handleSubmitEditing={handleSubmitEditing}
-                                            handleOnKeyPress={handleOnKeyPress}
-                                            showSoftInputOnFocus={showSoftInputOnFocus}
-                                            registerRef={registerRef}
-                                            unregisterRef={unregisterRef}
-                                            handleScrollTo={handleScrollTo}
-                                            scrollViewRef={scrollViewRef}
-                                            onFocus={() => {
-                                                setFocusedBlockId(blockId);
-                                            }}
-                                        />
-                                    </View>
-                                </DragProvider>
-                            </LayoutProvider>
-                        )
-                    })}
+                                    <DragProvider
+                                        block={blocks[blockId]}
+                                        scrollViewRef={scrollViewRef}
+                                        handleScrollTo={handleScrollTo}
+                                        scrollPosition={scrollY}
+
+                                        setIsPressed={setIsPressed}
+                                        setGhostBlockId={setGhostBlockId}
+                                        offset={offset}
+                                        setOffset={setOffset}
+                                        start={start}
+                                        setStart={setStart}
+                                        findBlockAtPosition={findBlockAtPosition}
+                                    >
+                                        <View>
+                                            <BlockElement
+                                                blockId={blockId}
+                                                block={blocks[blockId]}
+                                                title={blocks[blockId].properties.title}
+                                                handleOnChangeText={handleOnChangeText}
+                                                handleSubmitEditing={handleSubmitEditing}
+                                                handleOnKeyPress={handleOnKeyPress}
+                                                showSoftInputOnFocus={showSoftInputOnFocus}
+                                                registerRef={registerRef}
+                                                unregisterRef={unregisterRef}
+                                                handleScrollTo={handleScrollTo}
+                                                scrollViewRef={scrollViewRef}
+                                                onFocus={() => {
+                                                    setFocusedBlockId(blockId);
+                                                }}
+                                            />
+                                        </View>
+                                    </DragProvider>
+                                </LayoutProvider>
+                            )
+                        })}
+                        </IndicatorProvider>
 
 
-                    <ListFooterComponent />
+                        <ListFooterComponent />
 
-                </ScrollView>
-
+                    </ScrollView>
                 {isPressed.value === true && <GhostBlock />}
 
                 <Footer 
