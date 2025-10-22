@@ -38,6 +38,12 @@ export function insertBlockIdIntoContent(
   return contentArray;
 }
 
+export function rearrangeContent(parentBlock: Block, blockId: string, index: number) {
+  const contentArray = parentBlock.content;
+  contentArray.splice(index, 0, blockId);
+  return contentArray;
+}
+
 export function findPrevBlock() {}
 
 

@@ -26,24 +26,10 @@ export default function DragProvider({
     setOffset,
     start,
     setStart,
-    findBlockAtPosition,
-    setIndicatorPosition
+    functionDetermineIndicatorPosition,
+    setIndicatorPosition,
+    triggerMoveBlock
 }) {
-    /** Gestures */
-    /* const isPressed = useSharedValue(false);
-    const offset = useSharedValue({ x: 0, y: 0 }); */
-
-    /* const animatedStyles = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: offset.value.x },
-                { translateY: offset.value.y },
-            ],
-            display: isPressed.value === false ? 'none' : 'flex',
-            borderWidth: isPressed.value === true ? 1 : 0,
-            borderRadius: 5
-        };
-    }); */
 
     // scroll, tap
     const nativeGestures = Gesture.Native()
@@ -60,9 +46,6 @@ export default function DragProvider({
         .onStart((e) => {
             scheduleOnRN(setIsPressed, true);
             scheduleOnRN(setGhostBlockId, block.id);
-
-            
-            // get all scrollview elements start and end positions
         })
         .onUpdate((e) => {
             scheduleOnRN(setOffset, {
@@ -70,7 +53,7 @@ export default function DragProvider({
                 y: e.translationY + start.value.y,
             })
 
-            scheduleOnRN(findBlockAtPosition, e.absoluteY);
+            scheduleOnRN(functionDetermineIndicatorPosition, e.absoluteY);
 
             // Handle auto-scrolling
             /* if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {
@@ -97,20 +80,19 @@ export default function DragProvider({
         })
         .onFinalize(() => {
             scheduleOnRN(setIsPressed, false);
+            scheduleOnRN(triggerMoveBlock);
             scheduleOnRN(setGhostBlockId, null);
             scheduleOnRN(setStart, { x: 0, y: 0 });
             scheduleOnRN(setOffset, { x: 0, y: 0 });
             scheduleOnRN(setIndicatorPosition, { y: 0 });
         });
     
-    const composed = Gesture.Exclusive(blockDrag, nativeGestures);
+    const composed = Gesture.Exclusive(nativeGestures, blockDrag);
 
     return (
         <GestureDetector gesture={composed}>
             <View style={{ position: "relative" }}>
                 {children}
-                {/* <GhostBlock /> */}
-
             </View>
         </GestureDetector>
     );

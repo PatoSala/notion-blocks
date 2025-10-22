@@ -7,7 +7,7 @@ export const sampleData : Record<string, IBlock> = {
         properties: {
             title: "React Native                                              Blocks"
         },
-        content: ["2", "3", "4", "5", "6", "7", "8", "9"],
+        content: ["2", "3", "8", "9"],
         parent: ""
     },
     "2": {
@@ -21,42 +21,6 @@ export const sampleData : Record<string, IBlock> = {
     },
     "3": {
         id: "3",
-        type: "text",
-        properties: {
-            title: "React Native Blocks is a block-based text editor component. It brings to your app the power of Notion blocks architecture plus the possibility to customize or even extend the editor’s functionalities with your own block components."
-        },
-        content: [],
-        parent: "1"
-    },
-    "4": {
-        id: "4",
-        type: "sub_header",
-        properties: {
-            title: "Inspired by the data model behind Notion’s flexibility."
-        },
-        content: [],
-        parent: "1"
-    },
-    "5": {
-        id: "5",
-        type: "text",
-        properties: {
-            title: "React Native Blocks is a block-based text editor component. It brings to your app the power of Notion blocks architecture plus the possibility to customize or even extend the editor’s functionalities with your own block components."
-        },
-        content: [],
-        parent: "1"
-    },
-    "6": {
-        id: "6",
-        type: "sub_header",
-        properties: {
-            title: "Inspired by the data model behind Notion’s flexibility."
-        },
-        content: [],
-        parent: "1"
-    },
-    "7": {
-        id: "7",
         type: "text",
         properties: {
             title: "React Native Blocks is a block-based text editor component. It brings to your app the power of Notion blocks architecture plus the possibility to customize or even extend the editor’s functionalities with your own block components."

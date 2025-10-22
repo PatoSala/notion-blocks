@@ -29,7 +29,7 @@ import DragProvider from "../../blocks/components/DragProvider";
 import LayoutProvider from "../../blocks/components/LayoutProvider";
 import IndicatorProvider from "../../blocks/components/IndicatorProvider";
 import Footer from "../components/Footer";
-import { updateBlock, insertBlockIdIntoContent } from "../../blocks/core/updateBlock";
+import { updateBlock, insertBlockIdIntoContent, rearrangeContent } from "../../blocks/core/updateBlock";
 
 // Temporary
 const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
@@ -286,7 +286,25 @@ export default function NoteScreen() {
         });
     }
 
-    function moveBlocks() {}
+    function moveBlocks(blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") {
+        const blockIndexInContent = blocks[parentId].content?.indexOf(blockId);
+        console.log("blockIndexInContent: ", blockIndexInContent);
+        const parentContent = blocks[parentId].content;
+        parentContent.splice(blockIndexInContent, 1);
+        console.log(parentContent);
+        const updatedBlock = updateBlock(blocks[parentId], {
+            content: insertBlockIdIntoContent(
+                parentContent,
+                blockId,
+                closestTo === "start" ? { nextBlockId: targetId } : { prevBlockId: targetId }
+            )
+        })
+        console.log(updatedBlock);
+         setBlocks({
+            ...blocks,
+            [pageId]: updatedBlock
+        });
+    }
 
     /**
      * Note: Only text based blocks can be turned into other block types.
@@ -427,6 +445,11 @@ export default function NoteScreen() {
         });
     }
 
+    const handleMoveBlock = (blockId: string, position: number) => {
+        const blockIdAtPosition = findBlockAtPosition(position);
+        console.log(blockIdAtPosition);
+
+    }
     // Components
     const ListHeaderComponent = useCallback(() => (
         <BlockElement
@@ -504,22 +527,46 @@ export default function NoteScreen() {
 
     const setIndicatorPosition = (value: { y: number }) => indicatorPosition.value = value;
 
-    const findBlockAtPosition = (y: number) => {
+    const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;
         for (const blockId in blockMeasuresRef.current) {
             const { start, end } = blockMeasuresRef.current[blockId];
             if (withScrollY >= start && withScrollY <= end) {
                 
                 const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
-                /* console.log(blockId);
-                console.log(closestTo); */
+                
+                return {
+                    blockId,
+                    closestTo
+                };
+            }
+        }
+    }
+
+    const functionDetermineIndicatorPosition = (y: number) => {
+        const withScrollY = y + scrollY.value;
+        for (const blockId in blockMeasuresRef.current) {
+            const { start, end } = blockMeasuresRef.current[blockId];
+            if (withScrollY >= start && withScrollY <= end) {
+                
+                const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
 
                 indicatorPosition.value = {
                     y: blockMeasuresRef.current[blockId][closestTo]
                 }
-
             }
         }
+    }
+
+    const triggerMoveBlock = () => {
+        if (!ghostBlockId) return;
+
+        const blockToMove = blocks[ghostBlockId];
+        const targetBlock = findBlockAtPosition(offset.value.y);
+
+        
+        moveBlocks(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
+        // re measure blocks
     }
 
     const indicatorAnimatedStyles = useAnimatedStyle(() => {
@@ -537,8 +584,6 @@ export default function NoteScreen() {
             }
         ]} />
     )
-
-    console.log(indicatorPosition.value);
 
     return (
         <GestureHandlerRootView>
@@ -581,8 +626,9 @@ export default function NoteScreen() {
                                         setOffset={setOffset}
                                         start={start}
                                         setStart={setStart}
-                                        findBlockAtPosition={findBlockAtPosition}
+                                        functionDetermineIndicatorPosition={functionDetermineIndicatorPosition}
                                         setIndicatorPosition={setIndicatorPosition}
+                                        triggerMoveBlock={triggerMoveBlock}
                                     >
                                         <View>
                                             <BlockElement
