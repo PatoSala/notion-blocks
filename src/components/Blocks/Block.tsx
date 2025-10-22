@@ -1,8 +1,8 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
-import { Block } from "../interfaces/Block.interface";
-import { updateBlock } from "../core";
-import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
+import { Block } from "../../interfaces/Block.interface";
+import { updateBlock } from "../../core/updateBlock";
+import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import {
   Gesture,
   GestureDetector,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Keyboard, FlatList } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
+import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 
 import InsertBlockSection from "./tabs/InsertBlockSection";
 import ReplaceBlockSection from "./tabs/ReplaceBlockSection";

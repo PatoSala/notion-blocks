@@ -1,4 +1,4 @@
-import { Block as IBlock } from "../../blocks/interfaces/Block.interface";
+import { Block as IBlock } from "../../interfaces/Block.interface";
 
 export const blocksData : Record<string, IBlock> = {
     "1": {

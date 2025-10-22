@@ -1,13 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import NoteScreen from './features/notes/screens/NoteScreen';
-import AltNotesScreen from './features/notes/screens/AltNotesScreen';
+import NoteScreen from './src/notes/screens/NoteScreen';
+import AltNotesScreen from './src/notes/screens/AltNotesScreen';
+import Editor from './src/components/Editor';
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NoteScreen />
+      <Editor />
       {/* <AltNotesScreen /> */}
       <StatusBar style="auto" />
     </SafeAreaProvider>

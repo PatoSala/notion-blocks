@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
-import { GestureHandlerRootView, Gesture, GestureDetector, /* ScrollView */ } from "react-native-gesture-handler";
+import { GestureHandlerRootView, Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,16 +20,13 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useKeyboardStatus } from "../../blocks/hooks/useKeyboardStatus";
-import { blocksData } from "../utils/initialBlocks";
 import { sampleData } from "../utils/sampleData";
-import { Block  } from "../../blocks/interfaces/Block.interface";
-import BlockElement from "../../blocks/components/Block";
-import DragProvider from "../../blocks/components/DragProvider";
-import LayoutProvider from "../../blocks/components/LayoutProvider";
-import IndicatorProvider from "../../blocks/components/IndicatorProvider";
-import Footer from "../components/Footer";
-import { updateBlock, insertBlockIdIntoContent, rearrangeContent } from "../../blocks/core/updateBlock";
+import { Block  } from "../interfaces/Block.interface";
+import BlockElement from "./Blocks/Block";
+import DragProvider from "./DragProvider";
+import LayoutProvider from "./LayoutProvider";
+import Footer from "./Footer/Footer";
+import { updateBlock, insertBlockIdIntoContent, rearrangeContent } from "../core/updateBlock";
 
 // Temporary
 const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
