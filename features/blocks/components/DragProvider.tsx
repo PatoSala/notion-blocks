@@ -28,7 +28,7 @@ export default function DragProvider({
     setStart,
     functionDetermineIndicatorPosition,
     setIndicatorPosition,
-    triggerMoveBlock
+    triggerMoveBlock,
 }) {
 
     // scroll, tap
@@ -87,7 +87,7 @@ export default function DragProvider({
             scheduleOnRN(setIndicatorPosition, { y: 0 });
         });
     
-    const composed = Gesture.Exclusive(nativeGestures, blockDrag);
+    const composed = Gesture.Exclusive(blockDrag, nativeGestures);
 
     return (
         <GestureDetector gesture={composed}>

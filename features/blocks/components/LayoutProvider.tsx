@@ -1,22 +1,17 @@
-import { useRef, useLayoutEffect, use } from "react";
+import { useRef, useLayoutEffect, useEffect } from "react";
 import { View } from "react-native";
 
+/** Measures and registers the height and position of a block */
 export default function LayoutProvider({
     children,
     blockId,
-    registerBlockMeasure
+    registerBlockMeasure,
+    dependancies
 }) {
     const ref = useRef<View>(null);
 
     useLayoutEffect(() => {
         ref.current?.measure((x, y, width, height) => {
-            const measures = `
-                Block: ${blockId}
-                height: ${height}
-                start-y: ${y}
-                end-y: ${y + height}
-            `;
-
             registerBlockMeasure(blockId, {
                     blockId: blockId,
                     height: height,
@@ -24,7 +19,7 @@ export default function LayoutProvider({
                     end: y + height
                 });
         });
-    }, []);
+    }, [dependancies]);
 
     return (
         <View ref={ref}>

@@ -55,7 +55,7 @@ const BlockElement = memo(({
     registerRef,
     unregisterRef,
     showSoftInputOnFocus,
-    handleScrollTo
+    handleScrollTo,
 } : Props) => {
 
     if (block === undefined) {

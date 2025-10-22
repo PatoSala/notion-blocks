@@ -16,7 +16,7 @@ import {
     Keyboard,
     View,
     Text,
-    FlatList
+    Dimensions
 } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -34,6 +34,8 @@ import { updateBlock, insertBlockIdIntoContent, rearrangeContent } from "../../b
 // Temporary
 const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
 
+const { width } = Dimensions.get("window");
+
 export default function NoteScreen() {
     const insets = useSafeAreaInsets();
     const scrollViewRef = useRef<ScrollView>(null);
@@ -41,6 +43,7 @@ export default function NoteScreen() {
     const pageId : string = "1";
     const [blocks, setBlocks] = useState(sampleData);
     const rootBlock : Block = blocks[pageId];
+    const content = rootBlock.content;
     const [focusedBlockId, setFocusedBlockId] = useState(null);
     const scrollY = useSharedValue(0);
 
@@ -613,6 +616,7 @@ export default function NoteScreen() {
                                     key={blockId}
                                     blockId={blockId}
                                     registerBlockMeasure={registerBlockMeasure}
+                                    dependancies={blocks[pageId]}
                                 >
                                     <DragProvider
                                         block={blocks[blockId]}
@@ -705,7 +709,9 @@ const styles = StyleSheet.create({
     },
     indicator: {
         height: 3,
-        width: "100%",
+        width: width - 32,
+        marginLeft: 16,
+        boxSizing: "border-box",
         opacity: 0.5,
         backgroundColor: "#0277e4ff",
         position: "absolute"
