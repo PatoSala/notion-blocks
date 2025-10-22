@@ -91,9 +91,7 @@ export default function DragProvider({
 
     return (
         <GestureDetector gesture={composed}>
-            <View style={{ position: "relative" }}>
                 {children}
-            </View>
         </GestureDetector>
     );
 }

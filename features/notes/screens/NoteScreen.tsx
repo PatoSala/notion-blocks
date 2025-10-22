@@ -532,18 +532,20 @@ export default function NoteScreen() {
 
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;
+        
         for (const blockId in blockMeasuresRef.current) {
             const { start, end } = blockMeasuresRef.current[blockId];
             if (withScrollY >= start && withScrollY <= end) {
                 
                 const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
-                
+
                 return {
                     blockId,
                     closestTo
                 };
             }
         }
+
     }
 
     const functionDetermineIndicatorPosition = (y: number) => {
@@ -565,7 +567,7 @@ export default function NoteScreen() {
         if (!ghostBlockId) return;
 
         const blockToMove = blocks[ghostBlockId];
-        const targetBlock = findBlockAtPosition(offset.value.y);
+        const targetBlock = findBlockAtPosition(indicatorPosition.value.y); // Passing the indicator position fixes de out of bounds error since the indicator value will always be positioned at the start ot end of a block
 
         
         moveBlocks(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
