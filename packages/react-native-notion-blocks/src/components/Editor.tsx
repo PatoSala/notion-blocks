@@ -26,7 +26,7 @@ import BlockElement from "./Blocks/Block";
 import DragProvider from "./DragProvider";
 import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
-import { updateBlock, insertBlockIdIntoContent, rearrangeContent } from "../core/updateBlock";
+import { updateBlock, insertBlockIdIntoContent } from "../core/updateBlock";
 
 // Temporary
 const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
@@ -301,7 +301,7 @@ export default function NoteScreen() {
         })
          setBlocks({
             ...blocks,
-            [pageId]: updatedBlock
+            [parentId]: updatedBlock
         });
     }
 

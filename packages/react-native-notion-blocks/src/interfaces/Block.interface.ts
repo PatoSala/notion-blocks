@@ -4,7 +4,7 @@ type UUIDv4 = string;
 
 class Block {
     id?: string;
-    type: "text" | "page" | "header" | "sub_header" | "sub_sub_header";
+    type: "text" | "page" | "header" | "sub_header" | "sub_sub_header" | string;
     properties: {
         title: string;
     };

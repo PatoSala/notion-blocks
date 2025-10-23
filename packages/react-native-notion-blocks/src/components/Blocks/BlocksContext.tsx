@@ -1,0 +1,264 @@
+import { createContext, useContext, useState } from "react";
+import { Block } from "../../interfaces/Block.interface";
+import { updateBlock, insertBlockIdIntoContent } from "../../core";
+
+const BlocksContext = createContext({});
+
+function useBlocksContext() {
+    const blocksContext = useContext(BlocksContext);
+    if (!blocksContext) {
+        throw new Error("useBlocksContext must be used within a BlocksContextProvider");
+    }
+    return blocksContext;
+}
+
+function BlocksProvider({ children }) {
+    const [blocks, setBlocks] = useState<Block[]>([]);
+
+    /** POC: Rendering order state (Related to the flat out root block improvement).
+     * const [renderingOrder, setRenderingOrder] = useState<string[]>([parentBlock.id, ...parentBlock.content]);
+     */
+
+    /** Block actions */
+    
+        /**
+         * Note: Currently the function below it's only insering into the root block.
+         */
+        function insertBlock(newBlock: Block) {
+            const updatedBlock = updateBlock(blocks[newBlock.parent], {
+                content: insertBlockIdIntoContent(blocks[newBlock.parent].content, newBlock.id, {})
+            });
+            setBlocks({
+                ...blocks,
+                [newBlock.parent]: updatedBlock,
+                [newBlock.id]: newBlock
+            });
+        }
+    
+        /**
+         * 
+         * @param block 
+         * @param selection 
+         * 
+         * Split block into two blocks.
+         * A new block will be inserted before the source block with the text before the cursor.
+         * The source block will be updated with the text after the cursor.
+         * 
+         * [Note: Review return statements.]
+         * [Note: Splitting a block is only available for text based blocks.]
+         */
+        function splitBlock(block: Block, selection: { start: number, end: number }) {
+            const textBeforeSelection = block.properties.title.substring(0, selection.start);
+            const textAfterSelection = block.properties.title.substring(selection.end);
+    
+            // If splitting root block, insert new text block below
+            if (block.id === rootBlock.id) {
+                const newBlockText = textAfterSelection;
+                const newBlock = new Block({
+                    type: "text",
+                    properties: {
+                        title: newBlockText
+                    },
+                    parent: block.id,
+                });
+                // Update parent block's content array (which is the current block in this case)
+                const updatedParentBlock = updateBlock(block, {
+                    properties: {
+                        title: textBeforeSelection
+                    },
+                    content: insertBlockIdIntoContent(block.content, newBlock.id, {
+                        nextBlockId: block.content[0]
+                    })
+                });
+                setBlocks({
+                    ...blocks,
+                    [newBlock.id]: newBlock, // new block
+                    [updatedParentBlock.id]: updatedParentBlock // source and parent block
+                });
+    
+                /** Review */
+                return {
+                    splitResult: newBlock,
+                    updatedBlock: updatedParentBlock
+                }
+            } else {
+                const updatedBlock = updateBlock(block, {
+                    type: selection.start === 0 && selection.end === 0 ? block.type : "text",
+                    properties: {
+                        title: textAfterSelection
+                    }
+                });
+                // Will be inserted before the source block, pushing the source block down
+                const newBlock = new Block({
+                    type: selection.start === 0 && selection.end === 0 ? "text" : block.type,
+                    properties: {
+                        title: textBeforeSelection
+                    },
+                    parent: block.parent,
+                });
+                const updatedParentBlock = updateBlock(blocks[block.parent], {
+                    content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
+                        nextBlockId: block.id
+                    })
+                });
+    
+                setBlocks({
+                    ...blocks,
+                    [newBlock.id]: newBlock,    // new block
+                    [block.id]: updatedBlock, // source block
+                    [block.parent]: updatedParentBlock // parent block
+                });
+    
+                /** Review */
+                return {
+                    splitResult: updatedBlock,
+                }
+            }
+        }
+    
+        /**
+         * 
+         * @param block 
+         * @returns 
+         * 
+         * Merge block with the block text before it.
+         * Appends the text from the target block at the beginning of the source block.
+         * The source block type will be replaced with the target block type.
+         * Last of all, the target block is removed.
+         */
+        function mergeBlock(block: Block) {
+            const sourceBlock = block;
+            const parentBlock = blocks[sourceBlock.parent];
+            const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
+            const isFirstChild = sourceBlockContentIndex === 0;
+            /** Note: The following isn't considering the posibility of the target block not being a text block. In said case the target block should be the last know text based block.  */
+            const targetBlock = isFirstChild
+                ? parentBlock
+                : blocks[parentBlock.content[sourceBlockContentIndex - 1]]; // The block before the source block.
+    
+            const sourceBlockText = sourceBlock.properties.title;
+            const targetBlockText = targetBlock.properties.title;
+    
+            // If the block to merge with is the parent block
+            if (targetBlock.id === parentBlock.id) {
+                /** Remove source block from parent's content array and update title property. */
+                const updatedParentBlock = updateBlock(parentBlock, {
+                    properties: {
+                        title: targetBlockText + sourceBlockText
+                    },
+                    content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
+                });
+    
+                /** Remove source block */
+                const copyOfBlocks = blocks;
+                delete copyOfBlocks[sourceBlock.id];
+    
+                setBlocks({
+                    ...copyOfBlocks,
+                    [updatedParentBlock.id]: updatedParentBlock,
+                });
+    
+                return {
+                    prevTitle: sourceBlockText,
+                    newTitle: targetBlockText + sourceBlockText,
+                    mergeResult: updatedParentBlock
+                }
+    
+            } else {
+                /** Remove target block from parent's content array. */
+                const updatedParentBlock = updateBlock(parentBlock, {
+                    content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
+                });
+    
+                /** Update source block  */
+                const updatedSourceBlock = updateBlock(sourceBlock, {
+                    type: targetBlock.type,
+                    properties: {
+                        title: targetBlockText + sourceBlockText
+                    }
+                });
+    
+                /** Remove target block */
+                const copyOfBlocks = blocks;
+                delete copyOfBlocks[targetBlock.id]
+    
+                /** Update state with changes */
+                setBlocks({
+                    ...copyOfBlocks,
+                    [parentBlock.id]: updatedParentBlock,
+                    [updatedSourceBlock.id]: updatedSourceBlock
+                });
+    
+                return {
+                    prevTitle: sourceBlockText,
+                    newTitle: updatedSourceBlock.properties.title,
+                    mergeResult: updatedSourceBlock
+                };
+            }
+        }
+    
+        function removeBlock(blockId: string) {
+            const block = blocks[blockId];
+            const parentBlock = blocks[block.parent];
+    
+            const blocksState = blocks;
+            delete blocksState[blockId];
+    
+            /** Update parent block's content array */
+            const updatedParentBlock = updateBlock(parentBlock, {
+                content: parentBlock.content.filter((id: string) => id !== blockId)
+            });
+    
+            setBlocks({
+                ...blocksState,
+                [updatedParentBlock.id]: updatedParentBlock
+            });
+
+            return updatedParentBlock;
+        }
+    
+        function moveBlocks(blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") {
+            const blockIndexInContent = blocks[parentId].content?.indexOf(blockId);
+            const parentContent = blocks[parentId].content;
+            parentContent.splice(blockIndexInContent, 1);
+            const updatedBlock = updateBlock(blocks[parentId], {
+                content: insertBlockIdIntoContent(
+                    parentContent,
+                    blockId,
+                    closestTo === "start" ? { nextBlockId: targetId } : { prevBlockId: targetId }
+                )
+            })
+             setBlocks({
+                ...blocks,
+                [parentId]: updatedBlock
+            });
+        }
+    
+        /**
+         * Note: Only text based blocks can be turned into other text based block types.
+         */
+        function turnBlockInto(blockId: string, blockType: string) {
+            const updatedBlock = updateBlock(blocks[blockId], {
+                type: blockType
+            });
+            setBlocks({ ...blocks, [blockId]: updatedBlock });
+            return updatedBlock;
+        }
+
+    const value = {
+        blocks,
+        insertBlock,
+        splitBlock,
+        mergeBlock,
+        removeBlock,
+        moveBlocks,
+        turnBlockInto
+    }
+
+    return (
+        <BlocksContext.Provider value={value}>
+            {children}
+        </BlocksContext.Provider>
+    )
+
+}
