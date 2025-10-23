@@ -21,7 +21,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     /** Block actions */
     
         /**
-         * Note: Currently the function below it's only insering into the root block.
+         *  Inserts a block into the content array of the parent block. If a position object is provided, the block will be inserted at the specified position.
          */
         function insertBlock(newBlock: Block, position?: { prevBlockId?: string | undefined, nextBlockId?: string | undefined }) {
             const updatedBlock = updateBlockData(blocks[newBlock.parent], {
@@ -51,7 +51,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             const textAfterSelection = block.properties.title.substring(selection.end);
     
             // If splitting root block, insert new text block below
-            if (block.id === rootBlock.id) {
+            if (block.id === rootBlockId) {
                 const newBlockText = textAfterSelection;
                 const newBlock = new Block({
                     type: "text",

@@ -11,7 +11,7 @@ interface Props {
     onFocus?: () => void;
     handleSubmitEditing?: () => void;
     handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
-    handleOnChangeText?: (blockId: string, text: string) => void;
+    handleOnBlur?: (blockId: string, text: string) => void;
     handleOnBlur?: () => void;
     registerRef?: (blockId: string, ref: any) => void;
     unregisterRef?: (blockId: string) => void;
@@ -26,7 +26,7 @@ const BlockElement = memo(({
     title,
     onFocus,
     handleSubmitEditing,
-    handleOnChangeText,
+    handleOnBlur,
     handleOnKeyPress,
     registerRef,
     unregisterRef,
@@ -42,7 +42,7 @@ const BlockElement = memo(({
     const viewRef = useRef<View>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
-    const { keyboardY, keyboardHeight } = useKeyboardStatus();
+    const { keyboardY } = useKeyboardStatus();
 
     const api = {
         current: {
@@ -120,7 +120,7 @@ const BlockElement = memo(({
                     onFocus={onFocus}
                     defaultValue={valueRef.current}
                     selectTextOnFocus={false}
-                    onBlur={() => handleOnChangeText && handleOnChangeText(blockId, valueRef.current)}
+                    onBlur={() => handleOnBlur && handleOnBlur(blockId, valueRef.current)}
                     onSubmitEditing={() => {
                         handleSubmitEditing && handleSubmitEditing(
                             updateBlock(block, {
