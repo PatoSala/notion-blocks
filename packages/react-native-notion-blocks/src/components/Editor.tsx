@@ -117,7 +117,8 @@ export default function NoteScreen() {
      * A new block will be inserted before the source block with the text before the cursor.
      * The source block will be updated with the text after the cursor.
      * 
-     * [Note: Review return statements]
+     * [Note: Review return statements.]
+     * [Note: Splitting a block is only available for text based blocks.]
      */
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
@@ -203,6 +204,7 @@ export default function NoteScreen() {
         const parentBlock = blocks[sourceBlock.parent];
         const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
         const isFirstChild = sourceBlockContentIndex === 0;
+        /** Note: The following isn't considering the posibility of the target block not being a text block. In said case the target block should be the last know text based block.  */
         const targetBlock = isFirstChild
             ? parentBlock
             : blocks[parentBlock.content[sourceBlockContentIndex - 1]]; // The block before the source block.
@@ -304,7 +306,7 @@ export default function NoteScreen() {
     }
 
     /**
-     * Note: Only text based blocks can be turned into other block types.
+     * Note: Only text based blocks can be turned into other text based block types.
      */
     function turnBlockInto(blockId: string, blockType: string) {
         const updatedBlock = updateBlock(blocks[blockId], {
@@ -519,8 +521,6 @@ export default function NoteScreen() {
     const registerBlockMeasure = (blockId: string, measures: { height: number, start: number, end: number }) => {
         blockMeasuresRef.current[blockId] = measures;
     }
-
-    const setIndicatorPosition = (value: { y: number }) => indicatorPosition.value = value;
 
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;

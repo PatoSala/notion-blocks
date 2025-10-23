@@ -3,52 +3,28 @@ import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHand
 import { Block } from "../../interfaces/Block.interface";
 import { updateBlock } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
-import {
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedRef,
-  withTiming,
-  runOnJS,
-} from "react-native-reanimated";
-
-const { width } = Dimensions.get("window");
 
 interface Props {
     blockId: string;
     block: Block;
     title: string;
-    handleOnBlur?: () => void;
     onFocus?: () => void;
     handleSubmitEditing?: () => void;
     handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
     handleOnChangeText?: (blockId: string, text: string) => void;
+    handleOnBlur?: () => void;
     registerRef?: (blockId: string, ref: any) => void;
     unregisterRef?: (blockId: string) => void;
     selectionState?: { start: number, end: number };
     showSoftInputOnFocus?: boolean;
     handleScrollTo?: () => void;
-    onLongPress?: () => void;
-    onPressOut?: () => void;
-    onPress?: () => void;
-    editable?: boolean;
-    scrollViewRef?: RefObject<ScrollView> | null;
 }
 
 const BlockElement = memo(({
     blockId,
     block,
     title,
-    handleOnBlur,
     onFocus,
-    onLongPress,
-    onPress,
-    editable,
-    onPressOut,
-    scrollViewRef,
     handleSubmitEditing,
     handleOnChangeText,
     handleOnKeyPress,
