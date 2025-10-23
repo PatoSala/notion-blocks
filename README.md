@@ -1,4 +1,4 @@
-![Frame 14.png](./assets/readme-cover.png)
+![Frame 14.png](./assets/cover.png)
 
 # React Native Blocks
 
