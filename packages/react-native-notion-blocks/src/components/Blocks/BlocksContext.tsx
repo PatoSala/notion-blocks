@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { Block } from "../../interfaces/Block.interface";
-import { updateBlock, insertBlockIdIntoContent } from "../../core";
+import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../../core";
 
 const BlocksContext = createContext({});
 
@@ -12,9 +12,8 @@ function useBlocksContext() {
     return blocksContext;
 }
 
-function BlocksProvider({ children }) {
-    const [blocks, setBlocks] = useState<Block[]>([]);
-
+function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
+    const [blocks, setBlocks] = useState(defaultBlocks);
     /** POC: Rendering order state (Related to the flat out root block improvement).
      * const [renderingOrder, setRenderingOrder] = useState<string[]>([parentBlock.id, ...parentBlock.content]);
      */
@@ -24,9 +23,9 @@ function BlocksProvider({ children }) {
         /**
          * Note: Currently the function below it's only insering into the root block.
          */
-        function insertBlock(newBlock: Block) {
-            const updatedBlock = updateBlock(blocks[newBlock.parent], {
-                content: insertBlockIdIntoContent(blocks[newBlock.parent].content, newBlock.id, {})
+        function insertBlock(newBlock: Block, position?: { prevBlockId?: string | undefined, nextBlockId?: string | undefined }) {
+            const updatedBlock = updateBlockData(blocks[newBlock.parent], {
+                content: insertBlockIdIntoContent(blocks[newBlock.parent].content, newBlock.id, position)
             });
             setBlocks({
                 ...blocks,
@@ -62,7 +61,7 @@ function BlocksProvider({ children }) {
                     parent: block.id,
                 });
                 // Update parent block's content array (which is the current block in this case)
-                const updatedParentBlock = updateBlock(block, {
+                const updatedParentBlock = updateBlockData(block, {
                     properties: {
                         title: textBeforeSelection
                     },
@@ -82,7 +81,7 @@ function BlocksProvider({ children }) {
                     updatedBlock: updatedParentBlock
                 }
             } else {
-                const updatedBlock = updateBlock(block, {
+                const updatedBlock = updateBlockData(block, {
                     type: selection.start === 0 && selection.end === 0 ? block.type : "text",
                     properties: {
                         title: textAfterSelection
@@ -96,7 +95,7 @@ function BlocksProvider({ children }) {
                     },
                     parent: block.parent,
                 });
-                const updatedParentBlock = updateBlock(blocks[block.parent], {
+                const updatedParentBlock = updateBlockData(blocks[block.parent], {
                     content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
                         nextBlockId: block.id
                     })
@@ -142,7 +141,7 @@ function BlocksProvider({ children }) {
             // If the block to merge with is the parent block
             if (targetBlock.id === parentBlock.id) {
                 /** Remove source block from parent's content array and update title property. */
-                const updatedParentBlock = updateBlock(parentBlock, {
+                const updatedParentBlock = updateBlockData(parentBlock, {
                     properties: {
                         title: targetBlockText + sourceBlockText
                     },
@@ -166,12 +165,12 @@ function BlocksProvider({ children }) {
     
             } else {
                 /** Remove target block from parent's content array. */
-                const updatedParentBlock = updateBlock(parentBlock, {
+                const updatedParentBlock = updateBlockData(parentBlock, {
                     content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
                 });
     
                 /** Update source block  */
-                const updatedSourceBlock = updateBlock(sourceBlock, {
+                const updatedSourceBlock = updateBlockData(sourceBlock, {
                     type: targetBlock.type,
                     properties: {
                         title: targetBlockText + sourceBlockText
@@ -205,7 +204,7 @@ function BlocksProvider({ children }) {
             delete blocksState[blockId];
     
             /** Update parent block's content array */
-            const updatedParentBlock = updateBlock(parentBlock, {
+            const updatedParentBlock = updateBlockData(parentBlock, {
                 content: parentBlock.content.filter((id: string) => id !== blockId)
             });
     
@@ -221,7 +220,7 @@ function BlocksProvider({ children }) {
             const blockIndexInContent = blocks[parentId].content?.indexOf(blockId);
             const parentContent = blocks[parentId].content;
             parentContent.splice(blockIndexInContent, 1);
-            const updatedBlock = updateBlock(blocks[parentId], {
+            const updatedBlock = updateBlockData(blocks[parentId], {
                 content: insertBlockIdIntoContent(
                     parentContent,
                     blockId,
@@ -238,11 +237,18 @@ function BlocksProvider({ children }) {
          * Note: Only text based blocks can be turned into other text based block types.
          */
         function turnBlockInto(blockId: string, blockType: string) {
-            const updatedBlock = updateBlock(blocks[blockId], {
+            const updatedBlock = updateBlockData(blocks[blockId], {
                 type: blockType
             });
             setBlocks({ ...blocks, [blockId]: updatedBlock });
             return updatedBlock;
+        }
+
+        function updateBlock(updatedBlock: Block) {
+            setBlocks({
+                ...blocks,
+                [updatedBlock.id]: updatedBlock
+            });
         }
 
     const value = {
@@ -252,7 +258,8 @@ function BlocksProvider({ children }) {
         mergeBlock,
         removeBlock,
         moveBlocks,
-        turnBlockInto
+        turnBlockInto,
+        updateBlock
     }
 
     return (
@@ -262,3 +269,5 @@ function BlocksProvider({ children }) {
     )
 
 }
+
+export { BlocksProvider, useBlocksContext, BlocksContext };

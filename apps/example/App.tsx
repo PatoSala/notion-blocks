@@ -3,11 +3,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Text } from 'react-native';
 /* import Editor from '../../packages/react-native-notion-blocks/src/components/Editor'; */
 import Editor from '../../packages/react-native-notion-blocks/src/components/Editor';
+import { sampleData } from 'react-native-notion-blocks/src/utils/sampleData';
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <Editor />
+      <Editor
+        defaultBlocks={sampleData}
+        rootBlockId="1"
+      />
       <StatusBar style="auto" />
     </SafeAreaProvider>
   );

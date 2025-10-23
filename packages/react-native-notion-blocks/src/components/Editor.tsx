@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useContext } from "react";
 import { GestureHandlerRootView, Gesture, GestureDetector, GestureUpdateEvent } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -28,19 +28,33 @@ import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
 import { updateBlock, insertBlockIdIntoContent } from "../core/updateBlock";
 
+import { BlocksProvider, useBlocksContext, BlocksContext } from "./Blocks/BlocksContext";
+
 // Temporary
 const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
 
 const { width } = Dimensions.get("window");
 
-export default function NoteScreen() {
+function NoteScreen({
+    rootBlockId
+}) {
     const insets = useSafeAreaInsets();
     const scrollViewRef = useRef<ScrollView>(null);
     const refs = useRef({}); // TextInputs refs
-    const pageId : string = "1";
-    const [blocks, setBlocks] = useState(sampleData);
+    const pageId : string = rootBlockId;
+    const {
+        blocks,
+        insertBlock,
+        splitBlock,
+        mergeBlock,
+        removeBlock,
+        moveBlocks,
+        turnBlockInto,
+        updateBlock
+    } = useBlocksContext();
+    console.log(blocks);
+    /* const [blocks, setBlocks] = useState(sampleData); */
     const rootBlock : Block = blocks[pageId];
-    const content = rootBlock.content;
     const [focusedBlockId, setFocusedBlockId] = useState(null);
     const scrollY = useSharedValue(0);
 
@@ -97,7 +111,7 @@ export default function NoteScreen() {
     /**
      * Note: Currently the function below it's only insering into the root block.
      */
-    function insertBlock(newBlock: Block) {
+    /* function insertBlock(newBlock: Block) {
         const updatedBlock = updateBlock(blocks[pageId], {
             content: insertBlockIdIntoContent(blocks[pageId].content, newBlock.id, {})
         });
@@ -106,7 +120,7 @@ export default function NoteScreen() {
             [pageId]: updatedBlock,
             [newBlock.id]: newBlock
         });
-    }
+    } */
 
     /**
      * 
@@ -120,7 +134,7 @@ export default function NoteScreen() {
      * [Note: Review return statements.]
      * [Note: Splitting a block is only available for text based blocks.]
      */
-    function splitBlock(block: Block, selection: { start: number, end: number }) {
+    /* function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
@@ -149,7 +163,6 @@ export default function NoteScreen() {
                 [updatedParentBlock.id]: updatedParentBlock // source and parent block
             });
 
-            /** Review */
             return {
                 splitResult: newBlock,
                 updatedBlock: updatedParentBlock
@@ -182,12 +195,11 @@ export default function NoteScreen() {
                 [block.parent]: updatedParentBlock // parent block
             });
 
-            /** Review */
             return {
                 splitResult: updatedBlock,
             }
         }
-    }
+    } */
 
     /**
      * 
@@ -199,12 +211,12 @@ export default function NoteScreen() {
      * The source block type will be replaced with the target block type.
      * Last of all, the target block is removed.
      */
-    function mergeBlock(block: Block) {
+    /* function mergeBlock(block: Block) {
         const sourceBlock = block;
         const parentBlock = blocks[sourceBlock.parent];
         const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
         const isFirstChild = sourceBlockContentIndex === 0;
-        /** Note: The following isn't considering the posibility of the target block not being a text block. In said case the target block should be the last know text based block.  */
+        // Note: The following isn't considering the posibility of the target block not being a text block. In said case the target block should be the last know text based block.
         const targetBlock = isFirstChild
             ? parentBlock
             : blocks[parentBlock.content[sourceBlockContentIndex - 1]]; // The block before the source block.
@@ -214,7 +226,7 @@ export default function NoteScreen() {
 
         // If the block to merge with is the parent block
         if (targetBlock.id === parentBlock.id) {
-            /** Remove source block from parent's content array and update title property. */
+            // Remove source block from parent's content array and update title property.
             const updatedParentBlock = updateBlock(parentBlock, {
                 properties: {
                     title: targetBlockText + sourceBlockText
@@ -222,7 +234,7 @@ export default function NoteScreen() {
                 content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
             });
 
-            /** Remove source block */
+            // Remove source block
             const copyOfBlocks = blocks;
             delete copyOfBlocks[sourceBlock.id];
 
@@ -238,12 +250,12 @@ export default function NoteScreen() {
             }
 
         } else {
-            /** Remove target block from parent's content array. */
+            // Remove target block from parent's content array.
             const updatedParentBlock = updateBlock(parentBlock, {
                 content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
             });
 
-            /** Update source block  */
+            // Update source block  
             const updatedSourceBlock = updateBlock(sourceBlock, {
                 type: targetBlock.type,
                 properties: {
@@ -251,11 +263,11 @@ export default function NoteScreen() {
                 }
             });
 
-            /** Remove target block */
+            // Remove target block 
             const copyOfBlocks = blocks;
             delete copyOfBlocks[targetBlock.id]
 
-            /** Update state with changes */
+            // Update state with changes 
             setBlocks({
                 ...copyOfBlocks,
                 [parentBlock.id]: updatedParentBlock,
@@ -268,16 +280,16 @@ export default function NoteScreen() {
                 mergeResult: updatedSourceBlock
             }
         }
-    }
+    } */
 
-    function removeBlock(blockId: string) {
+    /* function removeBlock(blockId: string) {
         const block = blocks[blockId];
         const parentBlock = blocks[block.parent];
 
         const blocksState = blocks;
         delete blocksState[blockId];
 
-        /** Update parent block's content array */
+        // Update parent block's content array 
         const updatedParentBlock = updateBlock(parentBlock, {
             content: parentBlock.content.filter((id: string) => id !== blockId)
         });
@@ -286,9 +298,9 @@ export default function NoteScreen() {
             ...blocksState,
             [updatedParentBlock.id]: updatedParentBlock
         });
-    }
+    } */
 
-    function moveBlocks(blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") {
+    /* function moveBlocks(blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") {
         const blockIndexInContent = blocks[parentId].content?.indexOf(blockId);
         const parentContent = blocks[parentId].content;
         parentContent.splice(blockIndexInContent, 1);
@@ -303,27 +315,28 @@ export default function NoteScreen() {
             ...blocks,
             [parentId]: updatedBlock
         });
-    }
+    } */
 
     /**
      * Note: Only text based blocks can be turned into other text based block types.
      */
-    function turnBlockInto(blockId: string, blockType: string) {
+    /* function turnBlockInto(blockId: string, blockType: string) {
         const updatedBlock = updateBlock(blocks[blockId], {
             type: blockType
         });
         setBlocks({ ...blocks, [blockId]: updatedBlock });
         return updatedBlock;
-    }
+    } */
 
     /** Event handlers */
+    // This should be changed to handleOnBlur
     function handleOnChangeText(blockId: string, text: string) {
         const updatedBlock = updateBlock(blocks[blockId], {
             properties: {
                 title: text
             }
         });
-        setBlocks({ ...blocks, [blockId]: updatedBlock });
+        updateBlock(updatedBlock);
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, block: Block, selection: { start: number, end: number }) {
@@ -657,6 +670,7 @@ export default function NoteScreen() {
                         <ListFooterComponent />
 
                     </ScrollView>
+
                 {isPressed.value === true && <GhostBlock />}
 
                 <Footer 
@@ -669,6 +683,17 @@ export default function NoteScreen() {
                 />
             </KeyboardAvoidingView>
         </GestureHandlerRootView>
+    )
+}
+
+export default function Editor({
+    defaultBlocks,
+    rootBlockId
+}) {
+    return (
+        <BlocksProvider defaultBlocks={defaultBlocks}>
+            <NoteScreen rootBlockId={rootBlockId} />
+        </BlocksProvider>
     )
 }
 
