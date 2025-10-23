@@ -27,11 +27,11 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             const updatedBlock = updateBlockData(blocks[newBlock.parent], {
                 content: insertBlockIdIntoContent(blocks[newBlock.parent].content, newBlock.id, position)
             });
-            setBlocks({
-                ...blocks,
+            setBlocks(prevState => ({
+                ...prevState,
                 [newBlock.parent]: updatedBlock,
                 [newBlock.id]: newBlock
-            });
+            }));
         }
     
         /**
@@ -101,12 +101,12 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                     })
                 });
     
-                setBlocks({
-                    ...blocks,
+                setBlocks(prevState => ({
+                    ...prevState,
                     [newBlock.id]: newBlock,    // new block
                     [block.id]: updatedBlock, // source block
                     [block.parent]: updatedParentBlock // parent block
-                });
+                }));
     
                 /** Review */
                 return {
@@ -148,13 +148,11 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                     content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
                 });
     
-                /** Remove source block */
-                const copyOfBlocks = blocks;
-                delete copyOfBlocks[sourceBlock.id];
-    
-                setBlocks({
-                    ...copyOfBlocks,
-                    [updatedParentBlock.id]: updatedParentBlock,
+                setBlocks(prevState => {
+                    const newBlocks = { ...prevState };
+                    delete newBlocks[sourceBlock.id];
+                    newBlocks[updatedParentBlock.id] = updatedParentBlock;
+                    return newBlocks;
                 });
     
                 return {
@@ -177,15 +175,14 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                     }
                 });
     
-                /** Remove target block */
-                const copyOfBlocks = blocks;
-                delete copyOfBlocks[targetBlock.id]
-    
-                /** Update state with changes */
-                setBlocks({
-                    ...copyOfBlocks,
-                    [parentBlock.id]: updatedParentBlock,
-                    [updatedSourceBlock.id]: updatedSourceBlock
+                setBlocks(prev => {
+                    const newBlocks = { ...prev };
+                    delete newBlocks[targetBlock.id];
+
+                    newBlocks[parentBlock.id] = updatedParentBlock;
+                    newBlocks[updatedSourceBlock.id] = updatedSourceBlock;
+
+                    return newBlocks;
                 });
     
                 return {
@@ -227,10 +224,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                     closestTo === "start" ? { nextBlockId: targetId } : { prevBlockId: targetId }
                 )
             })
-             setBlocks({
-                ...blocks,
+             setBlocks(prevState => ({
+                ...prevState,
                 [parentId]: updatedBlock
-            });
+            }));
         }
     
         /**
@@ -240,15 +237,18 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             const updatedBlock = updateBlockData(blocks[blockId], {
                 type: blockType
             });
-            setBlocks({ ...blocks, [blockId]: updatedBlock });
+            setBlocks(prevState => ({
+                ...prevState,
+                [blockId]: updatedBlock
+            }));
             return updatedBlock;
         }
 
         function updateBlock(updatedBlock: Block) {
-            setBlocks({
-                ...blocks,
+            setBlocks(prevState => ({
+                ...prevState,
                 [updatedBlock.id]: updatedBlock
-            });
+            }));
         }
 
     const value = {
