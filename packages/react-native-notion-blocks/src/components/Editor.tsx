@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
-import { GestureHandlerRootView, Gesture, GestureDetector } from "react-native-gesture-handler";
+import { GestureHandlerRootView, Gesture, GestureDetector, GestureUpdateEvent } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -288,10 +288,8 @@ export default function NoteScreen() {
 
     function moveBlocks(blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") {
         const blockIndexInContent = blocks[parentId].content?.indexOf(blockId);
-        console.log("blockIndexInContent: ", blockIndexInContent);
         const parentContent = blocks[parentId].content;
         parentContent.splice(blockIndexInContent, 1);
-        console.log(parentContent);
         const updatedBlock = updateBlock(blocks[parentId], {
             content: insertBlockIdIntoContent(
                 parentContent,
@@ -299,7 +297,6 @@ export default function NoteScreen() {
                 closestTo === "start" ? { nextBlockId: targetId } : { prevBlockId: targetId }
             )
         })
-        console.log(updatedBlock);
          setBlocks({
             ...blocks,
             [pageId]: updatedBlock
@@ -488,8 +485,6 @@ export default function NoteScreen() {
     const setIsPressed = (value: boolean) => isPressed.value = value;
     const setOffset = (value: { x: number, y: number }) => offset.value = value;
 
-    const start = useSharedValue({ x: 0, y: 0 });
-    const setStart = (value: { x: number, y: number }) => start.value = value; 
     const animatedStyles = useAnimatedStyle(() => {
         return {
             transform: [
@@ -601,7 +596,6 @@ export default function NoteScreen() {
                             paddingTop: insets.top,
                             paddingHorizontal: 8,
                         }}
-                        /* scrollEnabled={false} */
                         keyboardShouldPersistTaps="always"
                         automaticallyAdjustKeyboardInsets
                     >
@@ -609,7 +603,7 @@ export default function NoteScreen() {
 
                         <ListHeaderComponent />
 
-                        {rootBlock.content?.map((blockId) => {
+                        {rootBlock.content?.map((blockId: string) => {
                             return (
                                 <LayoutProvider
                                     key={blockId}
@@ -618,20 +612,24 @@ export default function NoteScreen() {
                                     dependancies={blocks[pageId]}
                                 >
                                     <DragProvider
-                                        block={blocks[blockId]}
-                                        scrollViewRef={scrollViewRef}
-                                        handleScrollTo={handleScrollTo}
-                                        scrollPosition={scrollY}
-
-                                        setIsPressed={setIsPressed}
-                                        setGhostBlockId={setGhostBlockId}
-                                        offset={offset}
-                                        setOffset={setOffset}
-                                        start={start}
-                                        setStart={setStart}
-                                        functionDetermineIndicatorPosition={functionDetermineIndicatorPosition}
-                                        setIndicatorPosition={setIndicatorPosition}
-                                        triggerMoveBlock={triggerMoveBlock}
+                                        onDragStart={() => {
+                                            isPressed.value = true;
+                                            setGhostBlockId(blockId);
+                                        }}
+                                        onDragUpdate={(e: GestureUpdateEvent, start: { x: number, y: number }) => {
+                                            offset.value = {
+                                                x: e.translationX + start.x,
+                                                y: e.translationY + start.y,
+                                            };
+                                            functionDetermineIndicatorPosition(e.absoluteY);
+                                        }}
+                                        onDragEnd={() => {
+                                            triggerMoveBlock();
+                                            isPressed.value = false;
+                                            setGhostBlockId(null);
+                                            offset.value = { x: 0, y: 0 };
+                                            indicatorPosition.value = { y: 0 };
+                                        }}
                                     >
                                         <View>
                                             <BlockElement

@@ -7,7 +7,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import BlockElement from "./Block";
 
 const { height } = Dimensions.get("window");
 const TOP_THRESHOLD = 200; // Adjust as needed
@@ -15,46 +14,30 @@ const BOTTOM_THRESHOLD = 200;
 
 export default function DragProvider({
     children,
-    block,
-    handleScrollTo,
-    scrollPosition,
-    scrollViewRef,
-    
-    setGhostBlockId,
-    setIsPressed,
-    offset,
-    setOffset,
-    start,
-    setStart,
-    functionDetermineIndicatorPosition,
-    setIndicatorPosition,
-    triggerMoveBlock,
+    onDragStart,
+    onDragUpdate,
+    onDragEnd
 }) {
 
     // scroll, tap
     const nativeGestures = Gesture.Native()
 
-    /* const start = useSharedValue({ x: 0, y: 0 }); */
+    const start = useSharedValue({ x: 0, y: 0 });
     const blockDrag = Gesture.Pan()
         .activateAfterLongPress(1000)
         .onBegin((e) => {
-            scheduleOnRN(setStart, {
+            start.value = {
                 x: 0,
                 y: e.absoluteY
-            })
+            }
         })
         .onStart((e) => {
-            scheduleOnRN(setIsPressed, true);
-            scheduleOnRN(setGhostBlockId, block.id);
+            scheduleOnRN(onDragStart);
         })
         .onUpdate((e) => {
-            scheduleOnRN(setOffset, {
-                x: e.translationX + start.value.x,
-                y: e.translationY + start.value.y,
-            })
+            scheduleOnRN(onDragUpdate, e, start.value);
 
-            scheduleOnRN(functionDetermineIndicatorPosition, e.absoluteY);
-
+            /* NOTE: Maybe the scroll event should be handle from withing the DragProvider */
             // Handle auto-scrolling
             /* if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {
                 scheduleOnRN(handleScrollTo, {
@@ -72,26 +55,16 @@ export default function DragProvider({
                 });
             } */
         })
-        .onEnd(() => {
-            /* scheduleOnRN(setStart, {
-                x: offset.value.x,
-                y: offset.value.y
-            }); */
-        })
         .onFinalize(() => {
-            scheduleOnRN(setIsPressed, false);
-            scheduleOnRN(triggerMoveBlock);
-            scheduleOnRN(setGhostBlockId, null);
-            scheduleOnRN(setStart, { x: 0, y: 0 });
-            scheduleOnRN(setOffset, { x: 0, y: 0 });
-            scheduleOnRN(setIndicatorPosition, { y: 0 });
+            start.value = { x: 0, y: 0 };
+            scheduleOnRN(onDragEnd);
         });
     
     const composed = Gesture.Exclusive(blockDrag, nativeGestures);
 
     return (
         <GestureDetector gesture={composed}>
-                {children}
+            {children}
         </GestureDetector>
     );
 }

@@ -103,23 +103,10 @@ const BlockElement = memo(({
         }
     };
 
-    /* useLayoutEffect(() => {
-       // Measure block layout
-       if (scrollViewRef?.current !== null && viewRef.current !== null) {
-           api.current.measureLayout(scrollViewRef);
-       }
-    }, []); */
-
     useEffect(() => {
         requestAnimationFrame(() => {
             api.current.setText(title);
-
-            /* api.current.measureLayout(); */
         })
-
-        /* if (scrollViewRef?.current !== null && viewRef.current !== null) {
-           api.current.measureLayout(scrollViewRef);
-       } */
     }, [title])
 
     useEffect(() => {
@@ -143,8 +130,6 @@ const BlockElement = memo(({
                         flexGrow: 1,
                     }]}
                     multiline
-                    /* onLayout={() => scrollViewRef?.current !== null && api.current.measureLayout(scrollViewRef)}
-                    cursorColor={"black"} */
                     selectionColor={"black"}
                     submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
                     onChangeText={(text) => {
@@ -218,7 +203,7 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 16,
         fontWeight: "normal",
-        marginVertical: 6,
+        paddingVertical: 6,
         lineHeight: 24,
         minHeight: 24,
         flexWrap: "wrap"
