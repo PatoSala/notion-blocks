@@ -20,6 +20,3 @@ This project is an independent open-source initiative and is **not affiliated w
 
 All trademarks, logos, and brand names used in this project are the property of their respective owners. Any references to “Notion” are for **descriptive or comparative purposes only** and do not imply any association or partnership.
 
-## License
-
-Licensed under the [Apache License, Version 2.0](./LICENSE) © 2025 Pato Sala
