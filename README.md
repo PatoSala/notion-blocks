@@ -1,10 +1,10 @@
-![Frame 14.png](./assets/cover.png)
+![Frame 14.png](assets/cover.png)
 
 # React Native Blocks
 
 A block based text editor fully built with react-native. Inspired by [the data model behind Notion’s flexibility.](https://www.notion.com/blog/data-model-behind-notion)
 
-![Screenshot 2025-10-07 at 6.02.31 PM.png](./assets/screenshot.png)
+![Screenshot 2025-10-07 at 6.02.31 PM.png](assets/screenshot.png)
 
 ## Contributing
 

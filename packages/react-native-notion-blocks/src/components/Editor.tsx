@@ -106,8 +106,7 @@ function NoteScreen({
         delete refs.current[blockId];
     }
 
-    /** Event handlers */
-    // This should be changed to handleOnBlur
+    /** TextInputs Event handlers */
     function handleOnBlur(blockId: string, text: string) {
         const updatedBlock = updateBlockData(blocks[blockId], {
             properties: {
@@ -117,6 +116,7 @@ function NoteScreen({
         updateBlock(updatedBlock);
     }
 
+    /** Used to handle Backspace press when cursor at the start of the block */
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, block: Block, selection: { start: number, end: number }) {
         if (block.id === pageId) return;
         /**
@@ -149,7 +149,10 @@ function NoteScreen({
     }
 
     const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
-        /** If block is text based or root block */
+        /** If block is text based or root block
+         *  Note: This condition will be removed since this function will only
+         *  be called from text based blocks so theres no need to check the block type.
+         */
         if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
             const textBeforeSelection = block.properties.title.substring(0, selection.start);
             const textAfterSelection = block.properties.title.substring(selection.end);
