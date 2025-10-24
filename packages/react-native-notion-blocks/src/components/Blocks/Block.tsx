@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHand
 import { Block } from "../../interfaces/Block.interface";
 import { updateBlock } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
+import { useBlocksContext } from "./BlocksContext";
 
 interface Props {
     blockId: string;
@@ -79,6 +80,7 @@ const BlockElement = memo(({
         }
     };
 
+    // Find a better way to sync with state
     useEffect(() => {
         requestAnimationFrame(() => {
             api.current.setText(title);
@@ -93,6 +95,9 @@ const BlockElement = memo(({
             unregisterRef && unregisterRef(blockId);
         };
     }, []);
+
+    // TextInput event handlers
+    
     
     return (
         <>

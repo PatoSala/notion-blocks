@@ -4,7 +4,6 @@ import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../../
 
 interface BlocksContext {
     blocks: Record<string, Block>;
-    setBlocks: (blocks: Record<string, Block>) => void;
     insertBlock: (
         newBlock: Block,
         position?: {
@@ -12,13 +11,28 @@ interface BlocksContext {
             nextBlockId?: string | undefined
         }
     ) => void;
+    splitBlock: (blockId: string) => Block;
+    moveBlocks: (
+        blockId: string,
+        parentId: string,
+        targetId: string,
+        closestTo: "start" | "end"
+    ) => void;
+    mergeBlock: (blockId: string) => Block;
     removeBlock: (blockId: string) => Block;
     turnBlockInto: (blockId: string, blockType: string) => Block;
     updateBlock: (updatedBlock: Block) => void;
 }
 
-const BlocksContext = createContext<Partial<BlocksContext>>({
-    blocks: {}
+const BlocksContext = createContext<BlocksContext>({
+    blocks: {},
+    insertBlock: () => null,
+    splitBlock: () => null,
+    moveBlocks: () => null,
+    mergeBlock: () => null,
+    removeBlock: () => null,
+    turnBlockInto: () => null,
+    updateBlock: () => null
 });
 
 function useBlocksContext() {
@@ -37,7 +51,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
      */
 
     /** Block actions
-     * Note: I might change all this actions to reducers.
+     * Note: I might change all this actions to reducers. reducers can be exported!
      */
     
     /**
