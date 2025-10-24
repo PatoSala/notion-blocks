@@ -1,7 +1,7 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
 import { Block } from "../../interfaces/Block.interface";
-import { updateBlock } from "../../core/updateBlock";
+import { updateBlock as updateBlockData } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import { useBlocksContext } from "./BlocksContext";
 
@@ -10,6 +10,7 @@ interface Props {
     block: Block;
     title: string;
     onFocus?: () => void;
+    refs?: Record<string, RefObject<TextInput>>;
     handleSubmitEditing?: () => void;
     handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
     handleOnBlur?: (blockId: string, text: string) => void;
@@ -25,10 +26,11 @@ const BlockElement = memo(({
     blockId,
     block,
     title,
+    refs,
     onFocus,
-    handleSubmitEditing,
+    /* handleSubmitEditing,
     handleOnBlur,
-    handleOnKeyPress,
+    handleOnKeyPress, */
     registerRef,
     unregisterRef,
     showSoftInputOnFocus,
@@ -44,6 +46,7 @@ const BlockElement = memo(({
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
     const { keyboardY } = useKeyboardStatus();
+    const { blocks, rootBlockId, updateBlock, insertBlock, mergeBlock, splitBlock } = useBlocksContext();
 
     const api = {
         current: {
@@ -97,7 +100,77 @@ const BlockElement = memo(({
     }, []);
 
     // TextInput event handlers
-    
+    function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
+        selectionRef.current = event.nativeEvent.selection;
+    }
+    function handleOnBlur() {
+        const updatedBlock = updateBlockData(blocks[blockId], {
+            properties: {
+                title: valueRef.current
+            }
+        });
+        updateBlock(updatedBlock);
+    }
+
+    /** Used to handle Backspace press when cursor at the start of the block */
+    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }) {
+        const block = updateBlockData(blocks[blockId], {
+            properties:
+            { 
+                title: valueRef.current
+            }
+        });
+        const selection = selectionRef.current;
+        if (block.id === rootBlockId) return;
+        /**
+         * If block is not empty and cursor is at start, merge block with previous block.
+         */
+        if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
+            // The following is like an "optimistic update", we set the block's content before update
+            const sourceBlock = block;
+            const parentBlock = blocks[sourceBlock.parent];
+            const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
+            const isFirstChild = sourceBlockContentIndex === 0;
+            const targetBlock = isFirstChild
+                ? parentBlock
+                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+
+            refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+
+            const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
+            // Focus previous block here
+            const newCursorPosition = newTitle.length - prevTitle.length;
+            /* console.log("New cursor position: ", newCursorPosition); */
+            requestAnimationFrame(() => {
+                refs.current[mergeResult.id]?.current.focusWithSelection({
+                    start: newCursorPosition,
+                    end: newCursorPosition
+                }, /* mergeResult.properties.title */);
+            })
+            return;
+        }
+    }
+
+    const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
+        const textBeforeSelection = block.properties.title.substring(0, selection.start);
+        const textAfterSelection = block.properties.title.substring(selection.end);
+
+        // The following is like an "optimistic update", we set the block's content before update
+        refs.current[block.id]?.current.focusWithSelection({
+            start: 0,
+            end: 0
+        }, textAfterSelection);
+
+        const { splitResult } = splitBlock(block, selection);
+        
+        requestAnimationFrame(() => {
+            refs.current[splitResult.id]?.current.focusWithSelection({
+                start: 0,
+                end: 0
+            });
+        });
+        return;
+    };
     
     return (
         <>
@@ -117,18 +190,16 @@ const BlockElement = memo(({
                         valueRef.current = text;
 
                     }}
-                    onSelectionChange={({ nativeEvent }) => {
-                        selectionRef.current = nativeEvent.selection;
-                    }}
+                    onSelectionChange={handleSelectionChange}
                     showSoftInputOnFocus={showSoftInputOnFocus}
                     smartInsertDelete={false}
                     onFocus={onFocus}
                     defaultValue={valueRef.current}
                     selectTextOnFocus={false}
-                    onBlur={() => handleOnBlur && handleOnBlur(blockId, valueRef.current)}
+                    onBlur={handleOnBlur}
                     onSubmitEditing={() => {
                         handleSubmitEditing && handleSubmitEditing(
-                            updateBlock(block, {
+                            updateBlockData(block, {
                                 properties:
                                 { 
                                     title: valueRef.current
@@ -138,19 +209,13 @@ const BlockElement = memo(({
                         );
                     }}
                     onKeyPress={(event) => {
-                        event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0 ? handleOnKeyPress && handleOnKeyPress(
-                            event,
-                            updateBlock(block, {
-                                properties:
-                                { 
-                                    title: valueRef.current
-                                }
-                            }),
-                            selectionRef.current
-                        ) : null;
+                        event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0
+                        ? handleOnKeyPress(event)
+                        : null;
 
                         // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
-                        ref.current?.measureInWindow((x, y, width, height) => {
+                        // Needs revision.
+                        /* ref.current?.measureInWindow((x, y, width, height) => {
                             if (y > keyboardY) {
                                 handleScrollTo && handleScrollTo({
                                     x: 0,
@@ -158,7 +223,7 @@ const BlockElement = memo(({
                                     animated: true
                                 });
                             }
-                        })
+                        }) */
                     }}
                 />
             </View>

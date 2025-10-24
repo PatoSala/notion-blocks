@@ -44,12 +44,8 @@ function NoteScreen({
     const {
         blocks,
         insertBlock,
-        splitBlock,
-        mergeBlock,
-        removeBlock,
         moveBlocks,
         turnBlockInto,
-        updateBlock
     } = useBlocksContext();
 
     const rootBlock : Block = blocks[pageId];
@@ -105,75 +101,6 @@ function NoteScreen({
     function unregisterRef(blockId: string) {
         delete refs.current[blockId];
     }
-
-    /** TextInputs Event handlers */
-    function handleOnBlur(blockId: string, text: string) {
-        const updatedBlock = updateBlockData(blocks[blockId], {
-            properties: {
-                title: text
-            }
-        });
-        updateBlock(updatedBlock);
-    }
-
-    /** Used to handle Backspace press when cursor at the start of the block */
-    function handleOnKeyPress (event: { nativeEvent: { key: string; }; }, block: Block, selection: { start: number, end: number }) {
-        if (block.id === pageId) return;
-        /**
-         * If block is not empty and cursor is at start, merge block with previous block.
-         */
-        if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
-            // The following is like an "optimistic update", we set the block's content before update
-            const sourceBlock = block;
-            const parentBlock = blocks[sourceBlock.parent];
-            const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
-            const isFirstChild = sourceBlockContentIndex === 0;
-            const targetBlock = isFirstChild
-                ? parentBlock
-                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
-
-            refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
-
-            const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
-            // Focus previous block here
-            const newCursorPosition = newTitle.length - prevTitle.length;
-            /* console.log("New cursor position: ", newCursorPosition); */
-            requestAnimationFrame(() => {
-                refs.current[mergeResult.id]?.current.focusWithSelection({
-                    start: newCursorPosition,
-                    end: newCursorPosition
-                }, /* mergeResult.properties.title */);
-            })
-            return;
-        }
-    }
-
-    const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
-        /** If block is text based or root block
-         *  Note: This condition will be removed since this function will only
-         *  be called from text based blocks so theres no need to check the block type.
-         */
-        if (textBasedBlockTypes.includes(block.type) || rootBlock.id === block.id) {
-            const textBeforeSelection = block.properties.title.substring(0, selection.start);
-            const textAfterSelection = block.properties.title.substring(selection.end);
-
-            // The following is like an "optimistic update", we set the block's content before update
-            refs.current[block.id]?.current.focusWithSelection({
-                start: 0,
-                end: 0
-            }, textAfterSelection);
-
-            const { splitResult } = splitBlock(block, selection);
-            
-            requestAnimationFrame(() => {
-                refs.current[splitResult.id]?.current.focusWithSelection({
-                    start: 0,
-                    end: 0
-                }, /* splitResult.properties.title */);
-            });
-            return;
-        }
-    };
 
     const handleNewLineBlock = () => {
         if (rootBlock.content.length === 0 || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0) {
@@ -239,14 +166,15 @@ function NoteScreen({
         <BlockElement
             key={pageId}
             blockId={pageId}
+            refs={refs}
             block={rootBlock}
             title={rootBlock.properties.title}
-            handleOnBlur={handleOnBlur}
+            /* handleOnBlur={handleOnBlur}
             handleSubmitEditing={handleSubmitEditing}
-            handleOnKeyPress={handleOnKeyPress}
+            handleOnKeyPress={handleOnKeyPress} */
             showSoftInputOnFocus={showSoftInputOnFocus}
             registerRef={registerRef}
-            handleScrollTo={handleScrollTo}
+            /* handleScrollTo={handleScrollTo} */
             unregisterRef={unregisterRef}
             onFocus={() => {
                 setFocusedBlockId(rootBlock.id);
@@ -418,14 +346,13 @@ function NoteScreen({
                                                 blockId={blockId}
                                                 block={blocks[blockId]}
                                                 title={blocks[blockId].properties.title}
-                                                handleOnBlur={handleOnBlur}
-                                                handleSubmitEditing={handleSubmitEditing}
-                                                handleOnKeyPress={handleOnKeyPress}
+                                                // Temporary: TextInputs refs
+                                                refs={refs}
                                                 showSoftInputOnFocus={showSoftInputOnFocus}
                                                 registerRef={registerRef}
                                                 unregisterRef={unregisterRef}
-                                                handleScrollTo={handleScrollTo}
-                                                scrollViewRef={scrollViewRef}
+                                                /* handleScrollTo={handleScrollTo}
+                                                scrollViewRef={scrollViewRef} */
                                                 onFocus={() => {
                                                     setFocusedBlockId(blockId);
                                                 }}

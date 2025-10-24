@@ -4,6 +4,7 @@ import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../../
 
 interface BlocksContext {
     blocks: Record<string, Block>;
+    rootBlockId: string;
     insertBlock: (
         newBlock: Block,
         position?: {
@@ -11,14 +12,21 @@ interface BlocksContext {
             nextBlockId?: string | undefined
         }
     ) => void;
-    splitBlock: (blockId: string) => Block;
+    splitBlock: (block: Block, selection: { start: number; end: number }) => {
+        splitResult: Block;
+        updatedParentBlock: Block;
+    };
     moveBlocks: (
         blockId: string,
         parentId: string,
         targetId: string,
         closestTo: "start" | "end"
     ) => void;
-    mergeBlock: (blockId: string) => Block;
+    mergeBlock: (block: Block) => {
+        prevTitle: string;
+        newTitle: string;
+        mergeResult: Block;
+    };
     removeBlock: (blockId: string) => Block;
     turnBlockInto: (blockId: string, blockType: string) => Block;
     updateBlock: (updatedBlock: Block) => void;
@@ -26,6 +34,7 @@ interface BlocksContext {
 
 const BlocksContext = createContext<BlocksContext>({
     blocks: {},
+    rootBlockId: "",
     insertBlock: () => null,
     splitBlock: () => null,
     moveBlocks: () => null,
@@ -287,6 +296,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
 
     const value = {
         blocks,
+        rootBlockId,
         insertBlock,
         splitBlock,
         mergeBlock,
