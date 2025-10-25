@@ -6,10 +6,11 @@ import { Block } from "../../../interfaces/Block.interface";
 const { width } = Dimensions.get("window");
 
 export default function InsertBlockSection() {
-    const { inputRefs } = useFooterContext();
+    const { inputRefs, setShowSoftInputOnFocus } = useFooterContext();
     const { blocks, focusedBlockId, insertBlock } = useBlocksContext();
 
     const handleInsertBlock = (blockType: string) => {
+        setShowSoftInputOnFocus(true);
         const newBlock = new Block({
             type: blockType,
             properties: {

@@ -21,11 +21,9 @@ const BlockElement = memo(({
     block,
     title,
     refs,
-    onFocus,
     registerRef,
     unregisterRef,
     showSoftInputOnFocus,
-    handleScrollTo,
 } : Props) => {
 
     if (block === undefined) {
