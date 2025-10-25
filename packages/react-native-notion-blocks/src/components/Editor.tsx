@@ -18,9 +18,7 @@ import {
     Text,
     Dimensions
 } from "react-native";
-import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { sampleData } from "../utils/sampleData";
 import { Block  } from "../interfaces/Block.interface";
 import BlockElement from "./Blocks/Block";
 import DragProvider from "./DragProvider";
@@ -29,10 +27,30 @@ import Footer from "./Footer/Footer";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 import { BlocksProvider, useBlocksContext, BlocksContext } from "./Blocks/BlocksContext";
 
-// Temporary
-const textBasedBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
-
 const { width } = Dimensions.get("window");
+
+const blockTypes = {
+    "text": {
+        component: (props: any) => <BlockElement {...props} />,
+        properties: ["title"]
+    },
+    "page": {
+        component: (props: any) => <BlockElement {...props} />,
+        properties: ["title"]
+    },
+    "header": {
+        component: (props: any) => <BlockElement {...props} />,
+        properties: ["title"]
+    },
+    "sub_header": {
+        component: (props: any) => <BlockElement {...props} />,
+        properties: ["title"]
+    },
+    "sub_sub_header": {
+        component: (props: any) => <BlockElement {...props} />,
+        properties: ["title"]
+    },
+}
 
 function NoteScreen({
     rootBlockId
@@ -65,10 +83,6 @@ function NoteScreen({
     }
 
     useEffect(() => {
-        console.log("scroll y:", scrollY.value);
-        console.log(blockMeasuresRef.current[focusedBlockId]);
-        console.log("Keyboard height: ", keyboardHeight);
-
         // Maybe this conditional could be a function "scrollToVisiblePosition" or sth like that
         if (blockMeasuresRef.current[focusedBlockId]?.start > keyboardHeight + 24) {
             handleScrollTo({
@@ -189,20 +203,22 @@ function NoteScreen({
      * */
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;
+
+        let lastKnown = { blockId: null, closestTo: null };
         
         for (const blockId in blockMeasuresRef.current) {
             const { start, end } = blockMeasuresRef.current[blockId];
             if (withScrollY >= start && withScrollY <= end) {
-                
                 const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
 
-                return {
+                lastKnown = {
                     blockId,
                     closestTo
                 };
             }
         }
 
+        return lastKnown;
     }
 
     const handleMoveBlock = () => {
@@ -269,8 +285,11 @@ function NoteScreen({
                                             };
                                             /* functionDetermineIndicatorPosition(e.absoluteY); */
                                             const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
-                                            indicatorPosition.value = {
-                                                y: blockMeasuresRef.current[blockId][closestTo]
+                                            
+                                            if (blockId) {
+                                                indicatorPosition.value = {
+                                                    y: blockMeasuresRef.current[blockId][closestTo]
+                                                }
                                             }
                                         }}
                                         onDragEnd={() => {
@@ -282,16 +301,15 @@ function NoteScreen({
                                         }}
                                     >
                                         <View>
-                                            <BlockElement
-                                                blockId={blockId}
-                                                block={blocks[blockId]}
-                                                title={blocks[blockId].properties.title}
-                                                // Temporary: TextInputs refs
-                                                refs={refs}
-                                                showSoftInputOnFocus={showSoftInputOnFocus}
-                                                registerRef={registerRef}
-                                                unregisterRef={unregisterRef}
-                                            />
+                                            {blockTypes[blocks[blockId].type].component({
+                                                blockId,
+                                                block: blocks[blockId],
+                                                title: blocks[blockId].properties.title,
+                                                refs,
+                                                showSoftInputOnFocus,
+                                                registerRef,
+                                                unregisterRef
+                                            })}
                                         </View>
                                     </DragProvider>
                                 </LayoutProvider>
