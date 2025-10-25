@@ -113,7 +113,7 @@ export default function Footer({
                 </ScrollView>
 
                 {/* Needs revision. The ideal would be this to happen on the Editor component */}
-                <View>
+                <View style={{ paddingHorizontal: 4 }}>
                     {activeTab === "keyboard"
                     ? <Footer.DismissKeyboard />
                     : <Footer.OpenKeyboard/>}
@@ -188,11 +188,13 @@ Footer.TurnBlockInto = () => {
 
 Footer.DismissKeyboard = () => {
     const { setHidden, setActiveTab, setShowSoftInputOnFocus } = useFooterContext();
+    const { setFocusedBlockId } = useBlocksContext();
 
     const handleOnPress = () => {
        setShowSoftInputOnFocus(true);
        setHidden(true);
        setActiveTab("none");
+       setFocusedBlockId("");
        Keyboard.dismiss();
     };
 

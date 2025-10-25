@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useContext } from "react";
+import React, { useRef, useState, useCallback, useContext, useEffect } from "react";
 import { GestureHandlerRootView, Gesture, GestureDetector, GestureUpdateEvent } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -26,8 +26,7 @@ import BlockElement from "./Blocks/Block";
 import DragProvider from "./DragProvider";
 import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
-import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../core/updateBlock";
-
+import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 import { BlocksProvider, useBlocksContext, BlocksContext } from "./Blocks/BlocksContext";
 
 // Temporary
@@ -43,13 +42,14 @@ function NoteScreen({
     const pageId : string = rootBlockId;
     const {
         blocks,
+        focusedBlockId,
         insertBlock,
         moveBlocks,
         turnBlockInto,
     } = useBlocksContext();
+    const { keyboardHeight } = useKeyboardStatus();
 
     const rootBlock : Block = blocks[pageId];
-    const [focusedBlockId, setFocusedBlockId] = useState(null); // It's pnly used by the Footer
     const scrollY = useSharedValue(0);
 
     const handleScroll = (event: { nativeEvent: { contentOffset: { y: number; }; }; }) => {
@@ -63,6 +63,21 @@ function NoteScreen({
             animated: animated
         });
     }
+
+    useEffect(() => {
+        console.log("scroll y:", scrollY.value);
+        console.log(blockMeasuresRef.current[focusedBlockId]);
+        console.log("Keyboard height: ", keyboardHeight);
+
+        // Maybe this conditional could be a function "scrollToVisiblePosition" or sth like that
+        if (blockMeasuresRef.current[focusedBlockId]?.start > keyboardHeight + 24) {
+            handleScrollTo({
+                x: 0,
+                y: blockMeasuresRef.current[focusedBlockId]?.start - keyboardHeight,
+                animated: true
+            })
+        }
+    }, [focusedBlockId, blocks])
 
     /** Editor configs */
     const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(true);
@@ -95,7 +110,7 @@ function NoteScreen({
                 refs.current[newBlock.id]?.current.focus();
             });
         } else {
-            // Focus new block
+            // Focus last block (it must be empty)
             requestAnimationFrame(() => {
                 refs.current[rootBlock.content[rootBlock.content.length - 1]]?.current.focus();
             });
@@ -114,9 +129,6 @@ function NoteScreen({
             registerRef={registerRef}
             /* handleScrollTo={handleScrollTo} */
             unregisterRef={unregisterRef}
-            onFocus={() => {
-                setFocusedBlockId(rootBlock.id);
-            }}
         />
     ), [rootBlock]); // dependency array set in rootBlock.properties.title was causing the RNB-14 bug.
 
@@ -125,7 +137,8 @@ function NoteScreen({
             onPress={handleNewLineBlock}
             style={{
                 flexGrow: 1,
-                height: "100%"
+                height: "100%",
+                /* paddingBottom: 124 */
             }}
         />
     )
@@ -170,6 +183,10 @@ function NoteScreen({
         blockMeasuresRef.current[blockId] = measures;
     }
 
+    /**
+     *  Given a y coordinate, returns the block at that position and a "start" or "end"
+     *  string that indicates if the position is closer to the start or end of the block
+     * */
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;
         
@@ -186,21 +203,6 @@ function NoteScreen({
             }
         }
 
-    }
-
-    const functionDetermineIndicatorPosition = (y: number) => {
-        const withScrollY = y + scrollY.value;
-        for (const blockId in blockMeasuresRef.current) {
-            const { start, end } = blockMeasuresRef.current[blockId];
-            if (withScrollY >= start && withScrollY <= end) {
-                
-                const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
-
-                indicatorPosition.value = {
-                    y: blockMeasuresRef.current[blockId][closestTo]
-                }
-            }
-        }
     }
 
     const handleMoveBlock = () => {
@@ -253,7 +255,7 @@ function NoteScreen({
                                     key={blockId}
                                     blockId={blockId}
                                     registerBlockMeasure={registerBlockMeasure}
-                                    dependancies={blocks[pageId]}
+                                    dependancies={blocks[rootBlockId]}
                                 >
                                     <DragProvider
                                         onDragStart={() => {
@@ -265,7 +267,11 @@ function NoteScreen({
                                                 x: e.translationX + start.x,
                                                 y: e.translationY + start.y,
                                             };
-                                            functionDetermineIndicatorPosition(e.absoluteY);
+                                            /* functionDetermineIndicatorPosition(e.absoluteY); */
+                                            const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
+                                            indicatorPosition.value = {
+                                                y: blockMeasuresRef.current[blockId][closestTo]
+                                            }
                                         }}
                                         onDragEnd={() => {
                                             handleMoveBlock();
@@ -285,9 +291,6 @@ function NoteScreen({
                                                 showSoftInputOnFocus={showSoftInputOnFocus}
                                                 registerRef={registerRef}
                                                 unregisterRef={unregisterRef}
-                                                onFocus={() => {
-                                                    setFocusedBlockId(blockId);
-                                                }}
                                             />
                                         </View>
                                     </DragProvider>

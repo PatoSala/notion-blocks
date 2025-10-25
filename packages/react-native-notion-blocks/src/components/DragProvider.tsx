@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { View, Dimensions } from "react-native";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -7,10 +5,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-
-const { height } = Dimensions.get("window");
-const TOP_THRESHOLD = 200; // Adjust as needed
-const BOTTOM_THRESHOLD = 200;
 
 export default function DragProvider({
     children,
