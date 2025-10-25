@@ -197,6 +197,10 @@ function NoteScreen({
         blockMeasuresRef.current[blockId] = measures;
     }
 
+    const removeBlockMeasure = (blockId: string) => {
+        delete blockMeasuresRef.current[blockId];
+    }
+
     /**
      *  Given a y coordinate, returns the block at that position and a "start" or "end"
      *  string that indicates if the position is closer to the start or end of the block
@@ -204,21 +208,22 @@ function NoteScreen({
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;
 
-        let lastKnown = { blockId: null, closestTo: null };
-        
         for (const blockId in blockMeasuresRef.current) {
             const { start, end } = blockMeasuresRef.current[blockId];
             if (withScrollY >= start && withScrollY <= end) {
                 const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
 
-                lastKnown = {
+                return {
                     blockId,
                     closestTo
                 };
             }
         }
 
-        return lastKnown;
+        return {
+            blockId: null,
+            closestTo: null
+        };
     }
 
     const handleMoveBlock = () => {
@@ -272,6 +277,7 @@ function NoteScreen({
                                     blockId={blockId}
                                     registerBlockMeasure={registerBlockMeasure}
                                     dependancies={blocks[rootBlockId]}
+                                    removeBlockMeasure={removeBlockMeasure}
                                 >
                                     <DragProvider
                                         onDragStart={() => {

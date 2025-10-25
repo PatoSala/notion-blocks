@@ -6,6 +6,7 @@ export default function LayoutProvider({
     children,
     blockId,
     registerBlockMeasure,
+    removeBlockMeasure,
     dependancies
 }) {
     const ref = useRef<View>(null);
@@ -19,6 +20,10 @@ export default function LayoutProvider({
                     end: y + height
                 });
         });
+
+        return () => {
+            removeBlockMeasure(blockId);
+        }
     }, [dependancies]);
 
     return (
