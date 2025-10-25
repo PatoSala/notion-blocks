@@ -1,23 +1,90 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext, useRef, RefObject, SetStateAction } from "react";
 import { View, Text, StyleSheet, Pressable, Keyboard, FlatList } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 
 import InsertBlockSection from "./tabs/InsertBlockSection";
 import ReplaceBlockSection from "./tabs/ReplaceBlockSection";
+import { ScrollView } from "react-native-gesture-handler";
+import { useBlocksContext } from "../Blocks/BlocksContext";
+
+interface FooterButtonProps {
+    children: React.ReactNode;
+    onPress: () => void;
+    style?: any;
+}
+
+interface FooterProps {
+    children: React.ReactNode;
+    style?: StyleSheet;
+}
+
+interface FooterContext {
+    activeTab: "none" | "keyboard" | "add-block" | "turn-block-into";
+    hidden: boolean;
+    inputRefs: RefObject<any>;
+    setShowSoftInputOnFocus?: SetStateAction<boolean>;
+    setActiveTab: (tab: string) => void;
+    setHidden: (hidden: boolean) => void;
+}
+
+const FooterContext = createContext({
+    activeTab: "none",
+    hidden: true,
+    inputRefs: { current: {} },
+    setShowSoftInputOnFocus: (show: boolean) => {},
+    setActiveTab: (tab: string) => {},
+    setHidden: (hidden: boolean) => {}
+});
+
+export const useFooterContext = () => {
+    const context = useContext(FooterContext);
+    if (!context) {
+        throw new Error("useFooterContext must be used within a FooterProvider");
+    }
+    return context;
+}
+
+Footer.ContextProvider = ({ children, refs, setShowSoftInputOnFocus }) => {
+    const [footerContext, setFooterContext] = useState({
+        activeTab: "",
+        hidden: true,
+    });
+
+    const inputRefs = useRef({});
+
+    const value = {
+        activeTab: footerContext.activeTab,
+        hidden: footerContext.hidden,
+        inputRefs: inputRefs.current = refs,
+        setShowSoftInputOnFocus,
+        setActiveTab: (tab: string) => {
+            setFooterContext(prevState => ({
+                ...prevState,
+                activeTab: tab
+            }));
+        },
+        setHidden: (hidden: boolean) => {
+            setFooterContext(prevState => ({
+                ...prevState,
+                hidden
+            }));
+        }
+    };
+    
+    return (
+        <FooterContext.Provider value={value}>
+            {children}
+        </FooterContext.Provider>
+    );
+};
 
 export default function Footer({
+    children,
     style,
-    actions,
-    setShowSoftInputOnFocus,
-    focusedBlockRef,
-    focusedBlockId,
-    handleInsertBlock,
-    handleTurnBlockInto
-}) {
+} : FooterProps) {
     const { isKeyboardOpen, keyboardHeight } = useKeyboardStatus();
-    const [activeTab, setActiveTab] = useState<string | "keyboard" | "none">("none");
-    const [hidden, setHidden] = useState(true);
+    const { hidden, setActiveTab, setHidden, activeTab } = useFooterContext();
 
     useEffect(() => {
         if (isKeyboardOpen) {
@@ -25,19 +92,6 @@ export default function Footer({
             setHidden(false);
         }
     }, [isKeyboardOpen]);
-
-    const handleOpenKeyboard = () => {
-        setActiveTab("keyboard");
-        focusedBlockRef.current.focus();
-        setShowSoftInputOnFocus(true);
-    };
-
-    const handleKeyboardDismiss = () => {
-        Keyboard.dismiss();
-        setShowSoftInputOnFocus(true);
-        setActiveTab("none");
-        setHidden(true);
-    };
 
     return (
         <View style={{
@@ -48,77 +102,122 @@ export default function Footer({
             zIndex: 100,
             backgroundColor: "white"
         }}>
-            <View style={[styles.container, style, {
+            <View style={[styles.container, {
                 width: "100%",
             }]}>
-                <FlatList
-                    horizontal
-                    contentContainerStyle={{
-                        flexGrow: 1
-                    }}
+                <ScrollView
                     keyboardShouldPersistTaps="always"
-                    data={actions}
-                    renderItem={({ item, index }) => (
-                        <Pressable
-                            key={index}
-                            onPress={() => {
-                                setActiveTab(item.key);
-                                item.onPress();
-                            }}
-                            style={({ pressed }) => [
-                                styles.button,
-                                {
-                                    backgroundColor: activeTab === item.key ? "#f1f1f1" : "transparent",
-                                    opacity: pressed ? 0.5 : 1
-                                }
-                            ]}
-                        >
-                            {item.Icon}
-                        </Pressable>
-                    )}
-                    ListFooterComponent={() => (
-                        <>
-                            <Pressable
-                                onPress={() => {
-                                    if (activeTab !== "keyboard") {
-                                        handleOpenKeyboard();
-                                    } else {
-                                        handleKeyboardDismiss();
-                                    }
-                                }}
-                                style={({ pressed }) => [
-                                    styles.button,
-                                    {
-                                        opacity: pressed ? 0.5 : 1
-                                    }
-                                ]}
-                            >
-                                {activeTab !== "keyboard"
-                                ? (
-                                    <Ionicons name="close-circle-outline" size={24} color="black" />
-                                )
-                                : (
-                                    <MaterialCommunityIcons name="keyboard-close-outline" size={24} color="black" />
-                                )}
-                            </Pressable>
-                        </>
-                    )}
-                />
+                    horizontal
+                >
+                    {children}
+                </ScrollView>
+
+                {/* Needs revision. The ideal would be this to happen on the Editor component */}
+                <View>
+                    {activeTab === "keyboard"
+                    ? <Footer.DismissKeyboard />
+                    : <Footer.OpenKeyboard/>}
+                </View>
             </View>
+
 
             {activeTab && (
                 <View style={[styles.tabSectionContainer, { height: keyboardHeight }]}>
-                    {activeTab === "add-block" ? <InsertBlockSection
-                        focusedBlockId={focusedBlockId}
-                        handleInsertBlock={handleInsertBlock}
-                    /> : null}
-                    {activeTab === "turn-block-into" ? <ReplaceBlockSection
-                        focusedBlockId={focusedBlockId}
-                        handleTurnBlockInto={handleTurnBlockInto}
-                    /> : null}
+                    {activeTab === "add-block" ? <InsertBlockSection /> : null}
+                    {activeTab === "turn-block-into" ? <ReplaceBlockSection/> : null}
                 </View>
             )}
         </View>
+    )
+}
+
+Footer.Button = ({ children, onPress, style } : FooterButtonProps) => {
+    return (
+        <Pressable
+            onPress={onPress}
+            style={({ pressed }) => [
+                styles.button,
+                { opacity: pressed ? 0.5 : 1 },
+                style
+            ]}
+        >
+            {children}
+        </Pressable>
+    )
+}
+
+Footer.AddBlock = () => {
+    const { activeTab, setActiveTab, inputRefs, setShowSoftInputOnFocus } = useFooterContext();
+    const { focusedBlockId } = useBlocksContext();
+
+    const handleOnPress = () => {
+        setShowSoftInputOnFocus(false);
+        setActiveTab("add-block");
+        Keyboard.dismiss();
+        requestAnimationFrame(() => {
+            inputRefs.current[focusedBlockId].current.focus();
+        })
+    };
+
+    return (
+        <Footer.Button onPress={handleOnPress}>
+            <Ionicons name="add-outline" size={24} color="black" />
+        </Footer.Button>
+    )
+}
+
+Footer.TurnBlockInto = () => {
+    const { activeTab, setActiveTab, inputRefs, setShowSoftInputOnFocus } = useFooterContext();
+    const { focusedBlockId } = useBlocksContext();
+
+    const handleOnPress = () => {
+        setShowSoftInputOnFocus(false);
+        setActiveTab("turn-block-into");
+        Keyboard.dismiss();
+        requestAnimationFrame(() => {
+            inputRefs.current[focusedBlockId].current.focus();
+        })
+    };
+
+    return (
+        <Footer.Button onPress={handleOnPress}>
+            <Ionicons name="repeat-outline" size={24} color="black" />
+        </Footer.Button>
+    )
+}
+
+Footer.DismissKeyboard = () => {
+    const { setHidden, setActiveTab, setShowSoftInputOnFocus } = useFooterContext();
+
+    const handleOnPress = () => {
+       setShowSoftInputOnFocus(true);
+       setHidden(true);
+       setActiveTab("none");
+       Keyboard.dismiss();
+    };
+
+    return (
+        <Footer.Button onPress={handleOnPress}>
+            <MaterialCommunityIcons name="keyboard-close-outline" size={24} color="black" />
+        </Footer.Button>
+    )
+}
+
+Footer.OpenKeyboard = () => {
+    const { setShowSoftInputOnFocus, setActiveTab, inputRefs } = useFooterContext();
+    const { focusedBlockId } = useBlocksContext();
+
+    const handleOpenKeyboard = () => {
+        setActiveTab("keyboard");
+        inputRefs.current[focusedBlockId].current.focus();
+        setShowSoftInputOnFocus(true);
+    };
+
+
+    return (
+        <Footer.Button onPress={handleOpenKeyboard}>
+            <Ionicons name="close-circle-outline" size={24} color="black" />
+        </Footer.Button>
     )
 }
 

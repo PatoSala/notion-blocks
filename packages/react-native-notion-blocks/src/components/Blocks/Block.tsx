@@ -9,15 +9,9 @@ interface Props {
     blockId: string;
     block: Block;
     title: string;
-    onFocus?: () => void;
     refs?: Record<string, RefObject<TextInput>>;
-    handleSubmitEditing?: () => void;
-    handleOnKeyPress?: (event: { nativeEvent: { key: string; }; }, blockId: string) => void;
-    handleOnBlur?: (blockId: string, text: string) => void;
-    handleOnBlur?: () => void;
     registerRef?: (blockId: string, ref: any) => void;
     unregisterRef?: (blockId: string) => void;
-    selectionState?: { start: number, end: number };
     showSoftInputOnFocus?: boolean;
     handleScrollTo?: () => void;
 }
@@ -28,9 +22,6 @@ const BlockElement = memo(({
     title,
     refs,
     onFocus,
-    /* handleSubmitEditing,
-    handleOnBlur,
-    handleOnKeyPress, */
     registerRef,
     unregisterRef,
     showSoftInputOnFocus,
@@ -46,7 +37,7 @@ const BlockElement = memo(({
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
     const { keyboardY } = useKeyboardStatus();
-    const { blocks, rootBlockId, updateBlock, insertBlock, mergeBlock, splitBlock } = useBlocksContext();
+    const { blocks, rootBlockId, setFocusedBlockId, updateBlock, insertBlock, mergeBlock, splitBlock } = useBlocksContext();
 
     const api = {
         current: {
@@ -151,7 +142,18 @@ const BlockElement = memo(({
         }
     }
 
-    const handleSubmitEditing = (block: Block, selection: { start: number, end: number }) => {
+    const handleSubmitEditing = () => {
+        const block = updateBlockData(
+            blocks[blockId],
+            {
+                properties:
+                { 
+                    title: valueRef.current
+                }
+            }
+        );
+        const selection = selectionRef.current;
+        
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
@@ -171,6 +173,14 @@ const BlockElement = memo(({
         });
         return;
     };
+
+    const handleOnFocus = () => {
+        setFocusedBlockId(blockId);
+    }
+
+    const handleChangeText = (text: string) => {
+        valueRef.current = text;
+    }
     
     return (
         <>
@@ -186,44 +196,20 @@ const BlockElement = memo(({
                     multiline
                     selectionColor={"black"}
                     submitBehavior="submit" // Prevents keyboard from flickering when focusing a new block
-                    onChangeText={(text) => {
-                        valueRef.current = text;
-
-                    }}
+                    
                     onSelectionChange={handleSelectionChange}
                     showSoftInputOnFocus={showSoftInputOnFocus}
                     smartInsertDelete={false}
-                    onFocus={onFocus}
                     defaultValue={valueRef.current}
                     selectTextOnFocus={false}
+                    onChangeText={handleChangeText}
                     onBlur={handleOnBlur}
-                    onSubmitEditing={() => {
-                        handleSubmitEditing && handleSubmitEditing(
-                            updateBlockData(block, {
-                                properties:
-                                { 
-                                    title: valueRef.current
-                                }
-                            }),
-                            selectionRef.current
-                        );
-                    }}
+                    onFocus={handleOnFocus}
+                    onSubmitEditing={handleSubmitEditing}
                     onKeyPress={(event) => {
                         event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0
                         ? handleOnKeyPress(event)
                         : null;
-
-                        // Get coordinates of the block. If coordinates are under the keyboard, scroll up.
-                        // Needs revision.
-                        /* ref.current?.measureInWindow((x, y, width, height) => {
-                            if (y > keyboardY) {
-                                handleScrollTo && handleScrollTo({
-                                    x: 0,
-                                    y: y - 44,
-                                    animated: true
-                                });
-                            }
-                        }) */
                     }}
                 />
             </View>

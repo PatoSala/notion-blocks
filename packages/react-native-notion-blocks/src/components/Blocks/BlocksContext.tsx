@@ -5,6 +5,8 @@ import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../../
 interface BlocksContext {
     blocks: Record<string, Block>;
     rootBlockId: string;
+    focusedBlockId: string;
+    setFocusedBlockId: (blockId: string) => void;
     insertBlock: (
         newBlock: Block,
         position?: {
@@ -35,6 +37,8 @@ interface BlocksContext {
 const BlocksContext = createContext<BlocksContext>({
     blocks: {},
     rootBlockId: "",
+    focusedBlockId: "",
+    setFocusedBlockId: () => null,
     insertBlock: () => null,
     splitBlock: () => null,
     moveBlocks: () => null,
@@ -54,6 +58,7 @@ function useBlocksContext() {
 
 function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const [blocks, setBlocks] = useState(defaultBlocks);
+    const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
 
     /** POC: Rendering order state (Related to the flat out root block improvement).
      * const [renderingOrder, setRenderingOrder] = useState<string[]>([parentBlock.id, ...parentBlock.content]);
@@ -297,6 +302,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const value = {
         blocks,
         rootBlockId,
+        focusedBlockId,
+        setFocusedBlockId,
         insertBlock,
         splitBlock,
         mergeBlock,

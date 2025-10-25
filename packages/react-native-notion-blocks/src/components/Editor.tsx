@@ -66,30 +66,6 @@ function NoteScreen({
 
     /** Editor configs */
     const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(true);
-    const footerActions = [
-        {
-            key: "add-block",
-            onPress: () => {
-                setShowSoftInputOnFocus(false);
-                Keyboard.dismiss();
-                requestAnimationFrame(() => {
-                    refs.current[focusedBlockId]?.current.focus();
-                });
-            },
-            Icon:  <Ionicons name="add-outline" size={24} color="black" />
-        },
-        {
-            key: "turn-block-into",
-            onPress: () => {
-                setShowSoftInputOnFocus(false);
-                Keyboard.dismiss();
-                requestAnimationFrame(() => {
-                    refs.current[focusedBlockId]?.current.focus();
-                });
-            },
-            Icon:  <Ionicons name="repeat-outline" size={24} color="black" />
-        }
-    ]
 
     /** TextInput refs of text based blocks */
     const refs = useRef({}); // TextInputs refs
@@ -125,42 +101,7 @@ function NoteScreen({
             });
         }
     }
-
-    /* Editor actions */
-    const handleInsertNewBlock = (prevBlockId: string, blockType: string) => {
-        const newBlock = new Block({
-            type: blockType,
-            properties: {
-                title: ""
-            },
-            content: [],
-            parent: pageId
-        });
-
-        // note: remember that the root block has no value for parent attribute.
-        insertBlock(newBlock, {
-            prevBlockId: prevBlockId
-        })
-
-        // Focus new block
-        requestAnimationFrame(() => {
-            refs.current[newBlock.id]?.current.focus();
-        });
-    }
-
-    const handleTurnBlockInto = (blockId: string, blockType: string) => {
-        const updatedBlock = turnBlockInto(blockId, blockType);
-        // Focus new block
-        requestAnimationFrame(() => {
-            refs.current[updatedBlock.id]?.current.focus();
-        });
-    }
-
-    const handleMoveBlock = (blockId: string, position: number) => {
-        const blockIdAtPosition = findBlockAtPosition(position);
-        console.log(blockIdAtPosition);
-
-    }
+   
     // Components
     const ListHeaderComponent = useCallback(() => (
         <BlockElement
@@ -169,9 +110,6 @@ function NoteScreen({
             refs={refs}
             block={rootBlock}
             title={rootBlock.properties.title}
-            /* handleOnBlur={handleOnBlur}
-            handleSubmitEditing={handleSubmitEditing}
-            handleOnKeyPress={handleOnKeyPress} */
             showSoftInputOnFocus={showSoftInputOnFocus}
             registerRef={registerRef}
             /* handleScrollTo={handleScrollTo} */
@@ -265,7 +203,7 @@ function NoteScreen({
         }
     }
 
-    const triggerMoveBlock = () => {
+    const handleMoveBlock = () => {
         if (!ghostBlockId) return;
 
         const blockToMove = blocks[ghostBlockId];
@@ -294,10 +232,6 @@ function NoteScreen({
 
     return (
         <GestureHandlerRootView>
-            <KeyboardAvoidingView
-                style={styles.container}
-                behavior={"padding"}
-            >
                     <ScrollView
                         ref={scrollViewRef}
                         onScroll={handleScroll}
@@ -334,7 +268,7 @@ function NoteScreen({
                                             functionDetermineIndicatorPosition(e.absoluteY);
                                         }}
                                         onDragEnd={() => {
-                                            triggerMoveBlock();
+                                            handleMoveBlock();
                                             isPressed.value = false;
                                             setGhostBlockId(null);
                                             offset.value = { x: 0, y: 0 };
@@ -351,8 +285,6 @@ function NoteScreen({
                                                 showSoftInputOnFocus={showSoftInputOnFocus}
                                                 registerRef={registerRef}
                                                 unregisterRef={unregisterRef}
-                                                /* handleScrollTo={handleScrollTo}
-                                                scrollViewRef={scrollViewRef} */
                                                 onFocus={() => {
                                                     setFocusedBlockId(blockId);
                                                 }}
@@ -369,15 +301,16 @@ function NoteScreen({
 
                 {isPressed.value === true && <GhostBlock />}
 
-                <Footer 
-                    actions={footerActions}
+                <Footer.ContextProvider
+                    // Maybe a context for text input related data should be created (refs, focusedBlockId, showSoftInputOnFocus, etc) 
+                    refs={refs}
                     setShowSoftInputOnFocus={setShowSoftInputOnFocus}
-                    focusedBlockRef={refs.current[focusedBlockId]}
-                    focusedBlockId={focusedBlockId}
-                    handleInsertBlock={handleInsertNewBlock}
-                    handleTurnBlockInto={handleTurnBlockInto}
-                />
-            </KeyboardAvoidingView>
+                >
+                    <Footer>
+                        <Footer.AddBlock />
+                        <Footer.TurnBlockInto />
+                    </Footer>
+                </Footer.ContextProvider>
         </GestureHandlerRootView>
     )
 }

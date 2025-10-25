@@ -1,11 +1,20 @@
 import { Pressable, Text, View, StyleSheet, Dimensions } from "react-native";
+import { useFooterContext } from "../Footer";
+import { useBlocksContext } from "../../Blocks/BlocksContext";
 
 const { width } = Dimensions.get("window");
 
-export default function ReplaceBlockSection({
-    focusedBlockId,
-    handleTurnBlockInto
-}) {
+export default function ReplaceBlockSection() {
+    const { inputRefs } = useFooterContext();
+    const { blocks, focusedBlockId, turnBlockInto } = useBlocksContext();
+    const handleTurnBlockInto = (blockId: string, blockType: string) => {
+        const updatedBlock = turnBlockInto(blockId, blockType);
+        // Focus new block
+        requestAnimationFrame(() => {
+            inputRefs.current[updatedBlock.id]?.current.focus();
+        });
+    }
+
     return (
         <>
             <View style={styles.blockOptionsRow}>
