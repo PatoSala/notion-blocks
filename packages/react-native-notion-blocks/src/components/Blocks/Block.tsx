@@ -5,7 +5,7 @@ import { updateBlock as updateBlockData } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import { useBlocksContext } from "./BlocksContext";
 
-interface Props {
+export interface BlockProps {
     blockId: string;
     block: Block;
     title: string;
@@ -24,7 +24,7 @@ const BlockElement = memo(({
     registerRef,
     unregisterRef,
     showSoftInputOnFocus,
-} : Props) => {
+} : BlockProps) => {
 
     if (block === undefined) {
         /** Setting this to null might be a good hotfix. */

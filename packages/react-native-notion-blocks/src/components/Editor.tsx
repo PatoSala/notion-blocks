@@ -26,31 +26,9 @@ import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 import { BlocksProvider, useBlocksContext, BlocksContext } from "./Blocks/BlocksContext";
+import { BlockRegistration, useBlockRegistrationContext } from "./BlockRegistration";
 
 const { width } = Dimensions.get("window");
-
-const blockTypes = {
-    "text": {
-        component: (props: any) => <BlockElement {...props} />,
-        properties: ["title"]
-    },
-    "page": {
-        component: (props: any) => <BlockElement {...props} />,
-        properties: ["title"]
-    },
-    "header": {
-        component: (props: any) => <BlockElement {...props} />,
-        properties: ["title"]
-    },
-    "sub_header": {
-        component: (props: any) => <BlockElement {...props} />,
-        properties: ["title"]
-    },
-    "sub_sub_header": {
-        component: (props: any) => <BlockElement {...props} />,
-        properties: ["title"]
-    },
-}
 
 function NoteScreen({
     rootBlockId
@@ -58,6 +36,7 @@ function NoteScreen({
     const insets = useSafeAreaInsets();
     const scrollViewRef = useRef<ScrollView>(null);
     const pageId : string = rootBlockId;
+    const { blocks: blockTypes } = useBlockRegistrationContext();
     const {
         blocks,
         focusedBlockId,
@@ -65,6 +44,7 @@ function NoteScreen({
         moveBlocks,
         turnBlockInto,
     } = useBlocksContext();
+    console.log("blocks", blocks);
     const { keyboardHeight } = useKeyboardStatus();
 
     const rootBlock : Block = blocks[pageId];
@@ -343,13 +323,6 @@ function NoteScreen({
     )
 }
 
-export const ExampleBlock = (props: any) => {
-    const {
-        type
-    } = props;
-
-    return null;
-} 
 
 export default function Editor({
     defaultBlocks,
@@ -357,24 +330,12 @@ export default function Editor({
     children
 }) {
 
-    React.Children.forEach(children, (child) => {
-        if (React.isValidElement(child)) {
-            // Here it should be compared against a BlockConstructor component or sth like that
-            if (child.type === ExampleBlock) {
-                console.log("Valid");
-                console.log(child.props);
-                // Register block type
-
-            } else {
-                console.warn("Invalid");
-            }
-        }
-    })
-
     return (
-        <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
-            <NoteScreen rootBlockId={rootBlockId} />
-        </BlocksProvider>
+        <BlockRegistration customBlocks={children}>
+            <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
+                <NoteScreen rootBlockId={rootBlockId} />
+            </BlocksProvider>
+        </BlockRegistration>
     )
 }
 
