@@ -134,7 +134,7 @@ const BlockElement = memo(({
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
                     end: newCursorPosition
-                }, /* mergeResult.properties.title */);
+                });
             })
             return;
         }

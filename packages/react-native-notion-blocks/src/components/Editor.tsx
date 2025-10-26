@@ -44,7 +44,6 @@ function NoteScreen({
         moveBlocks,
         turnBlockInto,
     } = useBlocksContext();
-    console.log("blocks", blocks);
     const { keyboardHeight } = useKeyboardStatus();
 
     const rootBlock : Block = blocks[pageId];
@@ -162,11 +161,15 @@ function NoteScreen({
             position: "absolute",
             width: "100%"
         }, animatedStyles]}>
-            <BlockElement
-                blockId={ghostBlockId}
-                block={blocks[ghostBlockId]}
-                title={blocks[ghostBlockId].properties.title}
-            />
+            {blockTypes[blocks[ghostBlockId].type].component({
+                ghostBlockId,
+                block: blocks[ghostBlockId],
+                title: blocks[ghostBlockId].properties.title,
+                refs,
+                showSoftInputOnFocus,
+                registerRef,
+                unregisterRef
+            })}
         </Animated.View>
     )
 
