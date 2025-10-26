@@ -49,9 +49,10 @@ export function BlockRegistration(props: any) {
     const blocksMapRef = useRef(blockTypes);
 
     const register = ({ type, component } : { type: string; component: React.ReactElement; }) => {
+        console.log("COMPONENT PROP: ", component);
         blocksMapRef.current[type] = {
             type,
-            component: (props: any) => <CustomBlock {...props} />,
+            component: (props: any) => component(props),
         };
         console.log("registered block", type);
     }

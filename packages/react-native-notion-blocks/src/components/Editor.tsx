@@ -329,7 +329,7 @@ export default function Editor({
     rootBlockId,
     children
 }) {
-
+    /* console.log("CHILDREN", children); */
     return (
         <BlockRegistration customBlocks={children}>
             <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
