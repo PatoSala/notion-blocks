@@ -8,6 +8,9 @@ class Block {
     properties: {
         title: string;
     };
+    format: {
+        
+    };
     content?: string[] | [];
     parent: string;
 

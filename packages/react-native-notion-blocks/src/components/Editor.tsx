@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useContext, useEffect } from "react";
-import { GestureHandlerRootView, Gesture, GestureDetector, GestureUpdateEvent } from "react-native-gesture-handler";
+import { GestureHandlerRootView, Gesture, GestureDetector, GestureUpdateEvent, GestureEventPayload } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -114,6 +114,7 @@ function NoteScreen({
                 properties: {
                     title: ""
                 },
+                format: {},
                 content: [],
                 parent: pageId
             });
@@ -342,10 +343,34 @@ function NoteScreen({
     )
 }
 
+export const ExampleBlock = (props: any) => {
+    const {
+        type
+    } = props;
+
+    return null;
+} 
+
 export default function Editor({
     defaultBlocks,
-    rootBlockId
+    rootBlockId,
+    children
 }) {
+
+    React.Children.forEach(children, (child) => {
+        if (React.isValidElement(child)) {
+            // Here it should be compared against a BlockConstructor component or sth like that
+            if (child.type === ExampleBlock) {
+                console.log("Valid");
+                console.log(child.props);
+                // Register block type
+
+            } else {
+                console.warn("Invalid");
+            }
+        }
+    })
+
     return (
         <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
             <NoteScreen rootBlockId={rootBlockId} />
