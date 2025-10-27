@@ -1,7 +1,7 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
 import { Block } from "../../interfaces/Block.interface";
-import { updateBlock as updateBlockData, findPrevTextBlockInContent } from "../../core/updateBlock";
+import { updateBlock as updateBlockData, findPrevTextBlockInContent, textBlockTypes } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import { useBlocksContext, useBlock } from "./BlocksContext";
 import { useTextBlocksContext } from "../TextBlocksProvider";
@@ -117,14 +117,23 @@ const BlockElement = memo(({
          * If block is not empty and cursor is at start, merge block with previous block.
          */
         if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
+
+            
+
             // The following is like an "optimistic update", we set the block's content before update
             const sourceBlock = block;
             const parentBlock = blocks[sourceBlock.parent];
             const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
             const isFirstChild = sourceBlockContentIndex === 0;
+
+            /** First: check if the previous block is a text block */
+            const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
+            const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type);
             const targetBlock = isFirstChild
                 ? parentBlock
-                : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content);
+                : immediatePrviousBlockType
+                    ? blocks[immediatePrviousBlock]
+                    : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content);
 
             refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
 
@@ -137,9 +146,12 @@ const BlockElement = memo(({
 
             // Wait for the block to be focused to remove it
             // Maybe I could manually hide it before its removed?
-            setTimeout(() => {
+            /* setTimeout(() => {
                 removeBlock(sourceBlock.id);
-            }, 1000);
+            }, 100); */
+            requestAnimationFrame(() => {
+                removeBlock(sourceBlock.id);
+            })
 
             /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block); */
 
