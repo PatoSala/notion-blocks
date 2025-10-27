@@ -1,11 +1,12 @@
 import { Pressable, Text, View, StyleSheet, Dimensions } from "react-native";
 import { useFooterContext } from "../Footer";
+import { useTextBlocksContext } from "../../TextBlocksProvider";
 import { useBlocksContext } from "../../Blocks/BlocksContext";
 
 const { width } = Dimensions.get("window");
 
 export default function ReplaceBlockSection() {
-    const { inputRefs } = useFooterContext();
+    const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { blocks, focusedBlockId, turnBlockInto } = useBlocksContext();
     const handleTurnBlockInto = (blockId: string, blockType: string) => {
         const updatedBlock = turnBlockInto(blockId, blockType);

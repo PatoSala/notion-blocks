@@ -2,11 +2,13 @@ import { Pressable, Text, View, StyleSheet, Dimensions } from "react-native";
 import { useBlocksContext } from "../../Blocks/BlocksContext";
 import { useFooterContext } from "../Footer";
 import { Block } from "../../../interfaces/Block.interface";
+import { useTextBlocksContext } from "../../TextBlocksProvider";
+import { use } from "react";
 
 const { width } = Dimensions.get("window");
 
 export default function InsertBlockSection() {
-    const { inputRefs, setShowSoftInputOnFocus } = useFooterContext();
+    const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { blocks, focusedBlockId, insertBlock } = useBlocksContext();
 
     const handleInsertBlock = (blockType: string) => {

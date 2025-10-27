@@ -1,21 +1,14 @@
-import React, { useRef, useState, useCallback, useContext, useEffect } from "react";
-import { GestureHandlerRootView, Gesture, GestureDetector, GestureUpdateEvent, GestureEventPayload } from "react-native-gesture-handler";
+import React, { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { GestureHandlerRootView, GestureUpdateEvent } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  runOnJS,
-  withTiming,
-  withSpring
 } from 'react-native-reanimated';
 import {
     StyleSheet,
     ScrollView,
     Pressable,
-    KeyboardAvoidingView,
-    Platform,
-    Keyboard,
     View,
-    Text,
     Dimensions
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,8 +18,9 @@ import DragProvider from "./DragProvider";
 import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
-import { BlocksProvider, useBlocksContext, BlocksContext } from "./Blocks/BlocksContext";
+import { BlocksProvider, useBlocksContext, useBlock } from "./Blocks/BlocksContext";
 import { BlockRegistration, useBlockRegistrationContext } from "./BlockRegistration";
+import { TextBlocksProvider, useTextBlocksContext } from "./TextBlocksProvider";
 
 const { width } = Dimensions.get("window");
 
@@ -42,11 +36,11 @@ function NoteScreen({
         focusedBlockId,
         insertBlock,
         moveBlocks,
-        turnBlockInto,
     } = useBlocksContext();
     const { keyboardHeight } = useKeyboardStatus();
 
     const rootBlock : Block = blocks[pageId];
+    const rootBlockContent = useMemo(() => rootBlock.content, [rootBlock.content]);
     const scrollY = useSharedValue(0);
 
     const handleScroll = (event: { nativeEvent: { contentOffset: { y: number; }; }; }) => {
@@ -73,18 +67,7 @@ function NoteScreen({
     }, [focusedBlockId, blocks])
 
     /** Editor configs */
-    const [showSoftInputOnFocus, setShowSoftInputOnFocus] = useState(true);
-
-    /** TextInput refs of text based blocks */
-    const refs = useRef({}); // TextInputs refs
-
-    function registerRef(blockId: string, ref: any) {
-        refs.current[blockId] = ref;
-    }
-
-    function unregisterRef(blockId: string) {
-        delete refs.current[blockId];
-    }
+    const { inputRefs: refs } = useTextBlocksContext();
 
     const handleNewLineBlock = () => {
         if (rootBlock.content.length === 0 || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0) {
@@ -114,15 +97,7 @@ function NoteScreen({
     // Components
     const ListHeaderComponent = useCallback(() => (
         <BlockElement
-            key={pageId}
             blockId={pageId}
-            refs={refs}
-            block={rootBlock}
-            title={rootBlock.properties.title}
-            showSoftInputOnFocus={showSoftInputOnFocus}
-            registerRef={registerRef}
-            /* handleScrollTo={handleScrollTo} */
-            unregisterRef={unregisterRef}
         />
     ), [rootBlock]); // dependency array set in rootBlock.properties.title was causing the RNB-14 bug.
 
@@ -132,7 +107,6 @@ function NoteScreen({
             style={{
                 flexGrow: 1,
                 height: "100%",
-                /* paddingBottom: 124 */
             }}
         />
     )
@@ -161,15 +135,7 @@ function NoteScreen({
             position: "absolute",
             width: "100%"
         }, animatedStyles]}>
-            {blockTypes[blocks[ghostBlockId].type].component({
-                ghostBlockId,
-                block: blocks[ghostBlockId],
-                title: blocks[ghostBlockId].properties.title,
-                refs,
-                showSoftInputOnFocus,
-                registerRef,
-                unregisterRef
-            })}
+            <RenderBlock blockId={ghostBlockId} />
         </Animated.View>
     )
 
@@ -237,86 +203,90 @@ function NoteScreen({
         ]} />
     )
 
+    /* const RenderBlock = useCallback((props) => {
+        const {
+            blockId
+        } = props;
+
+        return blockTypes[blocks[blockId].type].component(props);
+    }, []); */
+
+    const RenderBlock = (props) => {
+        const {
+            blockId
+        } = props;
+
+        return blockTypes[blocks[blockId].type].component(props);
+    };
+
     return (
         <GestureHandlerRootView>
-                    <ScrollView
-                        ref={scrollViewRef}
-                        onScroll={handleScroll}
-                        contentContainerStyle={{
-                            flexGrow: 1,
-                            paddingTop: insets.top,
-                            paddingHorizontal: 8,
-                        }}
-                        keyboardShouldPersistTaps="always"
-                        automaticallyAdjustKeyboardInsets
-                    >
-                        <Indicator />
+                <ScrollView
+                    ref={scrollViewRef}
+                    onScroll={handleScroll}
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        paddingTop: insets.top,
+                        paddingHorizontal: 8,
+                    }}
+                    keyboardShouldPersistTaps="always"
+                    automaticallyAdjustKeyboardInsets
+                >
+                    <Indicator />
 
-                        <ListHeaderComponent />
+                    <RenderBlock blockId={rootBlockId} />
 
-                        {rootBlock.content?.map((blockId: string) => {
-                            return (
-                                <LayoutProvider
-                                    key={blockId}
-                                    blockId={blockId}
-                                    registerBlockMeasure={registerBlockMeasure}
-                                    dependancies={blocks[rootBlockId]}
-                                    removeBlockMeasure={removeBlockMeasure}
-                                >
-                                    <DragProvider
-                                        onDragStart={() => {
-                                            isPressed.value = true;
-                                            setGhostBlockId(blockId);
-                                        }}
-                                        onDragUpdate={(e: GestureUpdateEvent, start: { x: number, y: number }) => {
-                                            offset.value = {
-                                                x: e.translationX + start.x,
-                                                y: e.translationY + start.y,
-                                            };
-                                            /* functionDetermineIndicatorPosition(e.absoluteY); */
-                                            const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
-                                            
-                                            if (blockId) {
-                                                indicatorPosition.value = {
-                                                    y: blockMeasuresRef.current[blockId][closestTo]
-                                                }
+                    {rootBlockContent?.map((blockId: string, index: number) => {
+                        return (
+                            <LayoutProvider
+                                key={blockId}
+                                blockId={blockId}
+                                registerBlockMeasure={registerBlockMeasure}
+                                dependancies={blocks[rootBlockId]}
+                                removeBlockMeasure={removeBlockMeasure}
+                            >
+                                <DragProvider
+                                    onDragStart={() => {
+                                        isPressed.value = true;
+                                        setGhostBlockId(blockId);
+                                    }}
+                                    onDragUpdate={(e: GestureUpdateEvent, start: { x: number, y: number }) => {
+                                        offset.value = {
+                                            x: e.translationX + start.x,
+                                            y: e.translationY + start.y,
+                                        };
+                                        const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
+                                        
+                                        if (blockId) {
+                                            indicatorPosition.value = {
+                                                y: blockMeasuresRef.current[blockId][closestTo]
                                             }
-                                        }}
-                                        onDragEnd={() => {
-                                            handleMoveBlock();
-                                            isPressed.value = false;
-                                            setGhostBlockId(null);
-                                            offset.value = { x: 0, y: 0 };
-                                            indicatorPosition.value = { y: 0 };
-                                        }}
-                                    >
-                                        <View>
-                                            {blockTypes[blocks[blockId].type].component({
-                                                blockId,
-                                                block: blocks[blockId],
-                                                title: blocks[blockId].properties.title,
-                                                refs,
-                                                showSoftInputOnFocus,
-                                                registerRef,
-                                                unregisterRef
-                                            })}
-                                        </View>
-                                    </DragProvider>
-                                </LayoutProvider>
-                            )
-                        })}
+                                        }
+                                    }}
+                                    onDragEnd={() => {
+                                        handleMoveBlock();
+                                        isPressed.value = false;
+                                        setGhostBlockId(null);
+                                        offset.value = { x: 0, y: 0 };
+                                        indicatorPosition.value = { y: 0 };
+                                    }}
+                                >
+                                    <View>
+                                        {/* <RenderBlock blockId={blockId}/> */}
+                                        {blockTypes[blocks[blockId].type].component({ blockId })}
+                                    </View>
+                                </DragProvider>
+                            </LayoutProvider>
+                        )
+                    })}
 
-                        <ListFooterComponent />
+                    <ListFooterComponent />
 
-                    </ScrollView>
+                </ScrollView>
 
                 {isPressed.value === true && <GhostBlock />}
 
-                <Footer.ContextProvider
-                    // Maybe a context for text input related data should be created (refs, focusedBlockId, showSoftInputOnFocus, etc) 
-                    refs={refs}
-                    setShowSoftInputOnFocus={setShowSoftInputOnFocus}
-                >
+                <Footer.ContextProvider>
                     <Footer>
                         <Footer.AddBlock />
                         <Footer.TurnBlockInto />
@@ -336,7 +306,9 @@ export default function Editor({
     return (
         <BlockRegistration customBlocks={children}>
             <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
-                <NoteScreen rootBlockId={rootBlockId} />
+                <TextBlocksProvider>
+                    <NoteScreen rootBlockId={rootBlockId} />
+                </TextBlocksProvider>
             </BlocksProvider>
         </BlockRegistration>
     )

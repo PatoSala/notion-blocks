@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { Block } from "../../interfaces/Block.interface";
 import { updateBlock as updateBlockData, insertBlockIdIntoContent, findPrevTextBlockInContent } from "../../core";
 
@@ -54,6 +54,11 @@ function useBlocksContext() {
         throw new Error("useBlocksContext must be used within a BlocksContextProvider");
     }
     return blocksContext;
+}
+
+function useBlock(blockId: string) : Block {
+    const { blocks } = useBlocksContext();
+    return blocks[blockId];
 }
 
 function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
@@ -195,7 +200,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         const sourceBlockText = sourceBlock.properties.title;
         const targetBlockText = targetBlock.properties.title;
 
-        // If the block to merge with is the parent block
+        // If the block to merge with is the parent block (this can only happen for root block at the moment)
         if (targetBlock.id === parentBlock.id) {
             /** Remove source block from parent's content array and update title property. */
             const updatedParentBlock = updateBlockData(parentBlock, {
@@ -221,11 +226,11 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         } else {
             /** Remove target block from parent's content array. */
             const updatedParentBlock = updateBlockData(parentBlock, {
-                content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
+                content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
             });
 
             /** Update source block  */
-            const updatedSourceBlock = updateBlockData(sourceBlock, {
+            const updatedTargetBlock = updateBlockData(targetBlock, {
                 type: targetBlock.type,
                 properties: {
                     title: targetBlockText + sourceBlockText
@@ -234,18 +239,18 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
 
             setBlocks(prev => {
                 const newBlocks = { ...prev };
-                delete newBlocks[targetBlock.id];
+                delete newBlocks[sourceBlock.id];
 
                 newBlocks[parentBlock.id] = updatedParentBlock;
-                newBlocks[updatedSourceBlock.id] = updatedSourceBlock;
+                newBlocks[updatedTargetBlock.id] = updatedTargetBlock;
 
                 return newBlocks;
             });
 
             return {
                 prevTitle: sourceBlockText,
-                newTitle: updatedSourceBlock.properties.title,
-                mergeResult: updatedSourceBlock
+                newTitle: updatedTargetBlock.properties.title,
+                mergeResult: updatedTargetBlock
             };
         }
     }
@@ -254,17 +259,17 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         const block = blocks[blockId];
         const parentBlock = blocks[block.parent];
 
-        const blocksState = blocks;
-        delete blocksState[blockId];
-
         /** Update parent block's content array */
         const updatedParentBlock = updateBlockData(parentBlock, {
             content: parentBlock.content.filter((id: string) => id !== blockId)
         });
 
-        setBlocks({
-            ...blocksState,
-            [updatedParentBlock.id]: updatedParentBlock
+        setBlocks(prevState => {
+            delete prevState[blockId];
+            return {
+                ...prevState,
+                [updatedParentBlock.id]: updatedParentBlock
+            }
         });
 
         return updatedParentBlock;
@@ -309,7 +314,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     }
 
     const value = {
-        blocks,
+        blocks: blocks,
         rootBlockId,
         focusedBlockId,
         setFocusedBlockId,
@@ -330,4 +335,4 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
 
 }
 
-export { BlocksProvider, useBlocksContext, BlocksContext };
+export { BlocksProvider, useBlocksContext, useBlock, BlocksContext };

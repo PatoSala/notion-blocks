@@ -53,7 +53,6 @@ export function BlockRegistration(props: any) {
             type,
             component: (props: any) => component(props),
         };
-        console.log("registered block", type);
     }
 
     const unregister = ({ type }) => {
@@ -76,8 +75,6 @@ export function BlockRegistration(props: any) {
     const value = {
         blocks: blocksMapRef.current
     }
-
-    console.log("value: ", value);
 
     return (
         <BlockRegistrationContext.Provider value={value}>

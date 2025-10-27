@@ -7,6 +7,7 @@ import InsertBlockSection from "./tabs/InsertBlockSection";
 import ReplaceBlockSection from "./tabs/ReplaceBlockSection";
 import { ScrollView } from "react-native-gesture-handler";
 import { useBlocksContext } from "../Blocks/BlocksContext";
+import { useTextBlocksContext } from "../TextBlocksProvider";
 
 interface FooterButtonProps {
     children: React.ReactNode;
@@ -31,8 +32,6 @@ interface FooterContext {
 const FooterContext = createContext({
     activeTab: "none",
     hidden: true,
-    inputRefs: { current: {} },
-    setShowSoftInputOnFocus: (show: boolean) => {},
     setActiveTab: (tab: string) => {},
     setHidden: (hidden: boolean) => {}
 });
@@ -45,19 +44,15 @@ export const useFooterContext = () => {
     return context;
 }
 
-Footer.ContextProvider = ({ children, refs, setShowSoftInputOnFocus }) => {
+Footer.ContextProvider = ({ children/* , refs, setShowSoftInputOnFocus */ }) => {
     const [footerContext, setFooterContext] = useState({
         activeTab: "",
         hidden: true,
     });
 
-    const inputRefs = useRef({});
-
     const value = {
         activeTab: footerContext.activeTab,
         hidden: footerContext.hidden,
-        inputRefs: inputRefs.current = refs,
-        setShowSoftInputOnFocus,
         setActiveTab: (tab: string) => {
             setFooterContext(prevState => ({
                 ...prevState,
@@ -147,7 +142,8 @@ Footer.Button = ({ children, onPress, style } : FooterButtonProps) => {
 }
 
 Footer.AddBlock = () => {
-    const { activeTab, setActiveTab, inputRefs, setShowSoftInputOnFocus } = useFooterContext();
+    const { activeTab, setActiveTab } = useFooterContext();
+    const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { focusedBlockId } = useBlocksContext();
 
     const handleOnPress = () => {
@@ -167,7 +163,8 @@ Footer.AddBlock = () => {
 }
 
 Footer.TurnBlockInto = () => {
-    const { activeTab, setActiveTab, inputRefs, setShowSoftInputOnFocus } = useFooterContext();
+    const { activeTab, setActiveTab } = useFooterContext();
+    const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { focusedBlockId } = useBlocksContext();
 
     const handleOnPress = () => {
@@ -187,7 +184,8 @@ Footer.TurnBlockInto = () => {
 }
 
 Footer.DismissKeyboard = () => {
-    const { setHidden, setActiveTab, setShowSoftInputOnFocus } = useFooterContext();
+    const { setHidden, setActiveTab } = useFooterContext();
+    const { setShowSoftInputOnFocus } = useTextBlocksContext();
     const { setFocusedBlockId } = useBlocksContext();
 
     const handleOnPress = () => {
@@ -206,7 +204,8 @@ Footer.DismissKeyboard = () => {
 }
 
 Footer.OpenKeyboard = () => {
-    const { setShowSoftInputOnFocus, setActiveTab, inputRefs } = useFooterContext();
+    const { setActiveTab } = useFooterContext();
+    const { setShowSoftInputOnFocus, inputRefs } = useTextBlocksContext();
     const { focusedBlockId } = useBlocksContext();
 
     const handleOpenKeyboard = () => {

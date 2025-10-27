@@ -34,7 +34,7 @@ const CustomImageBlock = (props: BlockProps) => {
     <View style={{ width: "100%", height: 200, backgroundColor: "#f37777ff" }}>
       <Image
         style={{ width: "100%", height: "100%" }}
-        source={{ uri: "https://github.com/PatoSala/notion-blocks/raw/main/assets/cover.png?raw=true" }}
+        source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
       />
     </View>
   )

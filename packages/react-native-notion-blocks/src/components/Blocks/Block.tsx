@@ -1,9 +1,10 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
 import { Block } from "../../interfaces/Block.interface";
-import { updateBlock as updateBlockData } from "../../core/updateBlock";
+import { updateBlock as updateBlockData, findPrevTextBlockInContent } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
-import { useBlocksContext } from "./BlocksContext";
+import { useBlocksContext, useBlock } from "./BlocksContext";
+import { useTextBlocksContext } from "../TextBlocksProvider";
 
 export interface BlockProps {
     blockId: string;
@@ -16,29 +17,30 @@ export interface BlockProps {
     handleScrollTo?: () => void;
 }
 
+// In theory since memo() does a shallow check, even if some data inside the block changes the component should not render.
 const BlockElement = memo(({
     blockId,
-    block,
-    title,
-    refs,
-    registerRef,
-    unregisterRef,
-    showSoftInputOnFocus,
 } : BlockProps) => {
 
+    const { blocks, rootBlockId, setFocusedBlockId, updateBlock, insertBlock, mergeBlock, splitBlock, removeBlock } = useBlocksContext();
+    const block = blocks[blockId];
     if (block === undefined) {
         /** Setting this to null might be a good hotfix. */
         return <Text>Block not found. Id: {blockId}</Text>
     }
+    console.log("Rerendered block", blockId);
+    const title = block.properties.title;
+
+    const { registerRef, unregisterRef, showSoftInputOnFocus, inputRefs: refs } = useTextBlocksContext();
     const ref = useRef<TextInput>(null);
     const viewRef = useRef<View>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
     const { keyboardY } = useKeyboardStatus();
-    const { blocks, rootBlockId, setFocusedBlockId, updateBlock, insertBlock, mergeBlock, splitBlock } = useBlocksContext();
 
     const api = {
         current: {
+            getText: () => valueRef.current,
             setText: (text: string) => {
                 ref.current?.setNativeProps({ text });
                 valueRef.current = text;
@@ -73,11 +75,11 @@ const BlockElement = memo(({
     };
 
     // Find a better way to sync with state
-    useEffect(() => {
+    /* useEffect(() => {
         requestAnimationFrame(() => {
             api.current.setText(title);
         })
-    }, [title])
+    }, [title]) */
 
     useEffect(() => {
         // Register ref on block mount. This will allow us to set focus/selection from the parent.
@@ -122,20 +124,34 @@ const BlockElement = memo(({
             const isFirstChild = sourceBlockContentIndex === 0;
             const targetBlock = isFirstChild
                 ? parentBlock
-                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+                : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content);
 
-            refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+            refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
 
-            const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
+            requestAnimationFrame(() => {
+                refs.current[targetBlock.id]?.current.focusWithSelection({
+                    start: targetBlock.properties.title.length,
+                    end: targetBlock.properties.title.length
+                });
+            })
+
+            // Wait for the block to be focused to remove it
+            // Maybe I could manually hide it before its removed?
+            setTimeout(() => {
+                removeBlock(sourceBlock.id);
+            }, 1000);
+
+            /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block); */
+
+            /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
             // Focus previous block here
             const newCursorPosition = newTitle.length - prevTitle.length;
-            /* console.log("New cursor position: ", newCursorPosition); */
             requestAnimationFrame(() => {
                 refs.current[mergeResult.id]?.current.focusWithSelection({
                     start: newCursorPosition,
                     end: newCursorPosition
                 });
-            })
+            }) */
             return;
         }
     }
