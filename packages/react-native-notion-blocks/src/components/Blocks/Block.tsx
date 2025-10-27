@@ -118,22 +118,30 @@ const BlockElement = memo(({
          */
         if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
 
-            
+            /** To do: Optimizations:
+             * - If is child of root:
+             *      - If prev block is text block, perform old mergeBlock strategy.
+             *      - If prev block is not text block, perform new mergeBlock strategy.
+             * - If block is nested, pop out to grandparent's content array.
+             */
 
             // The following is like an "optimistic update", we set the block's content before update
             const sourceBlock = block;
             const parentBlock = blocks[sourceBlock.parent];
+            console.log("parentBlock", parentBlock);
             const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
             const isFirstChild = sourceBlockContentIndex === 0;
 
             /** First: check if the previous block is a text block */
-            const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
-            const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type);
+            /* const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
+            const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type); */
             const targetBlock = isFirstChild
                 ? parentBlock
-                : immediatePrviousBlockType
+                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+                
+                /* immediatePrviousBlockType
                     ? blocks[immediatePrviousBlock]
-                    : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content);
+                    : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content); */
 
             refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
 
@@ -149,6 +157,7 @@ const BlockElement = memo(({
             /* setTimeout(() => {
                 removeBlock(sourceBlock.id);
             }, 100); */
+            
             requestAnimationFrame(() => {
                 removeBlock(sourceBlock.id);
             })

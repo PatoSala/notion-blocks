@@ -234,7 +234,8 @@ function NoteScreen({
                 >
                     <Indicator />
 
-                    <RenderBlock blockId={rootBlockId} />
+                    {/* For some reason, rendering like this works better. */}
+                    {blockTypes[blocks[pageId].type].component({ blockId: pageId })}
 
                     {rootBlockContent?.map((blockId: string, index: number) => {
                         return (
@@ -273,6 +274,7 @@ function NoteScreen({
                                 >
                                     <View>
                                         {/* <RenderBlock blockId={blockId}/> */}
+                                        {/* For some reason, rendering like this works better. */}
                                         {blockTypes[blocks[blockId].type].component({ blockId })}
                                     </View>
                                 </DragProvider>
@@ -315,37 +317,6 @@ export default function Editor({
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        position: "relative",
-    },
-    pageTitle: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginLeft: 8
-    },
-    blockOptionsContainer: {
-        backgroundColor: "#f5f5f5",
-        padding: 16
-    },
-    blockOptionsRow: {
-        flexDirection: "row",
-        marginBottom: 8,
-    },
-    blockOptions: {
-        backgroundColor: "white",
-        height: 50,
-        minWidth: "50%",
-        borderRadius: 8,
-        justifyContent: "center",
-        paddingHorizontal: 16,
-        boxSizing: "border-box",
-        boxShadow: "0px 1px 0px rgba(0, 0, 0, 0.1)"
-    },
-    blockOptionsText: {
-        fontSize: 16,
-        fontWeight: "bold",
-    },
     indicator: {
         height: 3,
         width: width - 32,
