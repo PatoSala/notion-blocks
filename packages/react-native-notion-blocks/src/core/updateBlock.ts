@@ -49,11 +49,13 @@ export function rearrangeContent(parentBlock: Block, blockId: string, index: num
 }
 
 // Needs to be refactored according to the use case
-export function findPrevTextBlockInContent(block: Block, blocks: Record<string, Block>, content: string[]) {
-  const blockIndexInContent = content.indexOf(block.id);
-  const prevTextBlock = blocks[content.reverse().find((id: string, index: number) => index > blockIndexInContent &&  textBlockTypes.includes(blocks[id].type))];
-  console.log("prevTextBlock", prevTextBlock);
-  return prevTextBlock;
+export function findPrevTextBlockInContent(blockId: string, blocks: Record<string, Block>) {
+  const block = blocks[blockId];
+  const content = blocks[block.parent].content;
+
+  const blockIndexInContent = content.indexOf(blockId);
+  const prevBlockId = content.slice(0, blockIndexInContent).findLast((id: string) => textBlockTypes.includes(blocks[id].type));
+  return blocks[prevBlockId];
 }
 
 export function getPreviousBlockInContent(blockId: string, blocks: Record<string, Block>) {

@@ -141,7 +141,7 @@ const BlockElement = memo(({
 
                     const targetBlock = isFirstChild
                         ? parentBlock
-                        : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+                        : findPrevTextBlockInContent(sourceBlock.id, blocks);
                         
                         /* immediatePrviousBlockType
                             ? blocks[immediatePrviousBlock]
@@ -179,19 +179,6 @@ const BlockElement = memo(({
                 }
 
             }
-
-
-            /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block); */
-
-            /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
-            // Focus previous block here
-            const newCursorPosition = newTitle.length - prevTitle.length;
-            requestAnimationFrame(() => {
-                refs.current[mergeResult.id]?.current.focusWithSelection({
-                    start: newCursorPosition,
-                    end: newCursorPosition
-                });
-            }) */
             return;
         }
     }

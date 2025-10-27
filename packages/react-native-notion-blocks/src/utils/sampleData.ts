@@ -7,7 +7,7 @@ export const sampleData : Record<string, IBlock> = {
         properties: {
             title: "React Native                                              Blocks"
         },
-        content: ["2", "3", /* "5" *//* , "8", "9" */],
+        content: ["2", "3", "5"/* , "8", "9" */],
         parent: ""
     },
     "2": {
