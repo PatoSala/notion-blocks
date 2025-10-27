@@ -16,7 +16,7 @@ interface BlocksContext {
     ) => void;
     splitBlock: (block: Block, selection: { start: number; end: number }) => {
         splitResult: Block;
-        updatedParentBlock: Block;
+        updatedBlock: Block;
     };
     moveBlocks: (
         blockId: string,
@@ -129,7 +129,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                     ...prevState[updatedParentBlock.id],
                     ...updatedParentBlock.properties,
                     ...updatedParentBlock.content
-                } 
+                }
             }));
 
             /** Review */
@@ -176,6 +176,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             /** Review */
             return {
                 splitResult: updatedBlock,
+                updatedBlock: updatedParentBlock
             }
         }
     }

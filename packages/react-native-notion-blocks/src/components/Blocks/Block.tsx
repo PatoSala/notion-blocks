@@ -216,9 +216,10 @@ const BlockElement = memo(({
             end: 0
         }, textAfterSelection);
 
-        const { splitResult } = splitBlock(block, selection);
+        const { splitResult, updatedBlock } = splitBlock(block, selection);
         
         requestAnimationFrame(() => {
+            refs.current[updatedBlock.id]?.current.setText(updatedBlock.properties.title);
             refs.current[splitResult.id]?.current.focusWithSelection({
                 start: 0,
                 end: 0
