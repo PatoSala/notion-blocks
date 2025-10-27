@@ -137,15 +137,13 @@ const BlockElement = memo(({
                 /* const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
                 const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type); */
                 if (isFirstChild || !textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
-                    /** Note for the future: if is nested, pop out. */
-
-                    const targetBlock = isFirstChild
+                    /** Note for the future: if is nested should also be check, in which case the block should be poped out of the current content array. */
+                    const prevTextBlockInContent = findPrevTextBlockInContent(sourceBlock.id, blocks);
+                    const targetBlock = isFirstChild || prevTextBlockInContent === undefined // If there is no previous text block
                         ? parentBlock
-                        : findPrevTextBlockInContent(sourceBlock.id, blocks);
+                        : prevTextBlockInContent;
                         
-                        /* immediatePrviousBlockType
-                            ? blocks[immediatePrviousBlock]
-                            : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content); */
+                    if (targetBlock === undefined) return;
 
                     refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
 
@@ -160,7 +158,6 @@ const BlockElement = memo(({
                         removeBlock(sourceBlock.id);
                     })
                 } else if (textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
-                    console.log("Old strategy");
                     const targetBlock = getPreviousBlockInContent(sourceBlock.id, blocks);
 
                     refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
@@ -168,7 +165,6 @@ const BlockElement = memo(({
                     const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
                     // Focus previous block here
                     const newCursorPosition = newTitle.length - prevTitle.length;
-                    /* console.log("New cursor position: ", newCursorPosition); */
                     requestAnimationFrame(() => {
                         refs.current[mergeResult.id]?.current.focusWithSelection({
                             start: newCursorPosition,
@@ -268,7 +264,6 @@ const styles = StyleSheet.create({
         fontSize: 30,
         fontWeight: "bold",
         lineHeight: 36,
-        minHeight: 36,
         marginTop: 36,
         marginBottom: 4,
         flexWrap: "wrap"
@@ -278,7 +273,6 @@ const styles = StyleSheet.create({
         fontWeight: "normal",
         paddingVertical: 6,
         lineHeight: 24,
-        minHeight: 24,
         flexWrap: "wrap"
     },
     header: {
@@ -287,7 +281,6 @@ const styles = StyleSheet.create({
         marginTop: 32,
         marginBottom: 8,
         lineHeight: 34,
-        minHeight: 34,
         flexWrap: "wrap"
     },
     sub_header: {
@@ -296,7 +289,6 @@ const styles = StyleSheet.create({
         marginTop: 24,
         marginBottom: 4,
         lineHeight: 30,
-        minHeight: 30,
         flexWrap: "wrap"
     },
     sub_sub_header: {
@@ -305,7 +297,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 4,
         lineHeight: 26,
-        minHeight: 26,
         flexWrap: "wrap"
     }
 });

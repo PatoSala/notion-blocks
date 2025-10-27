@@ -57,7 +57,7 @@ export function findPrevTextBlockInContent(blockId: string, blocks: Record<strin
   const prevBlockId = content.slice(0, blockIndexInContent).findLast((id: string) => textBlockTypes.includes(blocks[id].type));
   return blocks[prevBlockId];
 }
-
+/** If it returns undefined, it means that there is no previous block inside the content array */
 export function getPreviousBlockInContent(blockId: string, blocks: Record<string, Block>) {
   const block = blocks[blockId];
   const content = blocks[block.parent].content;

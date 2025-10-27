@@ -152,7 +152,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                 },
                 parent: block.parent,
             });
-            console.log("newBlock", newBlock);
             const updatedParentBlock = updateBlockData(blocks[block.parent], {
                 content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
                     nextBlockId: block.id
@@ -164,7 +163,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                 [newBlock.id]: newBlock,    // new block
                 [block.id]: {
                     ...prevState[block.id],
-                    ...updatedBlock.type,
+                    type: updatedBlock.type,
                     ...updatedBlock.properties
                 }, // source block
                 [block.parent]: {
