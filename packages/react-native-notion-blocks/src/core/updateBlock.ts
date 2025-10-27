@@ -56,4 +56,13 @@ export function findPrevTextBlockInContent(block: Block, blocks: Record<string, 
   return prevTextBlock;
 }
 
+export function getPreviousBlockInContent(blockId: string, blocks: Record<string, Block>) {
+  const block = blocks[blockId];
+  const content = blocks[block.parent].content;
+  
+  const blockIndexInContent = content.indexOf(blockId);
+  const prevBlockId = content[blockIndexInContent - 1];
+  return blocks[prevBlockId];
+}
+
 

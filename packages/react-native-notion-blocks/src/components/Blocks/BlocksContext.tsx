@@ -24,7 +24,7 @@ interface BlocksContext {
         targetId: string,
         closestTo: "start" | "end"
     ) => void;
-    mergeBlock: (block: Block) => {
+    mergeBlock: (block: Block, targetBlockId: string) => {
         prevTitle: string;
         newTitle: string;
         mergeResult: Block;
@@ -122,11 +122,15 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                     nextBlockId: block.content[0]
                 })
             });
-            setBlocks({
-                ...blocks,
-                [newBlock.id]: newBlock, // new block
-                [updatedParentBlock.id]: updatedParentBlock // source and parent block
-            });
+            setBlocks(prevState => ({
+                ...prevState,
+                [newBlock.id]: newBlock, 
+                [updatedParentBlock.id]: {
+                    ...prevState[updatedParentBlock.id],
+                    ...updatedParentBlock.properties,
+                    ...updatedParentBlock.content
+                } 
+            }));
 
             /** Review */
             return {
@@ -148,6 +152,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                 },
                 parent: block.parent,
             });
+            console.log("newBlock", newBlock);
             const updatedParentBlock = updateBlockData(blocks[block.parent], {
                 content: insertBlockIdIntoContent(blocks[block.parent].content, newBlock.id, {
                     nextBlockId: block.id
@@ -157,8 +162,15 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             setBlocks(prevState => ({
                 ...prevState,
                 [newBlock.id]: newBlock,    // new block
-                [block.id]: updatedBlock, // source block
-                [block.parent]: updatedParentBlock // parent block
+                [block.id]: {
+                    ...prevState[block.id],
+                    ...updatedBlock.type,
+                    ...updatedBlock.properties
+                }, // source block
+                [block.parent]: {
+                    ...prevState[block.parent],
+                    ...updatedParentBlock.content
+                } // parent block
             }));
 
             /** Review */
@@ -178,9 +190,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
      * The source block type will be replaced with the target block type.
      * Last of all, the target block is removed.
      */
-    function mergeBlock(block: Block) {
+    function mergeBlock(block: Block, targetBlockId: string) {
         const sourceBlock = block;
         const parentBlock = blocks[sourceBlock.parent];
+        const targetBlock = blocks[targetBlockId];
         const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
         const isFirstChild = sourceBlockContentIndex === 0;
         /** Note: The following isn't considering the posibility of the target block not being a text block.
@@ -193,15 +206,12 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
          * 
          * 
          * */
-        const targetBlock = isFirstChild
-            ? parentBlock
-            : findPrevTextBlockInContent(sourceBlock, blocks, parentBlock.content);
-
         const sourceBlockText = sourceBlock.properties.title;
-        const targetBlockText = targetBlock.properties.title;
+        const targetBlockText = blocks[targetBlockId].properties.title;
 
         // If the block to merge with is the parent block (this can only happen for root block at the moment)
-        if (targetBlock.id === parentBlock.id) {
+        // First if - deprecated
+        if (targetBlockId === parentBlock.id) {
             /** Remove source block from parent's content array and update title property. */
             const updatedParentBlock = updateBlockData(parentBlock, {
                 properties: {
@@ -226,31 +236,34 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         } else {
             /** Remove target block from parent's content array. */
             const updatedParentBlock = updateBlockData(parentBlock, {
-                content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
+                content: parentBlock.content.filter((id: string) => id !== targetBlockId)
             });
 
             /** Update source block  */
-            const updatedTargetBlock = updateBlockData(targetBlock, {
+            const updatedSourceBlock = updateBlockData(sourceBlock, {
                 type: targetBlock.type,
                 properties: {
                     title: targetBlockText + sourceBlockText
                 }
             });
 
-            setBlocks(prev => {
-                const newBlocks = { ...prev };
-                delete newBlocks[sourceBlock.id];
-
-                newBlocks[parentBlock.id] = updatedParentBlock;
-                newBlocks[updatedTargetBlock.id] = updatedTargetBlock;
-
-                return newBlocks;
-            });
+            setBlocks(prevState => ({
+                    ...prevState,
+                    [parentBlock.id]: {
+                        ...prevState[parentBlock.id],
+                        content: updatedParentBlock.content
+                    },
+                    [updatedSourceBlock.id]: {
+                        ...prevState[updatedSourceBlock.id],
+                        type: updatedSourceBlock.type,
+                        properties: updatedSourceBlock.properties
+                    }
+                }));
 
             return {
                 prevTitle: sourceBlockText,
-                newTitle: updatedTargetBlock.properties.title,
-                mergeResult: updatedTargetBlock
+                newTitle: updatedSourceBlock.properties.title,
+                mergeResult: updatedSourceBlock
             };
         }
     }
@@ -268,7 +281,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             delete prevState[blockId];
             return {
                 ...prevState,
-                [updatedParentBlock.id]: updatedParentBlock
+                [updatedParentBlock.id]: {
+                    ...prevState[updatedParentBlock.id],
+                    content: updatedParentBlock.content
+                }
             }
         });
 
@@ -288,7 +304,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         })
             setBlocks(prevState => ({
             ...prevState,
-            [parentId]: updatedBlock
+            [parentId]: {
+                ...prevState[parentId],
+                content: updatedBlock.content
+            }
         }));
     }
 
@@ -301,7 +320,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         });
         setBlocks(prevState => ({
             ...prevState,
-            [blockId]: updatedBlock
+            [blockId]: {
+                ...prevState[blockId],
+                type: blockType
+            }
         }));
         return updatedBlock;
     }

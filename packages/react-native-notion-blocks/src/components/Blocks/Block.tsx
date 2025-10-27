@@ -1,7 +1,7 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
 import { Block } from "../../interfaces/Block.interface";
-import { updateBlock as updateBlockData, findPrevTextBlockInContent, textBlockTypes } from "../../core/updateBlock";
+import { updateBlock as updateBlockData, findPrevTextBlockInContent, textBlockTypes, getPreviousBlockInContent } from "../../core/updateBlock";
 import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import { useBlocksContext, useBlock } from "./BlocksContext";
 import { useTextBlocksContext } from "../TextBlocksProvider";
@@ -28,7 +28,6 @@ const BlockElement = memo(({
         /** Setting this to null might be a good hotfix. */
         return <Text>Block not found. Id: {blockId}</Text>
     }
-    console.log("Rerendered block", blockId);
     const title = block.properties.title;
 
     const { registerRef, unregisterRef, showSoftInputOnFocus, inputRefs: refs } = useTextBlocksContext();
@@ -36,7 +35,6 @@ const BlockElement = memo(({
     const viewRef = useRef<View>(null);
     const selectionRef = useRef({ start: block.properties.title.length, end: block.properties.title.length });
     const valueRef = useRef(title);
-    const { keyboardY } = useKeyboardStatus();
 
     const api = {
         current: {
@@ -117,50 +115,71 @@ const BlockElement = memo(({
          * If block is not empty and cursor is at start, merge block with previous block.
          */
         if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
+            const sourceBlock = block;
+            const parentBlock = blocks[sourceBlock.parent];
+            const sourceBlockContentIndex = parentBlock.content.indexOf(blockId);
+            const isFirstChild = sourceBlockContentIndex === 0;
 
             /** To do: Optimizations:
              * - If is child of root:
+             *      - If block is first child, merge with parent (root).
              *      - If prev block is text block, perform old mergeBlock strategy.
              *      - If prev block is not text block, perform new mergeBlock strategy.
              * - If block is nested, pop out to grandparent's content array.
              */
 
-            // The following is like an "optimistic update", we set the block's content before update
-            const sourceBlock = block;
-            const parentBlock = blocks[sourceBlock.parent];
-            console.log("parentBlock", parentBlock);
-            const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
-            const isFirstChild = sourceBlockContentIndex === 0;
+            if (parentBlock.id === rootBlockId) {
 
-            /** First: check if the previous block is a text block */
-            /* const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
-            const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type); */
-            const targetBlock = isFirstChild
-                ? parentBlock
-                : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+                // The following is like an "optimistic update", we set the block's content before update
                 
-                /* immediatePrviousBlockType
-                    ? blocks[immediatePrviousBlock]
-                    : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content); */
 
-            refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+                /** First: check if the previous block is a text block */
+                /* const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
+                const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type); */
+                if (isFirstChild || !textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
+                    /** Note for the future: if is nested, pop out. */
 
-            requestAnimationFrame(() => {
-                refs.current[targetBlock.id]?.current.focusWithSelection({
-                    start: targetBlock.properties.title.length,
-                    end: targetBlock.properties.title.length
-                });
-            })
+                    const targetBlock = isFirstChild
+                        ? parentBlock
+                        : blocks[parentBlock.content[sourceBlockContentIndex - 1]];
+                        
+                        /* immediatePrviousBlockType
+                            ? blocks[immediatePrviousBlock]
+                            : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content); */
 
-            // Wait for the block to be focused to remove it
-            // Maybe I could manually hide it before its removed?
-            /* setTimeout(() => {
-                removeBlock(sourceBlock.id);
-            }, 100); */
-            
-            requestAnimationFrame(() => {
-                removeBlock(sourceBlock.id);
-            })
+                    refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+
+                    requestAnimationFrame(() => {
+                        refs.current[targetBlock.id]?.current.focusWithSelection({
+                            start: targetBlock.properties.title.length,
+                            end: targetBlock.properties.title.length
+                        });
+                    });
+                    
+                    requestAnimationFrame(() => {
+                        removeBlock(sourceBlock.id);
+                    })
+                } else if (textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
+                    console.log("Old strategy");
+                    const targetBlock = getPreviousBlockInContent(sourceBlock.id, blocks);
+
+                    refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+
+                    const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
+                    // Focus previous block here
+                    const newCursorPosition = newTitle.length - prevTitle.length;
+                    /* console.log("New cursor position: ", newCursorPosition); */
+                    requestAnimationFrame(() => {
+                        refs.current[mergeResult.id]?.current.focusWithSelection({
+                            start: newCursorPosition,
+                            end: newCursorPosition
+                        }, /* mergeResult.properties.title */);
+                    })
+                    return;
+                }
+
+            }
+
 
             /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block); */
 
@@ -189,11 +208,10 @@ const BlockElement = memo(({
         );
         const selection = selectionRef.current;
         
-        const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
         // The following is like an "optimistic update", we set the block's content before update
-        refs.current[block.id]?.current.focusWithSelection({
+        refs.current[blockId]?.current.focusWithSelection({
             start: 0,
             end: 0
         }, textAfterSelection);
