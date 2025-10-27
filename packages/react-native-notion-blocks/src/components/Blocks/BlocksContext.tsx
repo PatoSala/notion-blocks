@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { Block } from "../../interfaces/Block.interface";
-import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../../core";
+import { updateBlock as updateBlockData, insertBlockIdIntoContent, findPrevTextBlockInContent } from "../../core";
 
 interface BlocksContext {
     blocks: Record<string, Block>;
@@ -178,10 +178,19 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         const parentBlock = blocks[sourceBlock.parent];
         const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
         const isFirstChild = sourceBlockContentIndex === 0;
-        /** Note: The following isn't considering the posibility of the target block not being a text block. In said case the target block should be the last know text based block.  */
+        /** Note: The following isn't considering the posibility of the target block not being a text block.
+         * In said case the target block should be the last know text based block. 
+         * 
+         * Actually: If the source block is nested inside another block, the source block should be 
+         * taken out of the content array and be placed as a sibling of it's parent block.
+         * This should be repeated until the source block is a direct child of the root block.
+         * Once it is a child of the rootblock it should be merged with the last child text block inside its previous block tree.
+         * 
+         * 
+         * */
         const targetBlock = isFirstChild
             ? parentBlock
-            : blocks[parentBlock.content[sourceBlockContentIndex - 1]]; // The block before the source block.
+            : findPrevTextBlockInContent(sourceBlock, blocks, parentBlock.content);
 
         const sourceBlockText = sourceBlock.properties.title;
         const targetBlockText = targetBlock.properties.title;
