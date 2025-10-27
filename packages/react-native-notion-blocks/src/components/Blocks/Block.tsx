@@ -22,7 +22,7 @@ const BlockElement = memo(({
     blockId,
 } : BlockProps) => {
 
-    const { blocks, rootBlockId, setFocusedBlockId, updateBlock, insertBlock, mergeBlock, splitBlock, removeBlock } = useBlocksContext();
+    const { blocks, rootBlockId, setFocusedBlockId, updateBlock, insertBlock, mergeBlock, splitBlock, removeBlock, moveBlocks } = useBlocksContext();
     const block = blocks[blockId];
     if (block === undefined) {
         /** Setting this to null might be a good hotfix. */
@@ -122,6 +122,8 @@ const BlockElement = memo(({
 
             // The following is like an "optimistic update", we set the block's content before update
             const sourceBlock = block;
+
+
             const parentBlock = blocks[sourceBlock.parent];
             const sourceBlockContentIndex = parentBlock.content.indexOf(sourceBlock.id);
             const isFirstChild = sourceBlockContentIndex === 0;
@@ -135,35 +137,43 @@ const BlockElement = memo(({
                     ? blocks[immediatePrviousBlock]
                     : findPrevTextBlockInContent(block, blocks, blocks[block.parent].content);
 
-            refs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+            console.log("targetBlock", targetBlock);
 
             requestAnimationFrame(() => {
+                refs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
+            })
+
+            /* requestAnimationFrame(() => {
                 refs.current[targetBlock.id]?.current.focusWithSelection({
                     start: targetBlock.properties.title.length,
                     end: targetBlock.properties.title.length
                 });
-            })
+            }) */
 
             // Wait for the block to be focused to remove it
             // Maybe I could manually hide it before its removed?
             /* setTimeout(() => {
                 removeBlock(sourceBlock.id);
             }, 100); */
-            requestAnimationFrame(() => {
+            /* requestAnimationFrame(() => {
                 removeBlock(sourceBlock.id);
-            })
+            }) */
 
             /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block); */
+            moveBlocks(sourceBlock.id, sourceBlock.parent, targetBlock.id, "end");
 
-            /* const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
-            // Focus previous block here
-            const newCursorPosition = newTitle.length - prevTitle.length;
-            requestAnimationFrame(() => {
-                refs.current[mergeResult.id]?.current.focusWithSelection({
-                    start: newCursorPosition,
-                    end: newCursorPosition
-                });
-            }) */
+            setTimeout(() => {
+                const { prevTitle, newTitle, mergeResult } = mergeBlock(block);
+
+                // Focus previous block here
+                const newCursorPosition = newTitle.length - prevTitle.length;
+                requestAnimationFrame(() => {
+                    refs.current[mergeResult.id]?.current.focusWithSelection({
+                        start: newCursorPosition,
+                        end: newCursorPosition
+                    });
+                })
+            }, 100);
             return;
         }
     }

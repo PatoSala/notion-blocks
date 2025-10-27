@@ -226,11 +226,11 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         } else {
             /** Remove target block from parent's content array. */
             const updatedParentBlock = updateBlockData(parentBlock, {
-                content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
+                content: parentBlock.content.filter((id: string) => id !== targetBlock.id)
             });
 
             /** Update source block  */
-            const updatedTargetBlock = updateBlockData(targetBlock, {
+            const updatedSourceBlock = updateBlockData(sourceBlock, {
                 type: targetBlock.type,
                 properties: {
                     title: targetBlockText + sourceBlockText
@@ -242,15 +242,15 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
                 delete newBlocks[sourceBlock.id];
 
                 newBlocks[parentBlock.id] = updatedParentBlock;
-                newBlocks[updatedTargetBlock.id] = updatedTargetBlock;
+                newBlocks[updatedSourceBlock.id] = updatedSourceBlock;
 
                 return newBlocks;
             });
 
             return {
                 prevTitle: sourceBlockText,
-                newTitle: updatedTargetBlock.properties.title,
-                mergeResult: updatedTargetBlock
+                newTitle: updatedSourceBlock.properties.title,
+                mergeResult: updatedSourceBlock
             };
         }
     }
