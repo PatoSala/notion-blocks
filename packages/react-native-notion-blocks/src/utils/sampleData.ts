@@ -7,7 +7,7 @@ export const sampleData : Record<string, IBlock> = {
         properties: {
             title: "React Native                                              Blocks"
         },
-        content: ["2", "3", "5"/* , "8", "9" */],
+        content: ["2", "3", "5", "4"/* , "8", "9" */],
         parent: ""
     },
     "2": {
@@ -27,16 +27,16 @@ export const sampleData : Record<string, IBlock> = {
         },
         content: [],
         parent: "1"
-    },/* ,
+    },
     "4": {
         id: "4",
-        type: "custom",
+        type: "custom-text-input",
         properties: {
-            title: "Custom Block"
+            title: "Custom Text Input Block"
         },
         content: [],
         parent: "1"
-    }, */
+    },
     "5": {
         id: "5",
         type: "image",
