@@ -23,7 +23,6 @@ const BlockElement = memo(({
     }
     const { getTextInputProps } = useTextInput(blockId);
 
-    const ref = useRef<TextInput>(null);
     const viewRef = useRef<View>(null);
     
     return (

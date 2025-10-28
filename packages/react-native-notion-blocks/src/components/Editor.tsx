@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Block  } from "../interfaces/Block.interface";
-import BlockElement from "./Blocks/Block";
 import DragProvider from "./DragProvider";
 import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
@@ -93,14 +92,7 @@ function NoteScreen({
             });
         }
     }
-   
-    // Components
-    const ListHeaderComponent = useCallback(() => (
-        <BlockElement
-            blockId={pageId}
-        />
-    ), [rootBlock]); // dependency array set in rootBlock.properties.title was causing the RNB-14 bug.
-
+ 
     const ListFooterComponent = () => (
         <Pressable
             onPress={handleNewLineBlock}
@@ -202,14 +194,6 @@ function NoteScreen({
             }
         ]} />
     )
-
-    /* const RenderBlock = useCallback((props) => {
-        const {
-            blockId
-        } = props;
-
-        return blockTypes[blocks[blockId].type].component(props);
-    }, []); */
 
     const RenderBlock = (props) => {
         const {

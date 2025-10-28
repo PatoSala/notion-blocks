@@ -102,7 +102,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     function splitBlock(block: Block, selection: { start: number, end: number }) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
-
         // If splitting root block, insert new text block below
         if (block.id === rootBlockId) {
             const newBlockText = textAfterSelection;

@@ -8,13 +8,14 @@ import { sampleData } from 'react-native-notion-blocks/src/utils/sampleData';
 import { CustomBlock } from 'react-native-notion-blocks/src/components/CustomBlock';
 import { BlockProps } from 'react-native-notion-blocks/src/components/Blocks/Block';
 import { useTextInput } from 'react-native-notion-blocks/src/hooks/useTextInput';
-import { useBlock } from 'react-native-notion-blocks/src/components/Blocks/BlocksContext';
+import { useBlock, useBlocksContext } from 'react-native-notion-blocks/src/components/Blocks/BlocksContext';
 
 const Component = (props: BlockProps) => {
   const {
     blockId
   } = props;
 
+  const { blocks } = useBlocksContext();
   const { getTextInputProps } = useTextInput(blockId);
 
   return (

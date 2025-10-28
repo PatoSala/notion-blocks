@@ -77,6 +77,7 @@ export function useTextInput(blockId: string) {
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
     }
+
     function handleOnBlur() {
         const updatedBlock = updateBlockData(blocks[blockId], {
             properties: {
@@ -175,9 +176,9 @@ export function useTextInput(blockId: string) {
             }
         );
         const selection = selectionRef.current;
-        
+        console.log(selection);
         const textAfterSelection = block.properties.title.substring(selection.end);
-
+        console.log(textAfterSelection);
         // The following is like an "optimistic update", we set the block's content before update
         inputRefs.current[blockId]?.current.focusWithSelection({
             start: 0,
