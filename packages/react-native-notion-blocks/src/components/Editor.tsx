@@ -9,7 +9,8 @@ import {
     ScrollView,
     Pressable,
     View,
-    Dimensions
+    Dimensions,
+    Text
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Block  } from "../interfaces/Block.interface";
@@ -127,7 +128,8 @@ function NoteScreen({
             position: "absolute",
             width: "100%"
         }, animatedStyles]}>
-            <RenderBlock blockId={ghostBlockId} />
+            {/* <RenderBlock blockId={ghostBlockId} /> */}
+            <Text>Ghost block</Text>
         </Animated.View>
     )
 
@@ -183,7 +185,7 @@ function NoteScreen({
         return {
             top: indicatorPosition.value.y
         }
-    })
+    });
 
     const Indicator = () => (
         <Animated.View style={[
@@ -270,7 +272,7 @@ function NoteScreen({
 
                 </ScrollView>
 
-                {isPressed.value === true && <GhostBlock />}
+                {/* {isPressed.value === true && <GhostBlock />} */}
 
                 <Footer.ContextProvider>
                     <Footer>
@@ -288,6 +290,7 @@ export default function Editor({
     rootBlockId,
     children
 }) {
+    console.log(rootBlockId);
     return (
         <BlockRegistration customBlocks={children}>
             <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>

@@ -34,7 +34,7 @@ interface BlocksContext {
     updateBlock: (updatedBlock: Block) => void;
 }
 
-const BlocksContext = createContext<BlocksContext>({
+const BlocksContext = createContext<BlocksContext | null>(/* {
     blocks: {},
     rootBlockId: "",
     focusedBlockId: "",
@@ -46,11 +46,11 @@ const BlocksContext = createContext<BlocksContext>({
     removeBlock: () => null,
     turnBlockInto: () => null,
     updateBlock: () => null
-});
+} */null);
 
 function useBlocksContext() {
     const blocksContext = useContext(BlocksContext);
-    if (!blocksContext) {
+    if (blocksContext === null) {
         throw new Error("useBlocksContext must be used within a BlocksContextProvider");
     }
     return blocksContext;
@@ -64,7 +64,6 @@ function useBlock(blockId: string) : Block {
 function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const [blocks, setBlocks] = useState(defaultBlocks);
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
-
     /** POC: Rendering order state (Related to the flat out root block improvement).
      * const [renderingOrder, setRenderingOrder] = useState<string[]>([parentBlock.id, ...parentBlock.content]);
      */
@@ -190,6 +189,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
      * Last of all, the target block is removed.
      */
     function mergeBlock(block: Block, targetBlockId: string) {
+        console.log("mergeBlock");
         const sourceBlock = block;
         const parentBlock = blocks[sourceBlock.parent];
         const targetBlock = blocks[targetBlockId];

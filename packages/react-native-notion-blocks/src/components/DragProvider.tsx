@@ -30,24 +30,6 @@ export default function DragProvider({
         })
         .onUpdate((e) => {
             scheduleOnRN(onDragUpdate, e, start.value);
-
-            /* NOTE: Maybe the scroll event shouldn't be handled from withing the DragProvider */
-            // Handle auto-scrolling
-            /* if (e.absoluteY < TOP_THRESHOLD && scrollPosition.value > 0) {
-                scheduleOnRN(handleScrollTo, {
-                    x: 0,
-                    y: scrollPosition.value - 150,
-                    animated: true,
-                });
-            }
-
-            if (e.absoluteY > height - BOTTOM_THRESHOLD) {
-                scheduleOnRN(handleScrollTo, {
-                    x: 0,
-                    y: scrollPosition.value + 200,
-                    animated: true,
-                });
-            } */
         })
         .onFinalize(() => {
             start.value = { x: 0, y: 0 };

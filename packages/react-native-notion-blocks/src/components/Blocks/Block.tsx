@@ -1,10 +1,6 @@
 import { useContext, useState, useRef, useEffect, useImperativeHandle, memo, RefObject, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, TextInput, Dimensions, ScrollView, findNodeHandle } from "react-native";
-import { Block } from "../../interfaces/Block.interface";
-import { updateBlock as updateBlockData, findPrevTextBlockInContent, textBlockTypes, getPreviousBlockInContent } from "../../core/updateBlock";
-import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import { useBlocksContext, useBlock } from "./BlocksContext";
-import { useTextBlocksContext } from "../TextBlocksProvider";
 import { useTextInput } from "../../hooks/useTextInput";
 
 export interface BlockProps {
@@ -21,9 +17,10 @@ const BlockElement = memo(({
     if (block === undefined) {
         return <Text>Block not found. Id: {blockId}</Text>
     }
-    const { getTextInputProps } = useTextInput(blockId);
 
     const viewRef = useRef<View>(null);
+
+    const { getTextInputProps } = useTextInput(blockId);
     
     return (
         <>

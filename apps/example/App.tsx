@@ -10,22 +10,6 @@ import { BlockProps } from 'react-native-notion-blocks/src/components/Blocks/Blo
 import { useTextInput } from 'react-native-notion-blocks/src/hooks/useTextInput';
 import { useBlock, useBlocksContext } from 'react-native-notion-blocks/src/components/Blocks/BlocksContext';
 
-const Component = (props: BlockProps) => {
-  const {
-    blockId
-  } = props;
-
-  const { blocks } = useBlocksContext();
-  const { getTextInputProps } = useTextInput(blockId);
-
-  return (
-    <TextInput
-      {...getTextInputProps()}
-      placeholder='This is a custom Text Input component'
-    />
-  )
-}
-
 const CustomImageBlock = (props: BlockProps) => {
   const {
     blockId,
@@ -40,6 +24,23 @@ const CustomImageBlock = (props: BlockProps) => {
     </View>
   )
 }
+
+const Component = (props: BlockProps) => {
+  const {
+    blockId
+  } = props;
+
+  const { getTextInputProps } = useTextInput(blockId);
+
+  return (
+    <TextInput
+      {...getTextInputProps()}
+      placeholder='This is a custom Text Input component'
+    />
+  )
+}
+
+
 
 export default function App() {
   return (

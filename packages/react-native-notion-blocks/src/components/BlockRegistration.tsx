@@ -2,31 +2,26 @@ import React, { useContext, createContext, useRef, RefObject } from "react";
 import { CustomBlock, CustomBlockProps } from "./CustomBlock";
 import BlockElement from "./Blocks/Block";
 
-const blockTypes = {
+const defaultBlockTypes = {
     "text": {
         type: "text",
         component: (props: any) => <BlockElement {...props} />,
-        /* properties: ["title"] */
     },
     "page": {
         type: "page",
         component: (props: any) => <BlockElement {...props} />,
-        /* properties: ["title"] */
     },
     "header": {
         type: "header",
         component: (props: any) => <BlockElement {...props} />,
-        /* properties: ["title"] */
     },
     "sub_header": {
         type: "sub_header",
         component: (props: any) => <BlockElement {...props} />,
-        /* properties: ["title"] */
     },
     "sub_sub_header": {
         type: "sub_sub_header",
         component: (props: any) => <BlockElement {...props} />,
-        /* properties: ["title"] */
     },
 }
 
@@ -34,7 +29,7 @@ const BlockRegistrationContext = createContext({});
 
 export function useBlockRegistrationContext() {
     const context = useContext(BlockRegistrationContext);
-    if (!context) {
+    if (context === null) {
         throw new Error("useBlockRegistrationContext must be used within a BlockRegistrationProvider");
     }
     return context;
@@ -46,12 +41,12 @@ export function BlockRegistration(props: any) {
         children
     } = props;
 
-    const blocksMapRef = useRef(blockTypes);
+    const blocksMapRef = useRef(defaultBlockTypes);
 
     const register = ({ type, component } : { type: string; component: Function; }) => {
         blocksMapRef.current[type] = {
             type,
-            component: (props: any) => component(props),
+            component,
         };
     }
 

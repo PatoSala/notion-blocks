@@ -66,14 +66,6 @@ export function useTextInput(blockId: string) {
         }
     };
 
-    React.useEffect(() => {
-        registerRef && registerRef(blockId, api);
-        
-        return () => {
-            unregisterRef && unregisterRef(blockId);
-        };
-    }, []);
-
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
     }
@@ -123,8 +115,14 @@ export function useTextInput(blockId: string) {
                 /* const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
                 const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type); */
                 if (isFirstChild || !textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
-                    /** Note for the future: if is nested should also be check, in which case the block should be poped out of the current content array. */
+                    /** Note for the future: It should be checked if the current block is nested, in which case the block should be poped out of the current content array. */
                     const prevTextBlockInContent = findPrevTextBlockInContent(sourceBlock.id, blocks);
+                    
+                    /**
+                     * If there is no previous text block in the content array, or if its the first block in the content array of the parent,
+                     * set as target the parent block.
+                     * If there is a previous text block, set as target the previous text block.
+                     */
                     const targetBlock = isFirstChild || prevTextBlockInContent === undefined // If there is no previous text block
                         ? parentBlock
                         : prevTextBlockInContent;
@@ -142,13 +140,16 @@ export function useTextInput(blockId: string) {
                     
                     requestAnimationFrame(() => {
                         removeBlock(sourceBlock.id);
-                    })
+                    });
                 } else if (textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
                     const targetBlock = getPreviousBlockInContent(sourceBlock.id, blocks);
-
+                    console.log("TARGET", targetBlock);
+                    console.log("sourceBlock", sourceBlock);
+                    console.log("INPUTREFS:", inputRefs);
                     inputRefs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
-
+                    console.log("REF: ", inputRefs.current[sourceBlock.id]);
                     const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
+                    console.log("MERGE RESULT", mergeResult);
                     // Focus previous block here
                     const newCursorPosition = newTitle.length - prevTitle.length;
                     requestAnimationFrame(() => {
@@ -199,6 +200,8 @@ export function useTextInput(blockId: string) {
 
     const handleOnFocus = () => {
         setFocusedBlockId(blockId);
+        console.log("FOCUS", blockId);
+        console.log("FOCUESED BLOCK ReF", inputRefs.current[blockId]);
     }
 
     const handleChangeText = (text: string) => {
@@ -229,6 +232,17 @@ export function useTextInput(blockId: string) {
             }
         }
     }
+
+    React.useEffect(() => {
+        registerRef(blockId, api);
+        console.log("Registered block", blockId);
+
+        console.log("registered refs", inputRefs);
+        return () => {
+            unregisterRef(blockId);
+            console.log("UnregisterUNREGISTERed block", blockId);
+        };
+    }, [blockId]);
 
     return { getTextInputProps };
 }
