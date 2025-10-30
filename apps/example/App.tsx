@@ -9,6 +9,7 @@ import { CustomBlock } from 'react-native-notion-blocks/src/components/CustomBlo
 import { BlockProps } from 'react-native-notion-blocks/src/components/Blocks/Block';
 import { useTextInput } from 'react-native-notion-blocks/src/hooks/useTextInput';
 import { useBlock, useBlocksContext } from 'react-native-notion-blocks/src/components/Blocks/BlocksContext';
+import { HeaderBlock } from 'notion/src';
 
 const CustomImageBlock = (props: BlockProps) => {
   const {
@@ -52,6 +53,11 @@ export default function App() {
         <CustomBlock
           type="custom-text-input"
           component={Component}
+        />
+
+        <CustomBlock
+          type="header"
+          component={HeaderBlock}
         />
 
         <CustomBlock
