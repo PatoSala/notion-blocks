@@ -8,23 +8,17 @@ export interface BlockProps {
 }
 
 // In theory since memo() does a shallow check, even if some data inside the block changes the component should not render.
-const BlockElement = memo(({
+const BlockElement = ({
     blockId,
 } : BlockProps) => {
 
     const { blocks } = useBlocksContext();
     const block = blocks[blockId];
-    if (block === undefined) {
-        return <Text>Block not found. Id: {blockId}</Text>
-    }
-
-    const viewRef = useRef<View>(null);
-
     const { getTextInputProps } = useTextInput(blockId);
     
     return (
         <>
-            <View style={[styles.container]} ref={viewRef}>
+            <View style={[styles.container]}>
                 <TextInput
                     style={[styles[block.type], {
                         textAlignVertical: "top",
@@ -36,7 +30,7 @@ const BlockElement = memo(({
             </View>
         </>
     )
-});
+};
 
 export default BlockElement;
 

@@ -3,26 +3,11 @@ import { CustomBlock, CustomBlockProps } from "./CustomBlock";
 import BlockElement from "./Blocks/Block";
 
 const defaultBlockTypes = {
-    "text": {
-        type: "text",
-        component: (props: any) => <BlockElement {...props} />,
-    },
-    "page": {
-        type: "page",
-        component: (props: any) => <BlockElement {...props} />,
-    },
-    "header": {
-        type: "header",
-        component: (props: any) => <BlockElement {...props} />,
-    },
-    "sub_header": {
-        type: "sub_header",
-        component: (props: any) => <BlockElement {...props} />,
-    },
-    "sub_sub_header": {
-        type: "sub_sub_header",
-        component: (props: any) => <BlockElement {...props} />,
-    },
+    /* "text": (props: any) => <BlockElement {...props} />,
+    "page": (props: any) => <BlockElement {...props} />,
+    "header": (props: any) => <BlockElement {...props} />,
+    "sub_header": (props: any) => <BlockElement {...props} />,
+    "sub_sub_header": (props: any) => <BlockElement {...props} />, */
 }
 
 const BlockRegistrationContext = createContext({});
@@ -41,14 +26,11 @@ export function BlockRegistration(props: any) {
         children
     } = props;
 
-    const blocksMapRef = useRef(defaultBlockTypes);
+    const blocksMapRef = useRef({});
 
-    const register = ({ type, component } : { type: string; component: Function; }) => {
-        blocksMapRef.current[type] = {
-            type,
-            component,
-        };
-    }
+    const register = React.useCallback(({ type, component } : { type: string; component: Function; }) => {
+        blocksMapRef.current[type] = component;
+    }, []);
 
     const unregister = ({ type }) => {
         delete blocksMapRef.current[type];
@@ -67,9 +49,9 @@ export function BlockRegistration(props: any) {
         }
     })
 
-    const value = {
+    const value = React.useMemo(() => ({
         blocks: blocksMapRef.current
-    }
+    }), []);
 
     return (
         <BlockRegistrationContext.Provider value={value}>

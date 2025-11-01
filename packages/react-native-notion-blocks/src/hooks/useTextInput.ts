@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { TextInput, TextInputProps } from "react-native";
 import { useBlocksContext, useBlock } from "../components/Blocks/BlocksContext";
 import { useTextBlocksContext } from "../components/TextBlocksProvider";
+import { useSharedValue } from "react-native-reanimated";
 import {
     updateBlock as updateBlockData,
     findPrevTextBlockInContent,
@@ -10,11 +11,10 @@ import {
 } from "../core/updateBlock";
 
 export function useTextInput(blockId: string) {
-    if (blockId === undefined) throw new Error("blockId is undefined");
-
     const {
         blocks,
         rootBlockId,
+        focusedBlockId,
         setFocusedBlockId,
         updateBlock,
         insertBlock,
@@ -28,12 +28,14 @@ export function useTextInput(blockId: string) {
         showSoftInputOnFocus,
         inputRefs
     } = useTextBlocksContext();
-    const block = blocks[blockId];
+    const block = useMemo(() => blocks[blockId], [blockId]);
     const title = block.properties.title;
 
     const inputRef = React.useRef<TextInput>(null);
     const selectionRef = React.useRef({ start: title.length, end: title.length });
     const valueRef = React.useRef(title);
+    const height = useSharedValue(0);
+    console.log(height);
 
     const api = {
         current: {
@@ -65,6 +67,10 @@ export function useTextInput(blockId: string) {
             }
         }
     };
+
+    const handleContentSizeChange = (event: { nativeEvent: { contentSize: { height: number; }; }; }) => {
+        height.value = event.nativeEvent.contentSize.height;
+    }
 
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
@@ -106,6 +112,8 @@ export function useTextInput(blockId: string) {
              * - If block is nested, pop out to grandparent's content array.
              */
 
+            inputRefs.current["ghostInput"]?.current.focus();
+
             if (parentBlock.id === rootBlockId) {
 
                 // The following is like an "optimistic update", we set the block's content before update
@@ -143,13 +151,8 @@ export function useTextInput(blockId: string) {
                     });
                 } else if (textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
                     const targetBlock = getPreviousBlockInContent(sourceBlock.id, blocks);
-                    console.log("TARGET", targetBlock);
-                    console.log("sourceBlock", sourceBlock);
-                    console.log("INPUTREFS:", inputRefs);
                     inputRefs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
-                    console.log("REF: ", inputRefs.current[sourceBlock.id]);
                     const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
-                    console.log("MERGE RESULT", mergeResult);
                     // Focus previous block here
                     const newCursorPosition = newTitle.length - prevTitle.length;
                     requestAnimationFrame(() => {
@@ -177,31 +180,43 @@ export function useTextInput(blockId: string) {
             }
         );
         const selection = selectionRef.current;
-        console.log(selection);
+        const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
-        console.log(textAfterSelection);
-        // The following is like an "optimistic update", we set the block's content before update
-        inputRefs.current[blockId]?.current.focusWithSelection({
-            start: 0,
-            end: 0
-        }, textAfterSelection);
 
-        const { splitResult, updatedBlock } = splitBlock(block, selection);
-        
+        // If is rootBlock
+        /* if (blockId === rootBlockId) {
+                requestAnimationFrame(() => {
+                    inputRefs.current[blockId]?.current.setText(textBeforeSelection);
+                })
+        } else {
+            
+            requestAnimationFrame(() => {
+                inputRefs.current[blockId]?.current.setText(textAfterSelection);
+                inputRefs.current[blockId]?.current.focusWithSelection({
+                    start: 0,
+                    end: 0
+                });
+            })
+        } */
+
+        inputRefs.current["ghostInput"]?.current.focus();
+
+        const { prevBlock, nextBlock } = splitBlock(block, selection);
         requestAnimationFrame(() => {
-            inputRefs.current[updatedBlock.id]?.current.setText(updatedBlock.properties.title);
-            inputRefs.current[splitResult.id]?.current.focusWithSelection({
+
+            inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
+            inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
+            inputRefs.current[nextBlock.id]?.current.focusWithSelection({
                 start: 0,
                 end: 0
             });
         });
+        height.value = 0;
         return;
     };
 
     const handleOnFocus = () => {
         setFocusedBlockId(blockId);
-        console.log("FOCUS", blockId);
-        console.log("FOCUESED BLOCK ReF", inputRefs.current[blockId]);
     }
 
     const handleChangeText = (text: string) => {
@@ -218,7 +233,11 @@ export function useTextInput(blockId: string) {
             selectTextOnFocus: false,
             smartInsertDelete: false,
             defaultValue: valueRef.current,
+            /* style: {
+                height: height.value
+            }, */
 
+            onContentSizeChange: handleContentSizeChange,
             onSelectionChange: handleSelectionChange,
             showSoftInputOnFocus: showSoftInputOnFocus,
             onChangeText: handleChangeText,
@@ -226,23 +245,23 @@ export function useTextInput(blockId: string) {
             onFocus: handleOnFocus,
             onSubmitEditing: handleSubmitEditing,
             onKeyPress: (event) => {
-                event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0
-                ? handleOnKeyPress(event)
-                : null;
+                if (event.nativeEvent.key === "Backspace" && selectionRef.current.start === 0 && selectionRef.current.end === 0) {
+                    handleOnKeyPress(event);
+                }
             }
+            
         }
     }
 
     React.useEffect(() => {
-        registerRef(blockId, api);
-        console.log("Registered block", blockId);
-
-        console.log("registered refs", inputRefs);
-        return () => {
+        if (inputRef.current) {
+            registerRef(blockId, api);
+        }
+        /* return () => {
             unregisterRef(blockId);
             console.log("UnregisterUNREGISTERed block", blockId);
-        };
-    }, [blockId]);
+        }; */
+    }, [inputRef]);
 
-    return { getTextInputProps };
+    return { getTextInputProps, height };
 }

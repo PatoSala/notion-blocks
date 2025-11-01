@@ -7,7 +7,7 @@ export const sampleData : Record<string, IBlock> = {
         properties: {
             title: "React Native                                              Blocks"
         },
-        content: ["5", "2", "3", "4", "6", "7"/* , "8", "9" */],
+        content: ["5", "2", "3", "8", "4"/*, "6", "7" , "8", "9" */],
         parent: ""
     },
     "2": {
@@ -28,11 +28,20 @@ export const sampleData : Record<string, IBlock> = {
         content: [],
         parent: "1"
     },
+    "8": {
+        id: "8",
+        type: "header",
+        properties: {
+            title: "Header from Notion"
+        },
+        content: [],
+        parent: "1"
+    },
     "4": {
         id: "4",
-        type: "custom-text-input",
+        type: "page",
         properties: {
-            title: "Custom Text Input Block"
+            title: "Page"
         },
         content: [],
         parent: "1"
@@ -45,7 +54,7 @@ export const sampleData : Record<string, IBlock> = {
         },
         content: [],
         parent: "1"
-    },
+    }/* ,
     "6": {
         id: "6",
         type: "custom-text-input",
@@ -63,7 +72,7 @@ export const sampleData : Record<string, IBlock> = {
         },
         content: [],
         parent: "1"
-    },
+    }, */
     /* ,
     "8": {
         id: "8",

@@ -7,9 +7,10 @@ const { width } = Dimensions.get("window");
 
 export default function ReplaceBlockSection() {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
-    const { blocks, focusedBlockId, turnBlockInto } = useBlocksContext();
+    const { blocks, focusedBlockId, setFocusedBlockId, turnBlockInto } = useBlocksContext();
     const handleTurnBlockInto = (blockId: string, blockType: string) => {
         const updatedBlock = turnBlockInto(blockId, blockType);
+        /* setFocusedBlockId(updatedBlock.id); */
         // Focus new block
         requestAnimationFrame(() => {
             inputRefs.current[updatedBlock.id]?.current.focus();

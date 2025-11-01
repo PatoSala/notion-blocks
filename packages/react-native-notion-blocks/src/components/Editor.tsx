@@ -10,7 +10,7 @@ import {
     Pressable,
     View,
     Dimensions,
-    Text
+    TextInput
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Block  } from "../interfaces/Block.interface";
@@ -33,6 +33,7 @@ function NoteScreen({
     const { blocks: blockTypes } = useBlockRegistrationContext();
     const {
         blocks,
+        blocksOrder,
         focusedBlockId,
         insertBlock,
         moveBlocks,
@@ -40,7 +41,7 @@ function NoteScreen({
     const { keyboardHeight } = useKeyboardStatus();
 
     const rootBlock : Block = blocks[pageId];
-    const rootBlockContent = useMemo(() => rootBlock.content, [rootBlock.content]);
+
     const scrollY = useSharedValue(0);
 
     const handleScroll = (event: { nativeEvent: { contentOffset: { y: number; }; }; }) => {
@@ -67,7 +68,8 @@ function NoteScreen({
     }, [focusedBlockId, blocks])
 
     /** Editor configs */
-    const { inputRefs: refs } = useTextBlocksContext();
+    const { inputRefs: refs, registerRef } = useTextBlocksContext();
+    const ghostInputRef = useRef<TextInput>(null);
 
     const handleNewLineBlock = () => {
         if (rootBlock.content.length === 0 || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0) {
@@ -99,7 +101,7 @@ function NoteScreen({
             onPress={handleNewLineBlock}
             style={{
                 flexGrow: 1,
-                height: "100%",
+                height: keyboardHeight + 64,
             }}
         />
     )
@@ -128,8 +130,7 @@ function NoteScreen({
             position: "absolute",
             width: "100%"
         }, animatedStyles]}>
-            {/* <RenderBlock blockId={ghostBlockId} /> */}
-            <Text>Ghost block</Text>
+            <RenderBlock blockId={ghostBlockId} />
         </Animated.View>
     )
 
@@ -202,7 +203,7 @@ function NoteScreen({
             blockId
         } = props;
 
-        return blockTypes[blocks[blockId].type].component(props);
+        return blockTypes[blocks[blockId].type](props);
     };
 
     return (
@@ -210,8 +211,8 @@ function NoteScreen({
                 <ScrollView
                     ref={scrollViewRef}
                     onScroll={handleScroll}
+                    style={{ flex: 1 }}
                     contentContainerStyle={{
-                        flexGrow: 1,
                         paddingTop: insets.top,
                         paddingHorizontal: 8,
                     }}
@@ -219,11 +220,13 @@ function NoteScreen({
                     automaticallyAdjustKeyboardInsets
                 >
                     <Indicator />
+                    
 
                     {/* For some reason, rendering like this works better. */}
-                    {blockTypes[blocks[pageId].type].component({ blockId: pageId })}
-
-                    {rootBlockContent?.map((blockId: string, index: number) => {
+                    {/* {blockTypes[blocks[pageId].type]} */}
+                    {/* <RenderBlock blockId={pageId} /> */}
+                    {blocksOrder.map((blockId: string, index: number) => {
+                        const Component = blockTypes[blocks[blockId].type];
                         return (
                             <LayoutProvider
                                 key={blockId}
@@ -261,7 +264,7 @@ function NoteScreen({
                                     <View>
                                         {/* <RenderBlock blockId={blockId}/> */}
                                         {/* For some reason, rendering like this works better. */}
-                                        {blockTypes[blocks[blockId].type].component({ blockId })}
+                                        <Component blockId={blockId} />
                                     </View>
                                 </DragProvider>
                             </LayoutProvider>
@@ -272,7 +275,16 @@ function NoteScreen({
 
                 </ScrollView>
 
-                {/* {isPressed.value === true && <GhostBlock />} */}
+                <TextInput
+                    ref={ghostInputRef}
+                    onLayout={() => registerRef("ghostInput", ghostInputRef)}
+                    style={{
+                        position: "absolute",
+                        opacity: 0
+                    }}
+                />
+
+                {isPressed.value === true && <GhostBlock />}
 
                 <Footer.ContextProvider>
                     <Footer>
