@@ -9,9 +9,7 @@ export function TextBlock({ blockId } : Props) {
     return (
         <View style={styles.container}>
             <TextInput
-                style={[styles.text, {
-                    minHeight: height.value
-                }]}
+                style={[styles.text]}
                 {...getTextInputProps()}
             />
         </View>

@@ -62,6 +62,7 @@ export function findPrevTextBlockInContent(blockId: string, blocks: Record<strin
  * It only looks inside the content array of the parent block, not the whole tree.
  * If it returns undefined, it means that there is no previous block inside the content array. */
 export function getPreviousBlockInContent(blockId: string, blocks: Record<string, Block>) {
+  console.log(blocks);
   const block = blocks[blockId];
   const content = blocks[block.parent].content;
   

@@ -36,7 +36,7 @@ function NoteScreen({
         blocksOrder,
         focusedBlockId,
         insertBlock,
-        moveBlocks,
+        moveBlock,
     } = useBlocksContext();
     const { keyboardHeight } = useKeyboardStatus();
 
@@ -124,15 +124,18 @@ function NoteScreen({
         };
     });
 
-    const GhostBlock = () => (
-        <Animated.View style={[{
-            opacity: 0.5,
-            position: "absolute",
-            width: "100%"
-        }, animatedStyles]}>
-            <RenderBlock blockId={ghostBlockId} />
-        </Animated.View>
-    )
+    const GhostBlock = () => {
+        const Component = blockTypes[blocks[ghostBlockId].type];
+        return (
+            <Animated.View style={[{
+                opacity: 0.5,
+                position: "absolute",
+                width: "100%"
+            }, animatedStyles]}>
+                <Component blockId={ghostBlockId} />
+            </Animated.View>
+        )
+    }
 
     // Block measures
     const blockMeasuresRef = useRef({});
@@ -178,7 +181,7 @@ function NoteScreen({
         const targetBlock = findBlockAtPosition(indicatorPosition.value.y); // Passing the indicator position fixes de out of bounds error since the indicator value will always be positioned at the start ot end of a block
 
         
-        moveBlocks(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
+        moveBlock(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
         // re measure blocks
     }
 
@@ -221,18 +224,15 @@ function NoteScreen({
                 >
                     <Indicator />
                     
-
-                    {/* For some reason, rendering like this works better. */}
-                    {/* {blockTypes[blocks[pageId].type]} */}
-                    {/* <RenderBlock blockId={pageId} /> */}
                     {blocksOrder.map((blockId: string, index: number) => {
+                        /* console.log("Block log before render: ", blocks[blockId].type); */
                         const Component = blockTypes[blocks[blockId].type];
                         return (
                             <LayoutProvider
                                 key={blockId}
                                 blockId={blockId}
                                 registerBlockMeasure={registerBlockMeasure}
-                                dependancies={blocks[rootBlockId]}
+                                dependancies={blocksOrder}
                                 removeBlockMeasure={removeBlockMeasure}
                             >
                                 <DragProvider
@@ -262,8 +262,6 @@ function NoteScreen({
                                     }}
                                 >
                                     <View>
-                                        {/* <RenderBlock blockId={blockId}/> */}
-                                        {/* For some reason, rendering like this works better. */}
                                         <Component blockId={blockId} />
                                     </View>
                                 </DragProvider>

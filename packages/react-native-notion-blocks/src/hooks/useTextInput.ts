@@ -35,7 +35,6 @@ export function useTextInput(blockId: string) {
     const selectionRef = React.useRef({ start: title.length, end: title.length });
     const valueRef = React.useRef(title);
     const height = useSharedValue(0);
-    console.log(height);
 
     const api = {
         current: {
@@ -112,16 +111,12 @@ export function useTextInput(blockId: string) {
              * - If block is nested, pop out to grandparent's content array.
              */
 
+            
             inputRefs.current["ghostInput"]?.current.focus();
 
             if (parentBlock.id === rootBlockId) {
 
-                // The following is like an "optimistic update", we set the block's content before update
-                
-
-                /** First: check if the previous block is a text block */
-                /* const immediatePrviousBlock = parentBlock.content[sourceBlockContentIndex - 1];
-                const immediatePrviousBlockType = textBlockTypes.includes(blocks[immediatePrviousBlock].type); */
+                /** First: check if the previous block is not a text block of if it is the first block in the content array of the parent block. */
                 if (isFirstChild || !textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
                     /** Note for the future: It should be checked if the current block is nested, in which case the block should be poped out of the current content array. */
                     const prevTextBlockInContent = findPrevTextBlockInContent(sourceBlock.id, blocks);
@@ -135,20 +130,21 @@ export function useTextInput(blockId: string) {
                         ? parentBlock
                         : prevTextBlockInContent;
                         
+                    // ????
                     if (targetBlock === undefined) return;
 
+                    const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
                     inputRefs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
 
+                    const newCursorPosition = newTitle.length - prevTitle.length;
                     requestAnimationFrame(() => {
-                        inputRefs.current[targetBlock.id]?.current.focusWithSelection({
-                            start: targetBlock.properties.title.length,
-                            end: targetBlock.properties.title.length
+                        inputRefs.current[mergeResult.id]?.current.focusWithSelection({
+                            start: newCursorPosition,
+                            end: newCursorPosition
                         });
-                    });
+                    })
+                    return;
                     
-                    requestAnimationFrame(() => {
-                        removeBlock(sourceBlock.id);
-                    });
                 } else if (textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
                     const targetBlock = getPreviousBlockInContent(sourceBlock.id, blocks);
                     inputRefs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
@@ -183,35 +179,20 @@ export function useTextInput(blockId: string) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
-        // If is rootBlock
-        /* if (blockId === rootBlockId) {
-                requestAnimationFrame(() => {
-                    inputRefs.current[blockId]?.current.setText(textBeforeSelection);
-                })
-        } else {
-            
-            requestAnimationFrame(() => {
-                inputRefs.current[blockId]?.current.setText(textAfterSelection);
-                inputRefs.current[blockId]?.current.focusWithSelection({
-                    start: 0,
-                    end: 0
-                });
-            })
-        } */
-
         inputRefs.current["ghostInput"]?.current.focus();
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
+        console.log("PREV BLOCK", prevBlock.properties.title);
+        console.log("NEXT BLOCK", nextBlock.properties.title);
         requestAnimationFrame(() => {
-
             inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
             inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
+
             inputRefs.current[nextBlock.id]?.current.focusWithSelection({
                 start: 0,
                 end: 0
             });
         });
-        height.value = 0;
         return;
     };
 

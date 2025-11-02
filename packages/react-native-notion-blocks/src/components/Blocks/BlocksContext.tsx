@@ -19,7 +19,7 @@ interface BlocksContext {
         prevBlock: Block;
         nextBlock: Block;
     };
-    moveBlocks: (
+    moveBlock: (
         blockId: string,
         parentId: string,
         targetId: string,
@@ -54,9 +54,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const blocksRef = useRef(defaultBlocks);
     const [blocksOrder, setBlocksOrder] = useState<string[]>([rootBlockId, ...blocksRef.current[rootBlockId].content]);
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
-    /** POC: Rendering order state (Related to the flat out root block improvement).
-     * const [renderingOrder, setRenderingOrder] = useState<string[]>([parentBlock.id, ...parentBlock.content]);
-     */
 
     /** Block actions
      * Note: I might change all this actions to reducers. reducers can be exported!
@@ -73,11 +70,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         blocksRef.current[newBlock.parent] = updatedBlock;
         blocksRef.current[newBlock.id] = newBlock;
         setBlocksOrder(prevState => [...prevState, newBlock.id]);
-        /* setBlocks(prevState => ({
-            ...prevState,
-            [newBlock.parent]: updatedBlock,
-            [newBlock.id]: newBlock
-        })); */
     }
 
     /**
@@ -99,7 +91,34 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
 
         // Look for a way to manage all blocks the same
         if (block.id === rootBlockId) {
-            return;
+            const newBlockText = textAfterSelection;
+            const newBlock = new Block({
+                type: "text",
+                properties: {
+                    title: newBlockText
+                },
+                parent: block.id,
+            });
+            // Update parent block's content array (which is the current block in this case)
+            const updatedParentBlock = updateBlockData(block, {
+                properties: {
+                    title: textBeforeSelection
+                },
+                content: insertBlockIdIntoContent(block.content, newBlock.id, {
+                    nextBlockId: block.content[0]
+                })
+            });
+
+            blocksRef.current[newBlock.id] = newBlock;
+            console.log("NEW BLOCK", blocksRef.current[newBlock.id]);
+            blocksRef.current[updatedParentBlock.id] = updatedParentBlock;
+            console.log("CONTENT AFTER SPLIT: ", updatedParentBlock.content)
+            setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]);
+            
+            return {
+                prevBlock: updatedParentBlock,
+                nextBlock: newBlock
+            };
         } else {
             const updatedBlock = updateBlockData(block, {
                 type: selection.start === 0 && selection.end === 0 ? block.type : "text",
@@ -235,6 +254,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
      * Last of all, the target block is removed.
      */
     function mergeBlockV2(block: Block, targetBlockId: string) {
+        console.log("MERGE");
+
         const sourceBlock = block;
         const parentBlock = blocksRef.current[sourceBlock.parent];
         const targetBlock = blocksRef.current[targetBlockId];
@@ -243,7 +264,23 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         const targetBlockText = blocksRef.current[targetBlockId].properties.title;
 
         if (targetBlock.id === rootBlockId) {
-            return;
+            console.log("MERGFE WITHG ROOT BLOCK");
+            const updatedParentBlock = updateBlockData(parentBlock, {
+                properties: {
+                    title: targetBlockText + sourceBlockText
+                },
+                content: parentBlock.content.filter((id: string) => id !== sourceBlock.id)
+            });
+
+            blocksRef.current[targetBlock.id] = updatedParentBlock;
+            console.log("CONTENT AFTER MERGE: ", updatedParentBlock.content);
+            setBlocksOrder([targetBlock.id, ...blocksRef.current[targetBlock.id].content]);
+
+            return {
+                prevTitle: sourceBlockText,
+                newTitle: updatedParentBlock.properties.title,
+                mergeResult: updatedParentBlock
+            };
         } else {
             /** Remove target block from parent's content array. */
             const updatedParentBlock = updateBlockData(parentBlock, {
@@ -260,6 +297,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
 
             blocksRef.current[sourceBlock.id] = updatedSourceBlock;
             blocksRef.current[parentBlock.id] = updatedParentBlock;
+            console.log("CONTENT AFTER MERGE: ", updatedParentBlock.content);
+
             setBlocksOrder(prevState => prevState.filter((id: string) => id !== targetBlockId));
 
             return {
@@ -271,7 +310,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     }
 
     function mergeBlock(block: Block, targetBlockId: string) {
-        console.log("mergeBlock");
         const sourceBlock = block;
         const parentBlock = blocks[sourceBlock.parent];
         const targetBlock = blocks[targetBlockId];
@@ -349,6 +387,11 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         }
     }
 
+    function removeBlockV2(blockId: string) {
+        delete blocksRef.current[blockId];
+        setBlocksOrder(prevState => prevState.filter((id: string) => id !== blockId));
+    }
+
     function removeBlock(blockId: string) {
         const block = blocks[blockId];
         const parentBlock = blocks[block.parent];
@@ -370,6 +413,23 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         });
 
         return updatedParentBlock;
+    }
+
+    const moveBlockV2 = (blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") => {
+        const blockIndexInContent = blocksRef.current[parentId].content?.indexOf(blockId);
+        const parentContent = blocksRef.current[parentId].content;
+
+        parentContent.splice(blockIndexInContent, 1);
+        const updatedBlock = updateBlockData(blocksRef.current[parentId], {
+            content: insertBlockIdIntoContent(
+                parentContent,
+                blockId,
+                closestTo === "start" ? { nextBlockId: targetId } : { prevBlockId: targetId }
+            )
+        });
+
+        blocksRef.current[parentId] = updatedBlock;
+        setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]);
     }
 
     function moveBlocks(blockId: string, parentId: string, targetId: string, closestTo: "start" | "end") {
@@ -423,6 +483,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         turnBlockInto,
         splitBlock: splitBlockV2,
         mergeBlock: mergeBlockV2,
+        removeBlock: removeBlockV2,
+        moveBlock: moveBlockV2
         /* insertBlock,
         splitBlock,
         mergeBlock,

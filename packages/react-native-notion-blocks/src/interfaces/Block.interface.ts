@@ -8,7 +8,7 @@ class Block {
     properties: {
         title: string;
     };
-    format: {
+    format?: {
         
     };
     content?: string[] | [];

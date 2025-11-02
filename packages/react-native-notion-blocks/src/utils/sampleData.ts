@@ -5,9 +5,9 @@ export const sampleData : Record<string, IBlock> = {
         id: "1",
         type: "page",
         properties: {
-            title: "React Native                                              Blocks"
+            title: "React Native Blocks"
         },
-        content: ["5", "2", "3", "8", "4"/*, "6", "7" , "8", "9" */],
+        content: ["2", "5", "3", "8", "4"],
         parent: ""
     },
     "2": {
