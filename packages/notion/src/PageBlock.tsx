@@ -12,12 +12,13 @@ export function PageBlock({ blockId } : Props) {
     const { rootBlockId } = useBlocksContext();
     const { properties } = useBlock(blockId);
     const isRootBlock = rootBlockId === blockId;
+
     return (
         <View style={styles.container}>
             {isRootBlock
             ? (
                 <View style={styles.root}>
-                    <Ionicons name="document-text-outline" size={42} color="black" />
+                   {/*  <Ionicons name="document-text-outline" size={42} color="black" /> */}
                     <TextInput
                         style={styles.page}
                         {...getTextInputProps()}
@@ -41,9 +42,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
     },
     root: {
-        marginTop: 36,
+        marginTop: 32,
         gap: 8,
-        marginBottom: 16
+        marginBottom: 4
     },
     row: {
         flexDirection: "row",
@@ -51,9 +52,9 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     page: {
-        fontSize: 30,
+        fontSize: 36,
         fontWeight: "bold",
-        lineHeight: 36,
+        lineHeight: 42,
         marginBottom: 4,
         flexWrap: "wrap"
     },
