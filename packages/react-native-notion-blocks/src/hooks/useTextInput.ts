@@ -98,7 +98,7 @@ export function useTextInput(blockId: string) {
         const prevTextBlock = findPrevTextBlockInContent(blockId, blocks);
         const targetBlockId = prevTextBlock === undefined ? sourceBlock.parent : prevTextBlock.id;
 
-        if (blocks[targetBlockId].properties.title.length === 0) {
+        if (blocks[targetBlockId].properties.title.length === 0 && targetBlockId !== sourceBlock.parent) {
             requestAnimationFrame(() => {
                 removeBlock(targetBlockId);
             });
