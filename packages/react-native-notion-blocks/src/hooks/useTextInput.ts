@@ -84,7 +84,6 @@ export function useTextInput(blockId: string) {
         updateBlock(updatedBlock);
     }
 
-    /** Used to handle Backspace press when cursor at the start of the block */
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }) {
         const block = updateBlockData(blocks[blockId], {
             properties:
@@ -92,77 +91,32 @@ export function useTextInput(blockId: string) {
                 title: valueRef.current
             }
         });
-        const selection = selectionRef.current;
+
         if (block.id === rootBlockId) return;
-        /**
-         * If block is not empty and cursor is at start, merge block with previous block.
-         */
-        if (event.nativeEvent.key === "Backspace" && (selection.start === 0 && selection.end === 0)) {
-            const sourceBlock = block;
-            const parentBlock = blocks[sourceBlock.parent];
-            const sourceBlockContentIndex = parentBlock.content.indexOf(blockId);
-            const isFirstChild = sourceBlockContentIndex === 0;
+        
+        const sourceBlock = block;
+        const prevTextBlock = findPrevTextBlockInContent(blockId, blocks);
+        const targetBlockId = prevTextBlock === undefined ? sourceBlock.parent : prevTextBlock.id;
 
-            /** To do: Optimizations:
-             * - If is child of root:
-             *      - If block is first child, merge with parent (root).
-             *      - If prev block is text block, perform old mergeBlock strategy.
-             *      - If prev block is not text block, perform new mergeBlock strategy.
-             * - If block is nested, pop out to grandparent's content array.
-             */
+        if (blocks[targetBlockId].properties.title.length === 0) {
+            requestAnimationFrame(() => {
+                removeBlock(targetBlockId);
+            });
+        } else {
+            const textAfterMerge = blocks[targetBlockId].properties.title + sourceBlock.properties.title;
 
+                inputRefs.current[targetBlockId]?.current.setText(textAfterMerge);
+                inputRefs.current[targetBlockId]?.current.focusWithSelection({
+                    start: textAfterMerge.length - sourceBlock.properties.title.length,
+                    end: textAfterMerge.length - sourceBlock.properties.title.length
+                });
+                inputRefs.current[sourceBlock.id]?.current.setText("");
             
-            inputRefs.current["ghostInput"]?.current.focus();
 
-            if (parentBlock.id === rootBlockId) {
-
-                /** First: check if the previous block is not a text block of if it is the first block in the content array of the parent block. */
-                if (isFirstChild || !textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
-                    /** Note for the future: It should be checked if the current block is nested, in which case the block should be poped out of the current content array. */
-                    const prevTextBlockInContent = findPrevTextBlockInContent(sourceBlock.id, blocks);
-                    
-                    /**
-                     * If there is no previous text block in the content array, or if its the first block in the content array of the parent,
-                     * set as target the parent block.
-                     * If there is a previous text block, set as target the previous text block.
-                     */
-                    const targetBlock = isFirstChild || prevTextBlockInContent === undefined // If there is no previous text block
-                        ? parentBlock
-                        : prevTextBlockInContent;
-                        
-                    // ????
-                    if (targetBlock === undefined) return;
-
-                    const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
-                    inputRefs.current[targetBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
-
-                    const newCursorPosition = newTitle.length - prevTitle.length;
-                    requestAnimationFrame(() => {
-                        inputRefs.current[mergeResult.id]?.current.focusWithSelection({
-                            start: newCursorPosition,
-                            end: newCursorPosition
-                        });
-                    })
-                    return;
-                    
-                } else if (textBlockTypes.includes(getPreviousBlockInContent(sourceBlock.id, blocks).type)) {
-                    const targetBlock = getPreviousBlockInContent(sourceBlock.id, blocks);
-                    inputRefs.current[sourceBlock.id].current.setText(targetBlock.properties.title + sourceBlock.properties.title);
-                    const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlock.id);
-                    // Focus previous block here
-                    const newCursorPosition = newTitle.length - prevTitle.length;
-                    requestAnimationFrame(() => {
-                        inputRefs.current[mergeResult.id]?.current.focusWithSelection({
-                            start: newCursorPosition,
-                            end: newCursorPosition
-                        }, /* mergeResult.properties.title */);
-                    })
-                    return;
-                }
-
-            }
-            return;
+            const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlockId);
         }
+        
+        return;
     }
 
     const handleSubmitEditing = () => {
@@ -182,8 +136,7 @@ export function useTextInput(blockId: string) {
         inputRefs.current["ghostInput"]?.current.focus();
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
-        console.log("PREV BLOCK", prevBlock.properties.title);
-        console.log("NEXT BLOCK", nextBlock.properties.title);
+
         requestAnimationFrame(() => {
             inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
             inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
