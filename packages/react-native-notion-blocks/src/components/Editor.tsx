@@ -5,14 +5,10 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import {
-    StyleSheet,
-    ScrollView,
     Pressable,
     View,
-    Dimensions,
-    TextInput
+    Dimensions
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Block  } from "../interfaces/Block.interface";
 import DragProvider from "./DragProvider";
 import LayoutProvider from "./LayoutProvider";
@@ -21,55 +17,25 @@ import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 import { BlocksProvider, useBlocksContext, useBlock } from "./Blocks/BlocksContext";
 import { BlockRegistration, useBlockRegistrationContext } from "./BlockRegistration";
 import { TextBlocksProvider, useTextBlocksContext } from "./TextBlocksProvider";
-
-const { width } = Dimensions.get("window");
+import { ScrollProvider, useScrollContext } from "./ScrollProvider";
+import { BlocksMeasuresProvider, useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 
 function NoteScreen({
     rootBlockId
 }) {
-    const insets = useSafeAreaInsets();
-    const scrollViewRef = useRef<ScrollView>(null);
     const pageId : string = rootBlockId;
     const { blocks: blockTypes } = useBlockRegistrationContext();
     const {
         blocks,
         blocksOrder,
-        focusedBlockId,
         insertBlock,
-        moveBlock,
     } = useBlocksContext();
     const { keyboardHeight } = useKeyboardStatus();
 
     const rootBlock : Block = blocks[pageId];
 
-    const scrollY = useSharedValue(0);
-
-    const handleScroll = (event: { nativeEvent: { contentOffset: { y: number; }; }; }) => {
-        scrollY.value = Math.round(event.nativeEvent.contentOffset.y);
-    };
-
-    const handleScrollTo = ({ x, y, animated } : { x: number, y: number, animated: boolean }) => {
-        scrollViewRef.current?.scrollTo({
-            x: x,
-            y: y,
-            animated: animated
-        });
-    }
-
-    useEffect(() => {
-        // Maybe this conditional could be a function "scrollToVisiblePosition" or sth like that
-        if (blockMeasuresRef.current[focusedBlockId]?.start > keyboardHeight + 24) {
-            handleScrollTo({
-                x: 0,
-                y: blockMeasuresRef.current[focusedBlockId]?.start - keyboardHeight,
-                animated: true
-            })
-        }
-    }, [focusedBlockId, blocks])
-
     /** Editor configs */
-    const { inputRefs: refs, registerRef } = useTextBlocksContext();
-    const ghostInputRef = useRef<TextInput>(null);
+    const { inputRefs: refs } = useTextBlocksContext();
 
     const handleNewLineBlock = () => {
         if (rootBlock.content.length === 0 || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0) {
@@ -106,191 +72,23 @@ function NoteScreen({
         />
     )
 
-    // Ghost block
-    const isPressed = useSharedValue(false);
-    const offset = useSharedValue({ x: 0, y: 0 });
-    const [ghostBlockId, setGhostBlockId] = useState(null);
-
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: offset.value.x },
-                /* { translateY: offset.value.y }, */
-            ],
-            top: offset.value.y,
-            display: isPressed.value === false ? 'none' : 'flex',
-            borderWidth: isPressed.value === true ? 1 : 0,
-            borderRadius: 5
-        };
-    });
-
-    const GhostBlock = () => {
-        const Component = blockTypes[blocks[ghostBlockId].type];
-        return (
-            <Animated.View style={[{
-                opacity: 0.5,
-                position: "absolute",
-                width: "100%"
-            }, animatedStyles]}>
-                <Component blockId={ghostBlockId} />
-            </Animated.View>
-        )
-    }
-
-    // Block measures
-    const blockMeasuresRef = useRef({});
-    const indicatorPosition = useSharedValue({ y: 0 });
-
-    const registerBlockMeasure = (blockId: string, measures: { height: number, start: number, end: number }) => {
-        blockMeasuresRef.current[blockId] = measures;
-    }
-
-    const removeBlockMeasure = (blockId: string) => {
-        delete blockMeasuresRef.current[blockId];
-    }
-
-    /**
-     *  Given a y coordinate, returns the block at that position and a "start" or "end"
-     *  string that indicates if the position is closer to the start or end of the block
-     * */
-    const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
-        const withScrollY = y + scrollY.value;
-
-        for (const blockId in blockMeasuresRef.current) {
-            const { start, end } = blockMeasuresRef.current[blockId];
-            if (withScrollY >= start && withScrollY <= end) {
-                const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
-
-                return {
-                    blockId,
-                    closestTo
-                };
-            }
-        }
-
-        return {
-            blockId: null,
-            closestTo: null
-        };
-    }
-
-    const handleMoveBlock = () => {
-        if (!ghostBlockId) return;
-
-        const blockToMove = blocks[ghostBlockId];
-        const targetBlock = findBlockAtPosition(indicatorPosition.value.y); // Passing the indicator position fixes de out of bounds error since the indicator value will always be positioned at the start ot end of a block
-
-        
-        moveBlock(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
-        // re measure blocks
-    }
-
-    const indicatorAnimatedStyles = useAnimatedStyle(() => {
-        return {
-            top: indicatorPosition.value.y
-        }
-    });
-
-    const Indicator = () => (
-        <Animated.View style={[
-            styles.indicator,
-            indicatorAnimatedStyles,
-            {
-                display: indicatorPosition.value.y === 0 ? "none" : "flex"
-            }
-        ]} />
-    )
-
-    const RenderBlock = (props) => {
-        const {
-            blockId
-        } = props;
-
-        return blockTypes[blocks[blockId].type](props);
-    };
-
     return (
-        <GestureHandlerRootView>
-                <ScrollView
-                    ref={scrollViewRef}
-                    onScroll={handleScroll}
-                    style={{ flex: 1 }}
-                    contentContainerStyle={{
-                        paddingTop: insets.top,
-                        paddingHorizontal: 8,
-                    }}
-                    keyboardShouldPersistTaps="always"
-                    automaticallyAdjustKeyboardInsets
-                >
-                    <Indicator />
-                    
-                    {blocksOrder.map((blockId: string, index: number) => {
-                        /* console.log("Block log before render: ", blocks[blockId].type); */
-                        const Component = blockTypes[blocks[blockId].type];
-                        return (
-                            <LayoutProvider
-                                key={blockId}
-                                blockId={blockId}
-                                registerBlockMeasure={registerBlockMeasure}
-                                dependancies={blocksOrder}
-                                removeBlockMeasure={removeBlockMeasure}
-                            >
-                                <DragProvider
-                                    onDragStart={() => {
-                                        isPressed.value = true;
-                                        setGhostBlockId(blockId);
-                                    }}
-                                    onDragUpdate={(e: GestureUpdateEvent, start: { x: number, y: number }) => {
-                                        offset.value = {
-                                            x: e.translationX + start.x,
-                                            y: e.translationY + start.y,
-                                        };
-                                        const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
-                                        
-                                        if (blockId) {
-                                            indicatorPosition.value = {
-                                                y: blockMeasuresRef.current[blockId][closestTo]
-                                            }
-                                        }
-                                    }}
-                                    onDragEnd={() => {
-                                        handleMoveBlock();
-                                        isPressed.value = false;
-                                        setGhostBlockId(null);
-                                        offset.value = { x: 0, y: 0 };
-                                        indicatorPosition.value = { y: 0 };
-                                    }}
-                                >
-                                    <View>
-                                        <Component blockId={blockId} />
-                                    </View>
-                                </DragProvider>
-                            </LayoutProvider>
-                        )
-                    })}
+        <>
+            {blocksOrder.map((blockId: string, index: number) => {
+                const Component = blockTypes[blocks[blockId].type];
+                return (
+                    <LayoutProvider key={blockId} blockId={blockId} >
+                        <DragProvider blockId={blockId}>
+                            <View>
+                                <Component blockId={blockId} />
+                            </View>
+                        </DragProvider>
+                    </LayoutProvider>
+                )
+            })}
 
-                    <ListFooterComponent />
-
-                </ScrollView>
-
-                <TextInput
-                    ref={ghostInputRef}
-                    onLayout={() => registerRef("ghostInput", ghostInputRef)}
-                    style={{
-                        position: "absolute",
-                        opacity: 0
-                    }}
-                />
-
-                {isPressed.value === true && <GhostBlock />}
-
-                <Footer.ContextProvider>
-                    <Footer>
-                        <Footer.AddBlock />
-                        <Footer.TurnBlockInto />
-                    </Footer>
-                </Footer.ContextProvider>
-        </GestureHandlerRootView>
+            <ListFooterComponent />
+        </>
     )
 }
 
@@ -304,21 +102,23 @@ export default function Editor({
         <BlockRegistration customBlocks={children}>
             <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
                 <TextBlocksProvider>
-                    <NoteScreen rootBlockId={rootBlockId} />
+                    <GestureHandlerRootView>
+                        <BlocksMeasuresProvider>
+                            <ScrollProvider>
+                                <NoteScreen rootBlockId={rootBlockId} />
+                            </ScrollProvider>
+                        </BlocksMeasuresProvider>
+
+
+                        <Footer.ContextProvider>
+                            <Footer>
+                                <Footer.AddBlock />
+                                <Footer.TurnBlockInto />
+                            </Footer>
+                        </Footer.ContextProvider>
+                    </GestureHandlerRootView>
                 </TextBlocksProvider>
             </BlocksProvider>
         </BlockRegistration>
     )
 }
-
-const styles = StyleSheet.create({
-    indicator: {
-        height: 3,
-        width: width - 32,
-        marginLeft: 16,
-        boxSizing: "border-box",
-        opacity: 0.5,
-        backgroundColor: "#0277e4ff",
-        position: "absolute"
-    }
-});

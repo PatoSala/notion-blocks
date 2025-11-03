@@ -9,6 +9,7 @@ import {
     textBlockTypes,
     getPreviousBlockInContent
 } from "../core/updateBlock";
+import { useScrollContext } from "../components/ScrollProvider";
 
 export function useTextInput(blockId: string) {
     const {
@@ -28,6 +29,7 @@ export function useTextInput(blockId: string) {
         showSoftInputOnFocus,
         inputRefs
     } = useTextBlocksContext();
+    const { isScrolling } = useScrollContext();
     const block = useMemo(() => blocks[blockId], [blockId]);
     const title = block.properties.title;
 
@@ -76,12 +78,16 @@ export function useTextInput(blockId: string) {
     }
 
     function handleOnBlur() {
-        const updatedBlock = updateBlockData(blocks[blockId], {
-            properties: {
-                title: valueRef.current
-            }
-        });
-        updateBlock(updatedBlock);
+        if (isScrolling) {
+            inputRefs.current["ghostInput"]?.current.focus();
+        } else {
+            const updatedBlock = updateBlockData(blocks[blockId], {
+                properties: {
+                    title: valueRef.current
+                }
+            });
+            updateBlock(updatedBlock);
+        }
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }) {
@@ -167,6 +173,7 @@ export function useTextInput(blockId: string) {
             selectTextOnFocus: false,
             smartInsertDelete: false,
             defaultValue: valueRef.current,
+            editable: !isScrolling,
             /* style: {
                 height: height.value
             }, */

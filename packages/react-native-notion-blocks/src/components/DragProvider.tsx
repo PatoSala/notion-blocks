@@ -5,13 +5,94 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { useBlocksContext } from "./Blocks/BlocksContext";
+import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
+import { useScrollContext } from "./ScrollProvider";
+
+
 
 export default function DragProvider({
     children,
-    onDragStart,
-    onDragUpdate,
-    onDragEnd
+    blockId,
 }) {
+    const { movingBlockId, setMovingBlockId, moveBlock, blocks } = useBlocksContext();
+    const {
+        setOffset,
+        setIsDragging,
+        indicatorPosition,
+        setIndicatorPosition,
+        blockMeasuresRef
+    } = useBlocksMeasuresContext();
+
+    const { scrollY } = useScrollContext();
+
+    /**
+     *  Given a y coordinate, returns the block at that position and a "start" or "end"
+     *  string that indicates if the position is closer to the start or end of the block
+     * */
+
+    const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
+        const withScrollY = y + scrollY.value;
+        console.log(withScrollY);
+        for (const blockId in blockMeasuresRef.current) {
+            const { start, end } = blockMeasuresRef.current[blockId];
+            if (withScrollY >= start && withScrollY <= end) {
+                const closestTo = withScrollY - start > end - withScrollY ? "end" : "start";
+
+                return {
+                    blockId,
+                    closestTo
+                };
+            }
+        }
+
+        return {
+            blockId: null,
+            closestTo: null
+        };
+    }
+
+    const handleMoveBlock = () => {
+        if (!movingBlockId) return;
+
+        const blockToMove = blocks[movingBlockId];
+        const targetBlock = findBlockAtPosition(indicatorPosition.value.y); // Passing the indicator position fixes de out of bounds error since the indicator value will always be positioned at the start ot end of a block
+
+        
+        moveBlock(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
+        // re measure blocks
+    }
+
+    const handleOnDragStart = () => {
+        setIsDragging(true);
+        setMovingBlockId(blockId);
+    }
+
+    const handleOnDragUpdate = (e: GestureUpdateEvent, start: { x: number, y: number }) => {
+        setOffset({
+            x: e.translationX + start.x,
+            y: e.translationY + start.y,
+        });
+        const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
+
+        if (blockId) {
+            /**
+             * Since block measures when taken are relative to the scrollY = 0,
+             *  we need to substract it to make sure the indicator is positioned correctly.
+             */
+            setIndicatorPosition({
+                y: blockMeasuresRef.current[blockId][closestTo] - scrollY.value    // We need to substract the scrollY to make sure 
+            });
+        }
+    }
+
+    const handleOnDragEnd = () => {
+        handleMoveBlock();
+        setIsDragging(false);
+        setMovingBlockId(null);
+        setOffset({ x: 0, y: 0 });
+        setIndicatorPosition({ y: 0 });
+    }
 
     // scroll, tap
     const nativeGestures = Gesture.Native()
@@ -26,14 +107,14 @@ export default function DragProvider({
             }
         })
         .onStart((e) => {
-            scheduleOnRN(onDragStart);
+            scheduleOnRN(handleOnDragStart);
         })
         .onUpdate((e) => {
-            scheduleOnRN(onDragUpdate, e, start.value);
+            scheduleOnRN(handleOnDragUpdate, e, start.value);
         })
         .onFinalize(() => {
             start.value = { x: 0, y: 0 };
-            scheduleOnRN(onDragEnd);
+            scheduleOnRN(handleOnDragEnd);
         });
     
     const composed = Gesture.Exclusive(blockDrag, nativeGestures);

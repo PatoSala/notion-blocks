@@ -7,6 +7,8 @@ interface BlocksContext {
     blocksOrder: string[];
     rootBlockId: string;
     focusedBlockId: string;
+    movingBlockId: string | null;
+    setMovingBlockId: (blockId: string | null) => void;
     setFocusedBlockId: (blockId: string) => void;
     insertBlock: (
         newBlock: Block,
@@ -54,6 +56,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const blocksRef = useRef(defaultBlocks);
     const [blocksOrder, setBlocksOrder] = useState<string[]>([rootBlockId, ...blocksRef.current[rootBlockId].content]);
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
+    const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
 
     /** Block actions
      * Note: I might change all this actions to reducers. reducers can be exported!
@@ -241,6 +244,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         blocksOrder,
         rootBlockId,
         focusedBlockId,
+        movingBlockId,
+        setMovingBlockId,
         setFocusedBlockId,
         insertBlock,
         updateBlock,
