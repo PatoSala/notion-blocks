@@ -1,11 +1,17 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
-import { useSharedValue } from "react-native-reanimated";
+import { useSharedValue, SharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBlocksContext } from "./Blocks/BlocksContext";
 import { useTextBlocksContext } from "./TextBlocksProvider";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
+
+interface ScrollContextProps {
+    scrollY: SharedValue<number>;
+    isScrolling: boolean;
+    handleScrollTo: (params: { x?: number; y?: number; animated?: boolean; }) => void;
+}
 
 const ScrollContext = createContext({});
 

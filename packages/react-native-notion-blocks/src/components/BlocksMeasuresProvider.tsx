@@ -1,14 +1,27 @@
-import { createContext, useContext, useRef } from "react";
+import { createContext, useContext, useRef, RefObject } from "react";
 import { StyleSheet, Dimensions } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, SharedValue } from "react-native-reanimated";
 import { useScrollContext } from "./ScrollProvider";
 import { useBlocksContext } from "./Blocks/BlocksContext";
 import { useBlockRegistrationContext } from "./BlockRegistration";
 
 const { width } = Dimensions.get("window");
 
+interface BlockMeasuresContext {
+    blockMeasuresRef: RefObject<Record<string, { height: number, start: number, end: number }>>;
+    registerBlockMeasure: (blockId: string, measures: { height: number, start: number, end: number }) => void;
+    removeBlockMeasure: (blockId: string) => void;
+    
+    indicatorPosition: SharedValue<{ y: number }>;
+    setIndicatorPosition: (position: { y: number }) => void;
 
-const BlocksMeasuresContext = createContext({});
+    isDragging: SharedValue<boolean>;
+    setIsDragging: (isDragging: boolean) => void;
+    offset: SharedValue<{ x: number, y: number }>;
+    setOffset: (offset: { x: number, y: number }) => void;
+}
+
+const BlocksMeasuresContext = createContext<BlockMeasuresContext | null>(null);
 
 export function useBlocksMeasuresContext() {
     const context = useContext(BlocksMeasuresContext);
@@ -25,7 +38,6 @@ export function useBlocksMeasuresContext() {
 export function BlocksMeasuresProvider({ children }) {
     const blockMeasuresRef = useRef({});
     const indicatorPosition = useSharedValue({ y: 0 });
-    console.log(indicatorPosition);
     const { blocks: blockTypes } = useBlockRegistrationContext();
     const { movingBlockId, blocks } = useBlocksContext();
 

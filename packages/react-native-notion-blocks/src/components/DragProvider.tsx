@@ -1,15 +1,20 @@
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
-    withSpring,
+    withSpring
 } from "react-native-reanimated";
+import { Dimensions } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useBlocksContext } from "./Blocks/BlocksContext";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useScrollContext } from "./ScrollProvider";
+import { useEffect } from "react";
 
 
+const { height } = Dimensions.get("screen");
+const TOP_THRESHOLD = 200;
+const BOTTOM_THRESHOLD = height - 200;
 
 export default function DragProvider({
     children,
@@ -23,8 +28,18 @@ export default function DragProvider({
         setIndicatorPosition,
         blockMeasuresRef
     } = useBlocksMeasuresContext();
-
     const { scrollY } = useScrollContext();
+    const scrollDirection = useSharedValue<null | "UP" | "DOWN">(null);
+
+    /* while (scrollDirection.value !== null) {
+        if (scrollDirection.value === "UP") {
+            console.log("UP");
+        }
+
+        if (scrollDirection.value === "DOWN") {
+            console.log("DOWN");
+        }
+    } */
 
     /**
      *  Given a y coordinate, returns the block at that position and a "start" or "end"
@@ -33,7 +48,7 @@ export default function DragProvider({
 
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
         const withScrollY = y + scrollY.value;
-        console.log(withScrollY);
+
         for (const blockId in blockMeasuresRef.current) {
             const { start, end } = blockMeasuresRef.current[blockId];
             if (withScrollY >= start && withScrollY <= end) {
@@ -57,10 +72,8 @@ export default function DragProvider({
 
         const blockToMove = blocks[movingBlockId];
         const targetBlock = findBlockAtPosition(indicatorPosition.value.y); // Passing the indicator position fixes de out of bounds error since the indicator value will always be positioned at the start ot end of a block
-
         
         moveBlock(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
-        // re measure blocks
     }
 
     const handleOnDragStart = () => {
@@ -69,6 +82,17 @@ export default function DragProvider({
     }
 
     const handleOnDragUpdate = (e: GestureUpdateEvent, start: { x: number, y: number }) => {
+        const x = e.translationX;
+        const y = e.translationY;
+
+        if (e.absoluteY > BOTTOM_THRESHOLD) {
+            scrollDirection.value = "DOWN";
+        } else if (e.absoluteY < TOP_THRESHOLD) {
+            scrollDirection.value = "UP";
+        } else {
+            scrollDirection.value = null;
+        }
+        
         setOffset({
             x: e.translationX + start.x,
             y: e.translationY + start.y,
