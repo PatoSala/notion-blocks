@@ -3,7 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Text, Image, View, TextInput } from 'react-native';
 import Editor from 'react-native-notion-blocks/src/components/Editor';
 import { sampleData } from 'react-native-notion-blocks/src/utils/sampleData';
-
+import { largeNoteData } from 'react-native-notion-blocks/src/utils/largeNoteData';
 import { CustomBlock } from 'react-native-notion-blocks/src/components/CustomBlock';
 import { HeaderBlock, PageBlock, SubHeaderBlock, SubSubHeaderBlock, TextBlock, ImageBlock } from 'notion/src';
 
@@ -12,7 +12,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <Editor
-        defaultBlocks={sampleData}
+        defaultBlocks={largeNoteData}
         rootBlockId="1"
       >
         <CustomBlock
