@@ -115,6 +115,7 @@ export default function Editor({
                             <Footer>
                                 <Footer.AddBlock />
                                 <Footer.TurnBlockInto />
+                                <Footer.RemoveBlock />
                             </Footer>
                         </Footer.ContextProvider>
                     </GestureHandlerRootView>

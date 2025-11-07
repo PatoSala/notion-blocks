@@ -224,7 +224,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     }
 
     /**
-     * Note: Only text based blocks can be turned into other text based block types.
+     * Note: Only text based blocks can be turned into other text based block types (Maybe a better way to define which blocks can be turned into other blocks are those who have the "title" property?).
+     * Future note: If a block has nested blocks, does blocks should be popped out of it and place right under it when turnning it into a different block type.
      */
     function turnBlockInto(blockId: string, blockType: string) {
         const updatedBlock = updateBlockData(blocksRef.current[blockId], {

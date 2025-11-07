@@ -8,6 +8,7 @@ import ReplaceBlockSection from "./tabs/ReplaceBlockSection";
 import { ScrollView } from "react-native-gesture-handler";
 import { useBlocksContext } from "../Blocks/BlocksContext";
 import { useTextBlocksContext } from "../TextBlocksProvider";
+import { findPrevTextBlockInContent } from "../../core";
 
 interface FooterButtonProps {
     children: React.ReactNode;
@@ -165,7 +166,7 @@ Footer.AddBlock = () => {
 Footer.TurnBlockInto = () => {
     const { activeTab, setActiveTab } = useFooterContext();
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
-    const { focusedBlockId } = useBlocksContext();
+    const { focusedBlockId, rootBlockId } = useBlocksContext();
 
     const handleOnPress = () => {
         setShowSoftInputOnFocus(false);
@@ -176,9 +177,35 @@ Footer.TurnBlockInto = () => {
         })
     };
 
+    if (focusedBlockId === rootBlockId) return null;
+
     return (
         <Footer.Button onPress={handleOnPress}>
             <Ionicons name="repeat-outline" size={24} color="black" />
+        </Footer.Button>
+    )
+}
+
+Footer.RemoveBlock = () => {
+    const { setHidden, setActiveTab } = useFooterContext();
+    const { focusedBlockId, setFocusedBlockId, removeBlock, rootBlockId, blocks } = useBlocksContext();
+    const { inputRefs } = useTextBlocksContext();
+
+    const handleOnPress = () => {
+        const prevTextBlock = findPrevTextBlockInContent(focusedBlockId, blocks.current);
+        setFocusedBlockId("");
+        setActiveTab("none");
+        setHidden(true);
+        inputRefs.current[prevTextBlock].current.focus();
+        removeBlock(focusedBlockId);
+
+    };
+
+    if (focusedBlockId === rootBlockId) return null;
+
+    return (
+        <Footer.Button onPress={handleOnPress}>
+            <Ionicons name="trash-outline" size={24} color="black" />
         </Footer.Button>
     )
 }
