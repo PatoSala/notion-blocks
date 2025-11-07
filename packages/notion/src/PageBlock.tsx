@@ -22,6 +22,7 @@ export function PageBlock({ blockId } : Props) {
                     <TextInput
                         style={styles.page}
                         {...getTextInputProps()}
+                        placeholder={"New page"}
                     />
                 </View>
             )

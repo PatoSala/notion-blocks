@@ -1,7 +1,6 @@
-import Animated, {
+import {
     useSharedValue,
-    useAnimatedStyle,
-    withSpring
+    useAnimatedReaction,
 } from "react-native-reanimated";
 import { Dimensions } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
@@ -9,10 +8,11 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useBlocksContext } from "./Blocks/BlocksContext";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useScrollContext } from "./ScrollProvider";
-import { useEffect } from "react";
-
+import { useRef } from "react";
 
 const { height } = Dimensions.get("screen");
+
+// SCROLLING THRESHOLDS
 const TOP_THRESHOLD = 200;
 const BOTTOM_THRESHOLD = height - 200;
 
@@ -23,23 +23,76 @@ export default function DragProvider({
     const { movingBlockId, setMovingBlockId, moveBlock, blocks } = useBlocksContext();
     const {
         setOffset,
+        isDragging,
         setIsDragging,
         indicatorPosition,
         setIndicatorPosition,
         blockMeasuresRef
     } = useBlocksMeasuresContext();
-    const { scrollY } = useScrollContext();
+    const { scrollY, handleScrollTo } = useScrollContext();
+
     const scrollDirection = useSharedValue<null | "UP" | "DOWN">(null);
 
-    /* while (scrollDirection.value !== null) {
-        if (scrollDirection.value === "UP") {
-            console.log("UP");
-        }
+    /** Auto scroll interval */
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-        if (scrollDirection.value === "DOWN") {
-            console.log("DOWN");
+    /** Gently scroll the view up */
+    const scrollUp = () => {
+        handleScrollTo({ y: scrollY.value - 200, animated: true });
+    };
+
+    /** Gently scroll the view down */
+    const scrollDown = () => {
+        handleScrollTo({ y: scrollY.value + 200, animated: true });
+    };
+
+    /** Start continuous scrolling */
+    const startAutoScrollUp = () => {
+        if (intervalRef.current) return; // already scrolling
+        intervalRef.current = setInterval(scrollUp, 100); // gentle, continuous scroll
+    };
+
+    /** Stop scrolling */
+    const stopAutoScroll = () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+            scrollDirection.value = null;
         }
-    } */
+    };
+
+    const startAutoScrollDown = () => {
+        if (intervalRef.current) return; // already scrolling
+        intervalRef.current = setInterval(scrollDown, 100); // gentle, continuous scroll
+    };
+
+    useAnimatedReaction(
+        () => {
+            return {
+                scrollDirection: scrollDirection.value,
+                isDragging: isDragging.value
+            }
+        },
+        (currentValue) => {
+            if (currentValue.scrollDirection === "UP") {
+                scheduleOnRN(startAutoScrollUp);
+            }
+
+            if (currentValue.scrollDirection === "DOWN") {
+                scheduleOnRN(startAutoScrollDown);
+            }
+
+            if (currentValue.scrollDirection === null) {
+                scheduleOnRN(stopAutoScroll);
+            }
+
+            if (currentValue.isDragging === false) {
+                scheduleOnRN(stopAutoScroll);
+            }
+            
+        }
+    );
+
 
     /**
      *  Given a y coordinate, returns the block at that position and a "start" or "end"
@@ -82,21 +135,21 @@ export default function DragProvider({
     }
 
     const handleOnDragUpdate = (e: GestureUpdateEvent, start: { x: number, y: number }) => {
-        const x = e.translationX;
-        const y = e.translationY;
 
         if (e.absoluteY > BOTTOM_THRESHOLD) {
             scrollDirection.value = "DOWN";
         } else if (e.absoluteY < TOP_THRESHOLD) {
             scrollDirection.value = "UP";
         } else {
-            scrollDirection.value = null;
+             scrollDirection.value = null;
         }
         
         setOffset({
             x: e.translationX + start.x,
             y: e.translationY + start.y,
         });
+
+        /** Update indicator position */
         const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
 
         if (blockId) {

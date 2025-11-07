@@ -10,6 +10,7 @@ import {
     getPreviousBlockInContent
 } from "../core/updateBlock";
 import { useScrollContext } from "../components/ScrollProvider";
+import { useBlocksMeasuresContext } from "../components/BlocksMeasuresProvider";
 
 export function useTextInput(blockId: string) {
     const {
@@ -30,6 +31,7 @@ export function useTextInput(blockId: string) {
         inputRefs
     } = useTextBlocksContext();
     const { isScrolling } = useScrollContext();
+    const { isDragging } = useBlocksMeasuresContext();
     const block = useMemo(() => blocks[blockId], [blockId]);
     const title = block.properties.title;
 
@@ -166,17 +168,17 @@ export function useTextInput(blockId: string) {
     const getTextInputProps : () => TextInputProps = () => {
         return {
             ref: inputRef,
+            defaultValue: valueRef.current,
+            /** Disable multiline text input scrolling. */
             scrollEnabled: false,
             multiline: true,
             selectionColor: "black",
-            submitBehavior: "submit", // Prevents keyboard from flickering when focusing a new block
+            /** Prevents keyboard from flickering when focusing a new block. */
+            submitBehavior: "submit",
             selectTextOnFocus: false,
             smartInsertDelete: false,
-            defaultValue: valueRef.current,
-            editable: !isScrolling,
-            /* style: {
-                height: height.value
-            }, */
+            /** Prevents the text input being accidentally focused when scrolling/moving a block. */
+            editable: isScrolling === false && isDragging.value === false,
 
             onContentSizeChange: handleContentSizeChange,
             onSelectionChange: handleSelectionChange,
@@ -198,6 +200,12 @@ export function useTextInput(blockId: string) {
         if (inputRef.current) {
             registerRef(blockId, api);
         }
+        /** Needs review:
+         * The below code was commented because some input refs where
+         * being unregistered when they where still mounted.
+         * It might be related to the text inputs being re rendered.
+         *  */
+        
         /* return () => {
             unregisterRef(blockId);
             console.log("UnregisterUNREGISTERed block", blockId);

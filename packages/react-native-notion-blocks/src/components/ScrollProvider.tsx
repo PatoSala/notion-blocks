@@ -69,6 +69,7 @@ export function ScrollProvider({ children }) {
     const value = {
         scrollY,
         isScrolling,
+        setIsScrolling,
         handleScrollTo
     }
 
@@ -79,6 +80,7 @@ export function ScrollProvider({ children }) {
                 onScroll={handleOnScroll}
                 onScrollBeginDrag={handleDragStart}
                 onScrollEndDrag={handleDragEnd}
+                onMomentumScrollEnd={handleDragEnd}
                 style={{ flex: 1 }}
                 contentContainerStyle={{
                     paddingTop: insets.top,
