@@ -1,15 +1,19 @@
-import { Pressable, Text, View, StyleSheet, Dimensions } from "react-native";
+import { Pressable, Text, View, StyleSheet, Dimensions, FlatList } from "react-native";
 import { useBlocksContext } from "../../Blocks/BlocksContext";
 import { useFooterContext } from "../Footer";
 import { Block } from "../../../interfaces/Block.interface";
 import { useTextBlocksContext } from "../../TextBlocksProvider";
-import { use } from "react";
+import { useBlockRegistrationContext } from "../../BlockRegistration";
+
 
 const { width } = Dimensions.get("window");
 
 export default function InsertBlockSection() {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { blocks, focusedBlockId, insertBlock } = useBlocksContext();
+    const { blocks: blockTypes } = useBlockRegistrationContext();
+
+    console.log(blockTypes);
 
     const handleInsertBlock = (blockType: string) => {
         setShowSoftInputOnFocus(true);
@@ -39,7 +43,27 @@ export default function InsertBlockSection() {
                 <Text>Blocks</Text>
             </View>
 
-            <View style={styles.blockOptionsRow}>
+            <FlatList
+                data={Object.keys(blockTypes)}
+                numColumns={2}
+                columnWrapperStyle={{
+                    justifyContent: "space-between"
+                }}
+                contentContainerStyle={{
+                    gap: 10
+                }}
+                renderItem={({ item }) => {
+                    return (
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleInsertBlock(item)}>
+                            <Text>{item}</Text>
+                        </Pressable>
+                    )
+                }}
+            />
+
+            {/* <View style={styles.blockOptionsRow}>
                 <Pressable style={({ pressed}) => ([{
                     opacity: pressed ? 0.5 : 1
                 }, styles.blockOptions])} onPress={() => handleInsertBlock("text")}>
@@ -65,7 +89,7 @@ export default function InsertBlockSection() {
                 }, styles.blockOptions])} onPress={() => handleInsertBlock("sub_sub_header")}>
                     <Text>Heading 3</Text>
                 </Pressable>
-            </View>
+            </View> */}
         </>
     )
 }

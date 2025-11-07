@@ -1,0 +1,65 @@
+{
+    "border": "#000000",
+    "outstandingTransactionLimit": 50,
+    "disableTracking": true,
+    "interactiveEvents": [
+        {
+            "name": "new_page_clicked",
+            "id": 1796764804,
+            "pattern": "notion.so",
+            "properties": {
+                "innerText": "New page"
+            },
+            "matchType": "contains"
+        },
+        {
+            "name": "add_new_page_(quickly_add_a_page_inside)",
+            "id": 1796765257,
+            "pattern": "notion.so",
+            "properties": {
+                "selector": "div[aria-label=\"Quickly add a page inside\"]"
+            },
+            "matchType": "contains"
+        },
+        {
+            "name": "asks_ai_to_edit_highlighted_text",
+            "id": 1796765547,
+            "pattern": "notion.so",
+            "properties": {
+                "selector": "textarea[placeholder=\"Ask AI to edit or generate…\"]"
+            },
+            "matchType": "contains"
+        },
+        {
+            "name": "ask_ai_click",
+            "id": 1796765546,
+            "pattern": "notion.so",
+            "properties": {
+                "innerText": "Ask AI"
+            },
+            "matchType": "contains"
+        },
+        {
+            "name": "template_select",
+            "id": 1796764803,
+            "pattern": "www.notion.so/",
+            "properties": {
+                "selector": "#notion-app > div > div:nth-child(1) > div > div.notion-sidebar-container > div > div > div > div:nth-child(3) > div > div.notion-scroller.vertical > nav > div:nth-child(6) > div:nth-child(1) > div > div:nth-child(2)"
+            },
+            "matchType": "contains"
+        }
+    ],
+    "metricThresholds": [],
+    "metricsReportingIntervalSeconds": 60,
+    "metricsReportingEnabled": false,
+    "mobileMetricsReportingEnabled": false,
+    "maxAttrNameLength": 255,
+    "maxAttrValueLength": 255,
+    "maxEmailLength": 255,
+    "maxEventLength": 255,
+    "maxUserIdLength": 255,
+    "showSurveyBrand": false,
+    "dismissOnPageChange": false,
+    "framePosition": "bottomLeft",
+    "showStripes": false
+}

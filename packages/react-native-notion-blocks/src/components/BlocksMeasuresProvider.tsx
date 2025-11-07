@@ -86,7 +86,7 @@ export function BlocksMeasuresProvider({ children }) {
             <Animated.View style={[{
                 opacity: 0.5,
                 position: "absolute",
-                width: "100%"
+                width: "100%",
             }, animatedStyles]}>
                 <Component blockId={movingBlockId} />
             </Animated.View>

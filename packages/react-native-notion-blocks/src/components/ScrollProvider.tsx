@@ -81,8 +81,9 @@ export function ScrollProvider({ children }) {
                 onScrollBeginDrag={handleDragStart}
                 onScrollEndDrag={handleDragEnd}
                 onMomentumScrollEnd={handleDragEnd}
-                style={{ flex: 1 }}
+                /* style={{ flex: 1 }} */
                 contentContainerStyle={{
+                    flexGrow: 1,
                     paddingTop: insets.top,
                     paddingHorizontal: 8,
                 }}

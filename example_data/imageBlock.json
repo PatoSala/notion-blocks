@@ -1,0 +1,92 @@
+// The following image block structure was obtained from the syncRecordValuesSpaceInital call
+
+{
+    "recordMap": {
+        "__version__": 3,
+        "block": {
+            "2a4c862d-9b35-8094-a1e6-f9647a965cfb": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "2a4c862d-9b35-8094-a1e6-f9647a965cfb",
+                        "version": 16,
+                        "type": "image",
+                        "properties": {
+                            "size": [
+                                [
+                                    "207 KiB"
+                                ]
+                            ],
+                            "title": [
+                                [
+                                    "528038439_18520084423026833_6450021353833909674_n.jpg"
+                                ]
+                            ],
+                            "source": [
+                                [
+                                    "attachment:2c8f6de5-9b53-4df3-928a-dcb0da5c2ffb:528038439_18520084423026833_6450021353833909674_n.jpg"
+                                ]
+                            ]
+                        },
+                        "format": {
+                            "block_width": 457.9921875,
+                            "display_source": "attachment:2c8f6de5-9b53-4df3-928a-dcb0da5c2ffb:528038439_18520084423026833_6450021353833909674_n.jpg",
+                            "block_full_width": false,
+                            "block_page_width": true,
+                            "block_aspect_ratio": 0.5628356605800214,
+                            "block_preserve_scale": true
+                        },
+                        "created_time": 1762530944898,
+                        "last_edited_time": 1762531357150,
+                        "parent_id": "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                        "parent_table": "block",
+                        "alive": true,
+                        "file_ids": [
+                            "2c8f6de5-9b53-4df3-928a-dcb0da5c2ffb",
+                            "8e1b1b7d-145b-43e4-98e9-eb1fc029a621"
+                        ],
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "crdt_format_version": 1,
+                        "crdt_data": {
+                            "title": {
+                                "r": "Grm3e3oAEMMBfssVBUa5Bg,\"start\",\"end\"",
+                                "n": {
+                                    "Grm3e3oAEMMBfssVBUa5Bg,\"start\",\"end\"": {
+                                        "s": {
+                                            "x": "Grm3e3oAEMMBfssVBUa5Bg",
+                                            "i": [
+                                                {
+                                                    "t": "s"
+                                                },
+                                                {
+                                                    "t": "t",
+                                                    "i": [
+                                                        "7pHBgVamuscb",
+                                                        1
+                                                    ],
+                                                    "o": "start",
+                                                    "l": 53,
+                                                    "c": "528038439_18520084423026833_6450021353833909674_n.jpg"
+                                                },
+                                                {
+                                                    "t": "e"
+                                                }
+                                            ],
+                                            "l": ""
+                                        },
+                                        "c": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "role": "editor"
+                }
+            }
+        }
+    }
+}

@@ -2,17 +2,31 @@ import { useState } from "react";
 import { Image, View, StyleSheet, Dimensions, Text, Pressable } from "react-native";
 import { BlockProps } from 'react-native-notion-blocks/src/components/Blocks/Block';
 import { Ionicons } from '@expo/vector-icons';
+import { useBlocksContext } from "react-native-notion-blocks/src/components/Blocks/BlocksContext";
 import * as ImagePicker from 'expo-image-picker';
 
+import { updateBlock as updateBlockData } from "react-native-notion-blocks/src/core";
+
 const { width } = Dimensions.get("window");
+
+/**
+ * Image block specific properties:
+ * source: string
+ * 
+ * Image block specific format:
+ * block_width: number,
+ * block_aspect_ratio: number
+ */
 
 export const ImageBlock = (props: BlockProps) => {
   const {
     blockId,
   } = props;
+  const { blocks, updateBlock } = useBlocksContext();
 
-  const [source, setSource] = useState(null);
-  const [aspectRatio, setAspectRatio] = useState();
+  const [source, setSource] = useState(blocks[blockId].properties.source || null);
+  const [aspectRatio, setAspectRatio] = useState(blocks[blockId]?.format?.block_aspect_ratio || null);
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -24,12 +38,27 @@ export const ImageBlock = (props: BlockProps) => {
     if (!result.canceled) {
       setSource(result.assets[0].uri);
       setAspectRatio(result.assets[0].width / result.assets[0].height);
+
+      const updatedBlock = updateBlockData(blocks[blockId], {
+        properties: {
+          source: result.assets[0].uri
+        },
+        format: {
+          block_width: result.assets[0].width,
+          block_aspect_ratio: result.assets[0].width / result.assets[0].height
+        }
+      });
+
+      updateBlock(updatedBlock);
     }
   };
 
   return (
-    <Pressable style={styles.container} onPress={pickImage}>
-        {!source
+    <Pressable
+      style={[styles.container]}
+      onPress={pickImage}
+    >
+        {source === null
         ? (
             <View style={styles.row}>
                 <Ionicons name="image-outline" size={24} color="#7d7a75" />

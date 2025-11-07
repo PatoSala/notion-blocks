@@ -19,6 +19,7 @@ import { BlockRegistration, useBlockRegistrationContext } from "./BlockRegistrat
 import { TextBlocksProvider, useTextBlocksContext } from "./TextBlocksProvider";
 import { ScrollProvider, useScrollContext } from "./ScrollProvider";
 import { BlocksMeasuresProvider, useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
+import { textBlockTypes } from "../core";
 
 function NoteScreen({
     rootBlockId
@@ -38,7 +39,7 @@ function NoteScreen({
     const { inputRefs: refs } = useTextBlocksContext();
 
     const handleNewLineBlock = () => {
-        if (rootBlock.content.length === 0 || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0) {
+        if (rootBlock.content.length === 0 || (!textBlockTypes.includes(blocks[rootBlock.content[rootBlock.content.length - 1]].type) || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0)) {
             const newBlock = new Block({
                 type: "text",
                 properties: {
@@ -67,7 +68,7 @@ function NoteScreen({
             onPress={handleNewLineBlock}
             style={{
                 flexGrow: 1,
-                height: keyboardHeight + 64,
+                minHeight: keyboardHeight + 64,
             }}
         />
     )

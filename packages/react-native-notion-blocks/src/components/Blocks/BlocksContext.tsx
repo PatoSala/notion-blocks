@@ -235,6 +235,9 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         return updatedBlock;
     }
 
+    /**
+     * Does not trigger a re render
+     */
     function updateBlock(updatedBlock: Block) {
         blocksRef.current[updatedBlock.id] = updatedBlock;
     }

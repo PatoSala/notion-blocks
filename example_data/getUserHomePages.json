@@ -1,0 +1,963 @@
+{
+    "homePageId": "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+    "recordMap": {
+        "__version__": 3,
+        "collection_view": {
+            "c6e6db58-1cca-4a80-b962-a1a846890450": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "c6e6db58-1cca-4a80-b962-a1a846890450",
+                        "version": 5,
+                        "type": "list",
+                        "name": "All",
+                        "format": {
+                            "table_properties": [
+                                {
+                                    "width": 480,
+                                    "visible": true,
+                                    "property": "title"
+                                }
+                            ],
+                            "collection_pointer": {
+                                "id": "100eea49-3609-42fe-9c12-03fd76a6506c",
+                                "table": "collection",
+                                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                            },
+                            "collection_peek_mode": "center_peek",
+                            "collection_view_source": {
+                                "type": "trending",
+                                "userId": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                            },
+                            "hide_linked_collection_name": true,
+                            "inline_collection_first_load_limit": {
+                                "type": "load_limit",
+                                "limit": 20
+                            }
+                        },
+                        "parent_id": "6edcfb1c-f0c4-4054-897a-2812e2b0096b",
+                        "parent_table": "block",
+                        "alive": true,
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "read_and_write"
+                }
+            },
+            "02f9abab-937e-43fb-97ab-280d7514cc36": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "02f9abab-937e-43fb-97ab-280d7514cc36",
+                        "version": 5,
+                        "type": "list",
+                        "name": "My tasks",
+                        "format": {
+                            "list_properties": [
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/status_property",
+                                    "statusShowAs": "checkbox"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "title"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/due_date_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/location_property"
+                                }
+                            ],
+                            "board_columns_by": {
+                                "sort": {
+                                    "type": "ascending"
+                                },
+                                "type": "status",
+                                "groupBy": "group",
+                                "property": "notion://tasks/status_property",
+                                "hideEmptyGroups": true,
+                                "disableBoardColorColumns": false
+                            },
+                            "board_properties": [
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/due_date_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/status_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/location_property"
+                                }
+                            ],
+                            "property_filters": [
+                                {
+                                    "id": "notion://tasks/my_tasks/assigned_to_me_filter",
+                                    "filter": {
+                                        "filter": {
+                                            "value": {
+                                                "type": "relative",
+                                                "value": "me"
+                                            },
+                                            "operator": "person_contains"
+                                        },
+                                        "property": "notion://tasks/assign_property"
+                                    }
+                                },
+                                {
+                                    "id": "status",
+                                    "filter": {
+                                        "filter": {
+                                            "value": [
+                                                {
+                                                    "type": "is_group",
+                                                    "value": "To-do"
+                                                },
+                                                {
+                                                    "type": "is_group",
+                                                    "value": "In progress"
+                                                }
+                                            ],
+                                            "operator": "status_is"
+                                        },
+                                        "property": "notion://tasks/status_property"
+                                    }
+                                }
+                            ],
+                            "table_properties": [
+                                {
+                                    "width": 300,
+                                    "visible": true,
+                                    "property": "title"
+                                },
+                                {
+                                    "width": 400,
+                                    "visible": true,
+                                    "property": "title"
+                                },
+                                {
+                                    "visible": false,
+                                    "property": "notion://tasks/assign_property"
+                                },
+                                {
+                                    "width": 200,
+                                    "visible": true,
+                                    "property": "notion://tasks/status_property"
+                                },
+                                {
+                                    "width": 200,
+                                    "visible": true,
+                                    "property": "notion://tasks/due_date_property"
+                                },
+                                {
+                                    "visible": false,
+                                    "property": "notion://tasks/reporter_property"
+                                },
+                                {
+                                    "visible": false,
+                                    "property": "notion://tasks/created_time_property"
+                                },
+                                {
+                                    "visible": false,
+                                    "property": "notion://tasks/last_edited_time_property"
+                                },
+                                {
+                                    "visible": false,
+                                    "property": "notion://tasks/last_edited_by_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/location_property"
+                                }
+                            ],
+                            "gallery_properties": [
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/due_date_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/status_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/location_property"
+                                }
+                            ],
+                            "calendar_properties": [
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/due_date_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/status_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/location_property"
+                                }
+                            ],
+                            "timeline_properties": [
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/due_date_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/status_property"
+                                },
+                                {
+                                    "visible": true,
+                                    "property": "notion://tasks/location_property"
+                                }
+                            ],
+                            "collection_view_icon": "/images/app-packages/task-db-icon.svg",
+                            "collection_view_source": {
+                                "type": "typed",
+                                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                                "databaseType": "notion://tasks_collection"
+                            },
+                            "hide_table_vertical_lines": true
+                        },
+                        "parent_id": "5bb227e8-4dae-4af7-bc6d-a804d26795d0",
+                        "parent_table": "block",
+                        "alive": true,
+                        "query2": {
+                            "sort": [
+                                {
+                                    "property": "notion://tasks/due_date_property",
+                                    "direction": "ascending"
+                                }
+                            ]
+                        },
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "read_and_write"
+                }
+            }
+        },
+        "block": {
+            "6336210b-37e3-4b16-803f-724d2fbbf35e": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "6336210b-37e3-4b16-803f-724d2fbbf35e",
+                        "version": 11,
+                        "type": "collection_view_page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "Home views"
+                                ]
+                            ]
+                        },
+                        "view_ids": [
+                            "2326a232-1ac7-4c5a-bb29-d66ea64389f7"
+                        ],
+                        "format": {
+                            "page_icon": "/images/icons/collection-table.84137af6.svg",
+                            "system_block_type": "home_custom_db"
+                        },
+                        "permissions": [
+                            {
+                                "role": "read_and_write",
+                                "type": "exclusive_user_permission",
+                                "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22"
+                            }
+                        ],
+                        "created_time": 1755656824124,
+                        "last_edited_time": 1755656824124,
+                        "parent_id": "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+                        "parent_table": "block",
+                        "alive": true,
+                        "ignore_block_count": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "crdt_format_version": 1,
+                        "crdt_data": {
+                            "title": {
+                                "r": "7Fjy5Y_XPTwrRWWm6VK6gw,\"start\",\"end\"",
+                                "n": {
+                                    "7Fjy5Y_XPTwrRWWm6VK6gw,\"start\",\"end\"": {
+                                        "s": {
+                                            "x": "7Fjy5Y_XPTwrRWWm6VK6gw",
+                                            "i": [
+                                                {
+                                                    "t": "s"
+                                                },
+                                                {
+                                                    "t": "t",
+                                                    "i": [
+                                                        "-jGsusKsA4Qz",
+                                                        1
+                                                    ],
+                                                    "o": "start",
+                                                    "l": 10,
+                                                    "c": "Home views"
+                                                },
+                                                {
+                                                    "t": "e"
+                                                }
+                                            ],
+                                            "l": ""
+                                        },
+                                        "c": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "role": "read_and_write"
+                }
+            },
+            "5bb227e8-4dae-4af7-bc6d-a804d26795d0": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "5bb227e8-4dae-4af7-bc6d-a804d26795d0",
+                        "version": 11,
+                        "type": "collection_view_page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "My tasks"
+                                ]
+                            ]
+                        },
+                        "view_ids": [
+                            "02f9abab-937e-43fb-97ab-280d7514cc36"
+                        ],
+                        "format": {
+                            "page_icon": "/images/app-packages/task-db-icon.svg",
+                            "system_block_type": "home_my_tasks"
+                        },
+                        "permissions": [
+                            {
+                                "role": "read_and_write",
+                                "type": "exclusive_user_permission",
+                                "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22"
+                            }
+                        ],
+                        "created_time": 1755656824123,
+                        "last_edited_time": 1755656824123,
+                        "parent_id": "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+                        "parent_table": "block",
+                        "alive": true,
+                        "ignore_block_count": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "crdt_format_version": 1,
+                        "crdt_data": {
+                            "title": {
+                                "r": "BfNjk6YqTMhd8AlzkR1NuA,\"start\",\"end\"",
+                                "n": {
+                                    "BfNjk6YqTMhd8AlzkR1NuA,\"start\",\"end\"": {
+                                        "s": {
+                                            "x": "BfNjk6YqTMhd8AlzkR1NuA",
+                                            "i": [
+                                                {
+                                                    "t": "s"
+                                                },
+                                                {
+                                                    "t": "t",
+                                                    "i": [
+                                                        "TWUmb3Q_TW5X",
+                                                        1
+                                                    ],
+                                                    "o": "start",
+                                                    "l": 8,
+                                                    "c": "My tasks"
+                                                },
+                                                {
+                                                    "t": "e"
+                                                }
+                                            ],
+                                            "l": ""
+                                        },
+                                        "c": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "role": "read_and_write"
+                }
+            },
+            "6edcfb1c-f0c4-4054-897a-2812e2b0096b": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "6edcfb1c-f0c4-4054-897a-2812e2b0096b",
+                        "version": 8,
+                        "type": "collection_view",
+                        "view_ids": [
+                            "c6e6db58-1cca-4a80-b962-a1a846890450"
+                        ],
+                        "collection_id": "100eea49-3609-42fe-9c12-03fd76a6506c",
+                        "format": {
+                            "system_block_type": "home_trending",
+                            "collection_pointer": {
+                                "id": "100eea49-3609-42fe-9c12-03fd76a6506c",
+                                "table": "collection",
+                                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                            },
+                            "collection_pointers": [
+                                {
+                                    "id": "100eea49-3609-42fe-9c12-03fd76a6506c",
+                                    "table": "collection",
+                                    "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                                }
+                            ]
+                        },
+                        "permissions": [
+                            {
+                                "role": "read_and_write",
+                                "type": "exclusive_user_permission",
+                                "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22"
+                            }
+                        ],
+                        "created_time": 1755656824125,
+                        "last_edited_time": 1755656824125,
+                        "parent_id": "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+                        "parent_table": "block",
+                        "alive": true,
+                        "ignore_block_count": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "crdt_format_version": 1,
+                        "crdt_data": {
+                            "title": {
+                                "r": "l9RM5hFeRjkN9DaEM_zWXw,\"start\",\"end\"",
+                                "n": {
+                                    "l9RM5hFeRjkN9DaEM_zWXw,\"start\",\"end\"": {
+                                        "s": {
+                                            "x": "l9RM5hFeRjkN9DaEM_zWXw",
+                                            "i": [
+                                                {
+                                                    "t": "s"
+                                                },
+                                                {
+                                                    "t": "e"
+                                                }
+                                            ],
+                                            "l": ""
+                                        },
+                                        "c": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "role": "read_and_write"
+                }
+            },
+            "f669c8c7-3427-4d9d-98d9-2dcf92be26a2": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "f669c8c7-3427-4d9d-98d9-2dcf92be26a2",
+                        "version": 8,
+                        "type": "collection_view",
+                        "view_ids": [
+                            "672c8930-c7c6-4d4b-b704-3893e54fbc07"
+                        ],
+                        "collection_id": "f9792735-59fc-4aec-a9ce-7270e1f40dda",
+                        "format": {
+                            "system_block_type": "home_similar_users",
+                            "collection_pointer": {
+                                "id": "f9792735-59fc-4aec-a9ce-7270e1f40dda",
+                                "table": "collection",
+                                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                            },
+                            "collection_pointers": [
+                                {
+                                    "id": "f9792735-59fc-4aec-a9ce-7270e1f40dda",
+                                    "table": "collection",
+                                    "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                                }
+                            ]
+                        },
+                        "permissions": [
+                            {
+                                "role": "reader",
+                                "type": "exclusive_user_permission",
+                                "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22"
+                            }
+                        ],
+                        "created_time": 1755656824125,
+                        "last_edited_time": 1755656824125,
+                        "parent_id": "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+                        "parent_table": "block",
+                        "alive": true,
+                        "ignore_block_count": true,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "crdt_format_version": 1,
+                        "crdt_data": {
+                            "title": {
+                                "r": "V7pZ_1EH0RkbkIK_4dinww,\"start\",\"end\"",
+                                "n": {
+                                    "V7pZ_1EH0RkbkIK_4dinww,\"start\",\"end\"": {
+                                        "s": {
+                                            "x": "V7pZ_1EH0RkbkIK_4dinww",
+                                            "i": [
+                                                {
+                                                    "t": "s"
+                                                },
+                                                {
+                                                    "t": "e"
+                                                }
+                                            ],
+                                            "l": ""
+                                        },
+                                        "c": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "role": "read_and_write"
+                }
+            },
+            "5cc21f42-ea67-4928-80d3-b72b1b708358": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "role": "editor"
+                }
+            },
+            "ce5c277e-1890-4b84-a0d3-b359431a7bd1": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+                        "version": 11,
+                        "type": "personal_home_page",
+                        "properties": {
+                            "title": [
+                                [
+                                    "Home"
+                                ]
+                            ]
+                        },
+                        "content": [
+                            "6edcfb1c-f0c4-4054-897a-2812e2b0096b",
+                            "5bb227e8-4dae-4af7-bc6d-a804d26795d0",
+                            "6336210b-37e3-4b16-803f-724d2fbbf35e",
+                            "f669c8c7-3427-4d9d-98d9-2dcf92be26a2"
+                        ],
+                        "format": {
+                            "system_block_type": "home_main"
+                        },
+                        "permissions": [
+                            {
+                                "role": "read_and_write",
+                                "type": "exclusive_user_permission",
+                                "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22"
+                            }
+                        ],
+                        "created_time": 1755656824121,
+                        "last_edited_time": 1755656824121,
+                        "parent_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "parent_table": "space",
+                        "alive": true,
+                        "ignore_block_count": true,
+                        "is_template": false,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "crdt_format_version": 1,
+                        "crdt_data": {
+                            "title": {
+                                "r": "fghT88cC8Lqxpl_U0EbX3A,\"start\",\"end\"",
+                                "n": {
+                                    "fghT88cC8Lqxpl_U0EbX3A,\"start\",\"end\"": {
+                                        "s": {
+                                            "x": "fghT88cC8Lqxpl_U0EbX3A",
+                                            "i": [
+                                                {
+                                                    "t": "s"
+                                                },
+                                                {
+                                                    "t": "t",
+                                                    "i": [
+                                                        "8B2bDRB6BM-w",
+                                                        1
+                                                    ],
+                                                    "o": "start",
+                                                    "l": 4,
+                                                    "c": "Home"
+                                                },
+                                                {
+                                                    "t": "e"
+                                                }
+                                            ],
+                                            "l": ""
+                                        },
+                                        "c": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "role": "read_and_write"
+                }
+            }
+        },
+        "collection": {
+            "100eea49-3609-42fe-9c12-03fd76a6506c": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "100eea49-3609-42fe-9c12-03fd76a6506c",
+                        "version": 5,
+                        "schema": {
+                            "title": {
+                                "name": "Name",
+                                "type": "title"
+                            }
+                        },
+                        "parent_id": "6edcfb1c-f0c4-4054-897a-2812e2b0096b",
+                        "parent_table": "block",
+                        "alive": true,
+                        "migrated": true,
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "read_and_write"
+                }
+            },
+            "f9792735-59fc-4aec-a9ce-7270e1f40dda": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "f9792735-59fc-4aec-a9ce-7270e1f40dda",
+                        "version": 5,
+                        "schema": {
+                            "title": {
+                                "name": "Name",
+                                "type": "title"
+                            }
+                        },
+                        "parent_id": "f669c8c7-3427-4d9d-98d9-2dcf92be26a2",
+                        "parent_table": "block",
+                        "alive": true,
+                        "migrated": true,
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                    },
+                    "role": "read_and_write"
+                }
+            }
+        },
+        "space": {
+            "e2f49844-8625-4b1a-900f-d1e7ddaa9af1": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "version": 45,
+                        "name": "Pato Sala's Notion",
+                        "beta_enabled": false,
+                        "created_time": 1646916664162,
+                        "last_edited_time": 1745932598298,
+                        "created_by_table": "notion_user",
+                        "created_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "last_edited_by_table": "notion_user",
+                        "last_edited_by_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "plan_type": "team",
+                        "invite_link_enabled": true,
+                        "settings": {
+                            "crdt_status": "migrating",
+                            "grant_awards": [
+                                {
+                                    "id": "ai.limitedQnaRefresh",
+                                    "feature": "ai",
+                                    "received_at": 1715172418527
+                                }
+                            ],
+                            "is_teams_enabled": true,
+                            "space_survey_data": {
+                                "intent": {
+                                    "value": "personal",
+                                    "version": 1,
+                                    "collected_at": 1646916664162,
+                                    "collected_from": "onboarding"
+                                }
+                            },
+                            "is_personal_home_enabled": true,
+                            "sharded_entitlement_usage_tables": true,
+                            "ai_meeting_notes_free_credit_mins": 300,
+                            "ai_meeting_notes_free_credit_mins_v2": 120
+                        },
+                        "subscription_tier": "free",
+                        "short_id": 53790743349,
+                        "short_id_str": "53790743349"
+                    },
+                    "role": "editor"
+                }
+            }
+        },
+        "space_view": {
+            "722992b5-32c8-4a6d-9732-b5859a6d3c84": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "id": "722992b5-32c8-4a6d-9732-b5859a6d3c84",
+                        "version": 349,
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "bookmarked_pages": [
+                            "4543ddc8-5b8f-49ee-80ca-2c6d44108093",
+                            "953d9d7f-a70f-4304-ac64-93d5ff590ec5",
+                            "27bc862d-9b35-8074-a48f-df4ec430a634"
+                        ],
+                        "parent_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "parent_table": "user_root",
+                        "alive": true,
+                        "notify_mobile": true,
+                        "notify_desktop": true,
+                        "notify_email": true,
+                        "visited_templates": [
+                            "7e89f436-7aac-4f66-b0a6-6e65ec868d2a",
+                            "88c9c2b0-d732-4342-8963-0580a4725571",
+                            "ba43b46e-4ad3-47f7-95f0-58a3ba01476f",
+                            "2dddc8c5-a711-4aa2-b5b3-ff952a49bcfa",
+                            "b7572331-51ab-4ed5-a931-5a7d34b08bf0",
+                            "3f2f822b-4d8f-44be-a17c-2a9197f1c4fe"
+                        ],
+                        "sidebar_hidden_templates": [
+                            "7e89f436-7aac-4f66-b0a6-6e65ec868d2a",
+                            "88c9c2b0-d732-4342-8963-0580a4725571",
+                            "ba43b46e-4ad3-47f7-95f0-58a3ba01476f",
+                            "2dddc8c5-a711-4aa2-b5b3-ff952a49bcfa",
+                            "b7572331-51ab-4ed5-a931-5a7d34b08bf0"
+                        ],
+                        "created_getting_started": true,
+                        "created_onboarding_templates": true,
+                        "private_pages": [
+                            "89fa6cc4-6892-417a-baf0-a1f6ad98871b",
+                            "d8929b18-bff5-4068-b1ff-fecb57028afc",
+                            "9f854241-8679-42c0-a9a7-5ee0679a8f53",
+                            "718d26ff-b21a-4c8c-be61-8cdbbc7b244a",
+                            "bc7ef659-a0b6-4c46-bb7b-f76088ba8786",
+                            "b972c7ba-b595-421f-91ee-45ee375072f9",
+                            "70dad6af-7cab-4f9a-955b-1703200bfd04",
+                            "3bbef8ea-e384-4e9b-86fa-67f2b64bad15",
+                            "b315437f-33d6-45c9-b408-27eeef0af02c",
+                            "bc128294-c8c9-4b68-b8cf-d503c3819aca",
+                            "953d9d7f-a70f-4304-ac64-93d5ff590ec5",
+                            "315e9f1d-8380-436c-8cb7-4f547722543a",
+                            "5cf07225-6199-4227-86c2-ba5f57d11788",
+                            "450393ed-0aee-4004-9021-3702e8b74d40",
+                            "b51f3f08-e703-43a2-9e98-f7367e8911bb",
+                            "4426345c-fed1-4e7a-922f-ee9ceecc2162",
+                            "3defdcc8-207d-4f5f-8d51-d596d6aea060",
+                            "09b60018-df64-47a7-9714-05528689b1f9",
+                            "92aa5c4f-f58e-47e6-a476-3a0cdf4f6a95",
+                            "fca0ca05-3b93-4457-a32e-2fa88cadc41c",
+                            "4182f7ee-e77d-4b6d-8410-985d7ddea53b",
+                            "1d3b194c-ff05-4ae6-b1e6-50de5fd07b47",
+                            "11922fbf-10d5-445a-8c15-fb0b14873f1a",
+                            "40d6f2fa-bfbb-4416-9704-afe48222b494",
+                            "17dbf900-7d40-4b28-979d-a05ed8e82041",
+                            "6d1af0cf-cb3a-44f6-91ec-c5f0dd13d763",
+                            "a3972b56-a6fd-4ad2-b79d-b17ff6ba35e5",
+                            "2f71be06-04b0-409f-bd98-9fcd00b46899",
+                            "4cdb10c3-9d00-40ab-a352-a33794aa84a6",
+                            "34e4c689-bcee-4bd1-9e43-500a196535dd",
+                            "26eeaa4b-d627-4e56-bb15-d9479a0ccebc",
+                            "14ac862d-9b35-80a5-bc96-fdbfadf72391",
+                            "14ac862d-9b35-8078-acea-ce73ed52508e",
+                            "150c862d-9b35-80af-b0a1-daeb8d40ab85",
+                            "192c862d-9b35-8094-8b89-dd804832bcb1",
+                            "19ec862d-9b35-8080-885d-f384a14b89ae",
+                            "1a7c862d-9b35-803a-8512-e27359675d04",
+                            "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                            "208c862d-9b35-808c-b431-e5fbe0bb33b7",
+                            "211c862d-9b35-8069-878c-dbd380d5a770",
+                            "219c862d-9b35-8029-a08b-e1774408f0e9",
+                            "21ac862d-9b35-80a5-8f59-f072f6c4826c",
+                            "21fc862d-9b35-808f-8053-c965f6d6ff81",
+                            "238c862d-9b35-808c-be21-d146305f38fe",
+                            "23fc862d-9b35-80ca-80f3-e2d73443cc68",
+                            "23fc862d-9b35-8075-934e-d6041df65129",
+                            "24cc862d-9b35-805a-af8f-e90b02428190",
+                            "250c862d-9b35-80c9-b82a-cb8e8731fde7",
+                            "26bc862d-9b35-8021-9c13-c94df4c5ad8c",
+                            "26bc862d-9b35-8043-b9e8-cc9ed0781cd7",
+                            "271c862d-9b35-80c8-ac4b-dfc4d045cbf6",
+                            "279c862d-9b35-80d4-a36a-ec291322885c",
+                            "279c862d-9b35-80f8-a870-fc19349afb26",
+                            "279c862d-9b35-8093-acdb-c615fd63ce15",
+                            "279c862d-9b35-80ea-a095-de6426903b45",
+                            "27ac862d-9b35-8094-be41-fad6d7007908",
+                            "27ac862d-9b35-80c5-864a-d92d08618f00",
+                            "27ac862d-9b35-8057-9834-fe42b1dec6b9",
+                            "27cc862d-9b35-8037-b427-da1aa9afe5c6",
+                            "27dc862d-9b35-80fb-9a26-d9f431f90550",
+                            "294c862d-9b35-809b-a9f1-c778b0e5edb1",
+                            "29dc862d-9b35-80af-b353-efb9eee39175",
+                            "2a0c862d-9b35-809f-b91b-e419462fc9e5",
+                            "2a2c862d-9b35-8001-b4fc-d61c9697cabc",
+                            "2a2c862d-9b35-80d3-8077-c2ea38854029"
+                        ],
+                        "joined": true,
+                        "settings": {
+                            "personal_home": {
+                                "version": 39,
+                                "hide_new_badge": false,
+                                "enabled_features": {
+                                    "tips": true,
+                                    "calendar": true,
+                                    "greeting": true,
+                                    "custom_db": true,
+                                    "templates": true
+                                },
+                                "seen_welcome_animation": false,
+                                "home_landing_page_enabled": "home_landing_page_without_default",
+                                "home_landing_page_enabled_v2": false
+                            },
+                            "user_survey_data": {
+                                "role": {
+                                    "value": "unfilled",
+                                    "version": 1,
+                                    "collected_at": 1646916626010,
+                                    "collected_from": "onboarding"
+                                },
+                                "function": {
+                                    "value": "personal",
+                                    "version": 1,
+                                    "collected_at": 1646916626010,
+                                    "collected_from": "onboarding"
+                                }
+                            },
+                            "mfa_settings_prompt": {
+                                "status": "hidden",
+                                "num_times_shown": 4
+                            },
+                            "notify_email_digest": true,
+                            "sidebar_section_menu": {
+                                "truncationLimit": {
+                                    "private": -1
+                                }
+                            },
+                            "ai_qna_waitlist_shown": true,
+                            "callout_seen_timestamps": {
+                                "invite_members_sidebar_callout": 1756295698849
+                            },
+                            "passkey_settings_prompt": {
+                                "status": "showing",
+                                "num_times_shown": 0
+                            },
+                            "has_user_seen_leap_modal": true,
+                            "callout_dismissal_timestamps": [
+                                {
+                                    "name": "invite_members_sidebar_callout",
+                                    "timestamp": 1759847172455
+                                }
+                            ],
+                            "offline_mode_sidebar_callout_shown_count": 3,
+                            "offline_mode_sidebar_callout_last_shown_at": 1756065296781
+                        },
+                        "shared_pages_manual_sort": [
+                            "219c862d-9b35-8029-a08b-e1774408f0e9",
+                            "718d26ff-b21a-4c8c-be61-8cdbbc7b244a",
+                            "21ac862d-9b35-80a5-8f59-f072f6c4826c",
+                            "d8929b18-bff5-4068-b1ff-fecb57028afc",
+                            "211c862d-9b35-8069-878c-dbd380d5a770",
+                            "315e9f1d-8380-436c-8cb7-4f547722543a",
+                            "953d9d7f-a70f-4304-ac64-93d5ff590ec5",
+                            "ce5c277e-1890-4b84-a0d3-b359431a7bd1",
+                            "1e3c862d-9b35-8004-a5bf-f56cef8d5ee4",
+                            "9f854241-8679-42c0-a9a7-5ee0679a8f53",
+                            "1a7c862d-9b35-803a-8512-e27359675d04",
+                            "192c862d-9b35-8094-8b89-dd804832bcb1",
+                            "89fa6cc4-6892-417a-baf0-a1f6ad98871b",
+                            "70dad6af-7cab-4f9a-955b-1703200bfd04",
+                            "26eeaa4b-d627-4e56-bb15-d9479a0ccebc",
+                            "09b60018-df64-47a7-9714-05528689b1f9",
+                            "4426345c-fed1-4e7a-922f-ee9ceecc2162",
+                            "b51f3f08-e703-43a2-9e98-f7367e8911bb",
+                            "bc7ef659-a0b6-4c46-bb7b-f76088ba8786",
+                            "3bbef8ea-e384-4e9b-86fa-67f2b64bad15",
+                            "b972c7ba-b595-421f-91ee-45ee375072f9",
+                            "24cc862d-9b35-805a-af8f-e90b02428190",
+                            "279c862d-9b35-80ea-a095-de6426903b45",
+                            "27ac862d-9b35-80c5-864a-d92d08618f00",
+                            "27dc862d-9b35-80fb-9a26-d9f431f90550",
+                            "294c862d-9b35-809b-a9f1-c778b0e5edb1",
+                            "29dc862d-9b35-80af-b353-efb9eee39175",
+                            "2a0c862d-9b35-809f-b91b-e419462fc9e5",
+                            "2a2c862d-9b35-8001-b4fc-d61c9697cabc"
+                        ],
+                        "first_joined_space_time": 0
+                    },
+                    "role": "editor"
+                }
+            }
+        },
+        "space_user": {
+            "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22|e2f49844-8625-4b1a-900f-d1e7ddaa9af1": {
+                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                "value": {
+                    "value": {
+                        "user_id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "space_id": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "membership_type": "owner",
+                        "id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22|e2f49844-8625-4b1a-900f-d1e7ddaa9af1",
+                        "version": 30
+                    },
+                    "role": "editor"
+                }
+            }
+        },
+        "user_root": {
+            "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22": {
+                "value": {
+                    "value": {
+                        "id": "0aaca64b-9cd5-4937-b3e4-eb4f8c323a22",
+                        "version": 10,
+                        "space_views": [
+                            "722992b5-32c8-4a6d-9732-b5859a6d3c84",
+                            "a132904e-a1d7-4c75-aa0c-23193377b45c"
+                        ],
+                        "left_spaces": [
+                            "0b17e1d3-35b4-81a5-882f-000325624549"
+                        ],
+                        "space_view_pointers": [
+                            {
+                                "id": "722992b5-32c8-4a6d-9732-b5859a6d3c84",
+                                "table": "space_view",
+                                "spaceId": "e2f49844-8625-4b1a-900f-d1e7ddaa9af1"
+                            },
+                            {
+                                "id": "a132904e-a1d7-4c75-aa0c-23193377b45c",
+                                "table": "space_view",
+                                "spaceId": "fac7f9b3-25bc-4108-bdfa-0ea43dd77167"
+                            }
+                        ]
+                    },
+                    "role": "editor"
+                }
+            }
+        }
+    }
+}
