@@ -1,7 +1,7 @@
 {
-  "name": "notion",
+  "name": "@react-native-blocks/blocks",
   "version": "0.1.0",
-  "main": "src/index.js",
+  "main": "index.ts",
   "peerDependencies": {
     "react": "19.1.0",
     "react-native": "0.81.4"

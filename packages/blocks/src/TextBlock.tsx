@@ -1,23 +1,20 @@
-import { memo } from "react";
-import { useTextInput } from "react-native-notion-blocks/src/hooks/useTextInput";
+import { useTextInput } from "@react-native-blocks/core/src/hooks/useTextInput";
 import { View, TextInput, StyleSheet } from "react-native";
 interface Props {
     blockId: string
 }
 
-export const SubHeaderBlock = ({ blockId } : Props) => {
-    const { getTextInputProps, isFocused } = useTextInput(blockId);
-    const placeholder = "Header 2";
+export function TextBlock({ blockId } : Props) {
+    const { getTextInputProps } = useTextInput(blockId);
     return (
         <View style={styles.container}>
             <TextInput
-                style={styles.sub_header}
+                style={[styles.text]}
                 {...getTextInputProps()}
-                placeholder={placeholder}
             />
         </View>
     )
-};
+}
 
 const styles = StyleSheet.create({
     container: {

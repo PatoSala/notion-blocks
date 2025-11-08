@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Image, View, StyleSheet, Dimensions, Text, Pressable } from "react-native";
-import { BlockProps } from 'react-native-notion-blocks/src/components/Block';
+import { BlockProps } from '@react-native-blocks/core/src/components/Block';
 import { Ionicons } from '@expo/vector-icons';
-import { useBlocksContext } from "react-native-notion-blocks/src/components/BlocksContext";
+import { useBlocksContext } from "@react-native-blocks/core/src/components/BlocksContext";
 import * as ImagePicker from 'expo-image-picker';
 
-import { updateBlock as updateBlockData } from "react-native-notion-blocks/src/core";
+import { updateBlock as updateBlockData } from "@react-native-blocks/core/src/core";
 
 const { width } = Dimensions.get("window");
 

@@ -1,4 +1,4 @@
-import { useTextInput } from "react-native-notion-blocks/src/hooks/useTextInput";
+import { useTextInput } from "@react-native-blocks/core/src/hooks/useTextInput";
 import { View, TextInput, StyleSheet } from "react-native";
 
 interface Props {

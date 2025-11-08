@@ -93,7 +93,7 @@ function NoteScreen({
 }
 
 
-export default function Editor({
+export function Editor({
     defaultBlocks,
     rootBlockId,
     children
