@@ -13,8 +13,8 @@ import { useRef } from "react";
 const { height } = Dimensions.get("screen");
 
 // SCROLLING THRESHOLDS
-const TOP_THRESHOLD = 200;
-const BOTTOM_THRESHOLD = height - 200;
+const TOP_THRESHOLD = 100;
+const BOTTOM_THRESHOLD = height - 100;
 
 export default function DragProvider({
     children,
@@ -92,7 +92,6 @@ export default function DragProvider({
             
         }
     );
-
 
     /**
      *  Given a y coordinate, returns the block at that position and a "start" or "end"

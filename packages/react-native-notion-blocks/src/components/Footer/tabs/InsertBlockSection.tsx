@@ -1,17 +1,16 @@
-import { Pressable, Text, View, StyleSheet, Dimensions, FlatList } from "react-native";
+import { Pressable, Text, View, StyleSheet, Dimensions, FlatList, Keyboard } from "react-native";
 import { useBlocksContext } from "../../Blocks/BlocksContext";
-import { useFooterContext } from "../Footer";
 import { Block } from "../../../interfaces/Block.interface";
 import { useTextBlocksContext } from "../../TextBlocksProvider";
 import { useBlockRegistrationContext } from "../../BlockRegistration";
-
-
+import { useFooterContext } from "../Footer";
 const { width } = Dimensions.get("window");
 
 export default function InsertBlockSection() {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
-    const { blocks, focusedBlockId, insertBlock } = useBlocksContext();
-    const { blocks: blockTypes } = useBlockRegistrationContext();
+    const { blocks, focusedBlockId, insertBlock, removeBlock, setFocusedBlockId } = useBlocksContext();
+    const { blocks: blockTypes, textBasedBlocks } = useBlockRegistrationContext();
+    const { setActiveTab, setHidden } = useFooterContext();
 
     const handleInsertBlock = (blockType: string) => {
         setShowSoftInputOnFocus(true);
@@ -30,9 +29,17 @@ export default function InsertBlockSection() {
         })
 
         // Focus new block
-        requestAnimationFrame(() => {
-            inputRefs.current[newBlock.id]?.current.focus();
-        });
+        if (textBasedBlocks.includes(blockType)) {
+            console.log(blockType);
+            requestAnimationFrame(() => {
+                inputRefs.current[newBlock.id]?.current.focus();
+            });
+        } else {
+            setActiveTab("none");
+            setHidden(true);
+            removeBlock(focusedBlockId);
+            Keyboard.dismiss();
+        }
     }
 
     return (
