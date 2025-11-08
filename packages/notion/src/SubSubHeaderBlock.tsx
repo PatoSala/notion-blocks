@@ -6,11 +6,13 @@ interface Props {
 
 export function SubSubHeaderBlock({ blockId } : Props) {
     const { getTextInputProps } = useTextInput(blockId);
+    const placeholder = "Header 3";
     return (
         <View style={styles.container}>
             <TextInput
                 style={styles.sub_sub_header}
                 {...getTextInputProps()}
+                placeholder={placeholder}
             />
         </View>
     )

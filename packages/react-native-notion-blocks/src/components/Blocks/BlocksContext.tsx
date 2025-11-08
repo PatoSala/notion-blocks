@@ -67,12 +67,15 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
      */
     function insertBlock(newBlock: Block, position?: { prevBlockId?: string | undefined, nextBlockId?: string | undefined }) {
         const updatedBlock = updateBlockData(blocksRef.current[newBlock.parent], {
-            content: insertBlockIdIntoContent(blocksRef.current[newBlock.parent].content, newBlock.id, position)
+            content: insertBlockIdIntoContent(blocksRef.current[newBlock.parent].content, newBlock.id, {
+                prevBlockId: position?.prevBlockId,
+                nextBlockId: position?.nextBlockId
+            })
         });
 
         blocksRef.current[newBlock.parent] = updatedBlock;
         blocksRef.current[newBlock.id] = newBlock;
-        setBlocksOrder(prevState => [...prevState, newBlock.id]);
+        setBlocksOrder(prevState => [rootBlockId, ...blocksRef.current[rootBlockId].content]);
     }
 
     /**

@@ -192,14 +192,16 @@ Footer.RemoveBlock = () => {
     const { inputRefs } = useTextBlocksContext();
 
     const handleOnPress = () => {
-        const prevTextBlock = findPrevTextBlockInContent(focusedBlockId, blocks.current);
-        setFocusedBlockId("");
-        setActiveTab("none");
-        setHidden(true);
-        inputRefs.current[prevTextBlock].current.focus();
+        const prevTextBlock = findPrevTextBlockInContent(focusedBlockId, blocks);
+        /* setFocusedBlockId(""); */
+       /*  setActiveTab("none"); */
+        /* setHidden(true); */
+        if (prevTextBlock) {
+            inputRefs.current[prevTextBlock.id].current.focus();
+            setActiveTab("keyboard");
+        };
         removeBlock(focusedBlockId);
-
-    };
+    }
 
     if (focusedBlockId === rootBlockId) return null;
 

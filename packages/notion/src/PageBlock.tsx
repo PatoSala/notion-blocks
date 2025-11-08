@@ -8,10 +8,12 @@ interface Props {
 }
 
 export function PageBlock({ blockId } : Props) {
-    const { getTextInputProps } = useTextInput(blockId);
+    const { getTextInputProps, isFocused } = useTextInput(blockId);
     const { rootBlockId } = useBlocksContext();
     const { properties } = useBlock(blockId);
     const isRootBlock = rootBlockId === blockId;
+
+    const placeholder = "New page";
 
     return (
         <View style={styles.container}>
@@ -22,7 +24,7 @@ export function PageBlock({ blockId } : Props) {
                     <TextInput
                         style={styles.page}
                         {...getTextInputProps()}
-                        placeholder={"New page"}
+                        placeholder={placeholder}
                     />
                 </View>
             )

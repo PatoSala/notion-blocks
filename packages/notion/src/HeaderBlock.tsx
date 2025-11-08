@@ -6,12 +6,14 @@ interface Props {
 }
 
 export function HeaderBlock({ blockId } : Props) {
-    const { getTextInputProps } = useTextInput(blockId);
+    const { getTextInputProps, isFocused } = useTextInput(blockId);
+    const placeholder = "Header 1";
     return (
         <View style={styles.container}>
             <TextInput
                 style={styles.header}
                 {...getTextInputProps()}
+                placeholder={placeholder}
             />
         </View>
     )

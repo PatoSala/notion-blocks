@@ -28,7 +28,7 @@ export function ScrollProvider({ children }) {
     const [isScrolling, setIsScrolling] = useState(false);
     const scrollY = useSharedValue(0);
 
-    useEffect(() => {
+    /* useEffect(() => {
         // Maybe this conditional could be a function "scrollToVisiblePosition" or sth like that
         if (blockMeasuresRef.current[focusedBlockId]?.start > keyboardHeight + 24) {
             handleScrollTo({
@@ -37,20 +37,20 @@ export function ScrollProvider({ children }) {
                 animated: true
             })
         }
-    }, [focusedBlockId]);
+    }, [focusedBlockId]); */
     
     const handleDragStart = () => {
-        if (focusedBlockId) inputRefs.current["ghostInput"]?.current.focus();
+        /* if (focusedBlockId) inputRefs.current["ghostInput"]?.current.focus(); */
 
         setIsScrolling(true);
     }
 
     const handleDragEnd = () => {
-        if (focusedBlockId) {
+        /* if (focusedBlockId) {
             requestAnimationFrame(() => {
                 inputRefs.current[focusedBlockId].current.focus();
             })
-        };
+        }; */
         setIsScrolling(false);
     }
 

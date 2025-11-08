@@ -39,6 +39,12 @@ export function useTextInput(blockId: string) {
     const selectionRef = React.useRef({ start: title.length, end: title.length });
     const valueRef = React.useRef(title);
     const height = useSharedValue(0);
+    const isFocused = focusedBlockId === blockId;
+    const isEditable = isScrolling === false && isDragging.value === false
+        ? true
+        : focusedBlockId === blockId
+            ? true
+            : false;
 
     const api = {
         current: {
@@ -71,9 +77,9 @@ export function useTextInput(blockId: string) {
         }
     };
 
-    const handleContentSizeChange = (event: { nativeEvent: { contentSize: { height: number; }; }; }) => {
+    /* const handleContentSizeChange = (event: { nativeEvent: { contentSize: { height: number; }; }; }) => {
         height.value = event.nativeEvent.contentSize.height;
-    }
+    } */
 
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
@@ -104,21 +110,28 @@ export function useTextInput(blockId: string) {
         
         const sourceBlock = block;
         const prevTextBlock = findPrevTextBlockInContent(blockId, blocks);
+        const prevBlock = getPreviousBlockInContent(blockId, blocks);
         const targetBlockId = prevTextBlock === undefined ? sourceBlock.parent : prevTextBlock.id;
 
-        if (blocks[targetBlockId].properties.title.length === 0 && targetBlockId !== sourceBlock.parent) {
+        /**
+         * If the previous block is a textblock and that block is empty,
+         * remove it and keep focus on current block.
+         * 
+         * Else, merge the current block with the previous block.
+         */
+        if (blocks[targetBlockId].properties.title.length === 0 && targetBlockId !== sourceBlock.parent && prevBlock.type === "text") {
             requestAnimationFrame(() => {
                 removeBlock(targetBlockId);
             });
         } else {
             const textAfterMerge = blocks[targetBlockId].properties.title + sourceBlock.properties.title;
 
-                inputRefs.current[targetBlockId]?.current.setText(textAfterMerge);
-                inputRefs.current[targetBlockId]?.current.focusWithSelection({
-                    start: textAfterMerge.length - sourceBlock.properties.title.length,
-                    end: textAfterMerge.length - sourceBlock.properties.title.length
-                });
-                inputRefs.current[sourceBlock.id]?.current.setText("");
+            inputRefs.current[targetBlockId]?.current.setText(textAfterMerge);
+            inputRefs.current[targetBlockId]?.current.focusWithSelection({
+                start: textAfterMerge.length - sourceBlock.properties.title.length,
+                end: textAfterMerge.length - sourceBlock.properties.title.length
+            });
+            inputRefs.current[sourceBlock.id]?.current.setText("");
             
 
             const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlockId);
@@ -147,7 +160,7 @@ export function useTextInput(blockId: string) {
 
         requestAnimationFrame(() => {
             inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
-            inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
+            inputRefs.current[nextBlock.id]?.current.setText(textAfterSelection);
 
             inputRefs.current[nextBlock.id]?.current.focusWithSelection({
                 start: 0,
@@ -178,9 +191,9 @@ export function useTextInput(blockId: string) {
             selectTextOnFocus: false,
             smartInsertDelete: false,
             /** Prevents the text input being accidentally focused when scrolling/moving a block. */
-            editable: isScrolling === false && isDragging.value === false,
+            editable: isEditable,
 
-            onContentSizeChange: handleContentSizeChange,
+            /* onContentSizeChange: handleContentSizeChange, */
             onSelectionChange: handleSelectionChange,
             showSoftInputOnFocus: showSoftInputOnFocus,
             onChangeText: handleChangeText,
@@ -212,5 +225,8 @@ export function useTextInput(blockId: string) {
         }; */
     }, [inputRef]);
 
-    return { getTextInputProps, height };
+    return {
+        getTextInputProps,
+        isFocused
+    };
 }
