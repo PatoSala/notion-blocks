@@ -1,8 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Editor from 'react-native-notion-blocks/src/components/Editor';
-import { blankNote } from 'react-native-notion-blocks/src/utils/blankNote';
-import { Block } from 'react-native-notion-blocks/src/components/Block';
+import { Editor, Block } from '@react-native-blocks/core';
 import {
   HeaderBlock,
   PageBlock,
@@ -10,9 +8,22 @@ import {
   SubSubHeaderBlock,
   TextBlock,
   ImageBlock
-} from 'notion/src';
+} from '@react-native-blocks/blocks';
+
+const blankNote = {
+    "1": {
+        id: "1",
+        type: "page",
+        properties: {
+            title: ""
+        },
+        content: [],
+        parent: ""
+    }
+}
 
 export default function App() {
+
   return (
     <SafeAreaProvider>
       <Editor
