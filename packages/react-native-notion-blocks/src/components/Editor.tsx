@@ -14,18 +14,17 @@ import DragProvider from "./DragProvider";
 import LayoutProvider from "./LayoutProvider";
 import Footer from "./Footer/Footer";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
-import { BlocksProvider, useBlocksContext, useBlock } from "./Blocks/BlocksContext";
+import { BlocksProvider, useBlocksContext, useBlock } from "./BlocksContext";
 import { BlockRegistration, useBlockRegistrationContext } from "./BlockRegistration";
 import { TextBlocksProvider, useTextBlocksContext } from "./TextBlocksProvider";
 import { ScrollProvider, useScrollContext } from "./ScrollProvider";
 import { BlocksMeasuresProvider, useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
-import { textBlockTypes } from "../core";
 
 function NoteScreen({
     rootBlockId
 }) {
     const pageId : string = rootBlockId;
-    const { blocks: blockTypes } = useBlockRegistrationContext();
+    const { blockTypes, textBasedBlocks } = useBlockRegistrationContext();
     const {
         blocks,
         blocksOrder,
@@ -39,7 +38,7 @@ function NoteScreen({
     const { inputRefs: refs } = useTextBlocksContext();
 
     const handleNewLineBlock = () => {
-        if (rootBlock.content.length === 0 || (!textBlockTypes.includes(blocks[rootBlock.content[rootBlock.content.length - 1]].type) || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0)) {
+        if (rootBlock.content.length === 0 || (!textBasedBlocks.includes(blocks[rootBlock.content[rootBlock.content.length - 1]].type) || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0)) {
             const newBlock = new Block({
                 type: "text",
                 properties: {
@@ -76,7 +75,7 @@ function NoteScreen({
     return (
         <>
             {blocksOrder.map((blockId: string, index: number) => {
-                const Component = blockTypes[blocks[blockId].type];
+                const Component = blockTypes[blocks[blockId].type].component;
                 return (
                     <LayoutProvider key={blockId} blockId={blockId} >
                         <DragProvider blockId={blockId}>

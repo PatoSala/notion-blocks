@@ -1,12 +1,10 @@
 import React, { useMemo } from "react";
 import { TextInput, TextInputProps } from "react-native";
-import { useBlocksContext, useBlock } from "../components/Blocks/BlocksContext";
+import { useBlocksContext, useBlock } from "../components/BlocksContext";
 import { useTextBlocksContext } from "../components/TextBlocksProvider";
-import { useSharedValue } from "react-native-reanimated";
 import {
     updateBlock as updateBlockData,
     findPrevTextBlockInContent,
-    textBlockTypes,
     getPreviousBlockInContent
 } from "../core/updateBlock";
 import { useScrollContext } from "../components/ScrollProvider";
@@ -33,9 +31,10 @@ export function useTextInput(blockId: string) {
     } = useTextBlocksContext();
     const { isScrolling } = useScrollContext();
     const { isDragging } = useBlocksMeasuresContext();
+    const { textBasedBlocks } = useBlockRegistrationContext();
+
     const block = useMemo(() => blocks[blockId], [blockId]);
     const title = block.properties.title;
-
     const inputRef = React.useRef<TextInput>(null);
     const selectionRef = React.useRef({ start: title.length, end: title.length });
     const valueRef = React.useRef(title);
@@ -105,7 +104,7 @@ export function useTextInput(blockId: string) {
         if (block.id === rootBlockId) return;
         
         const sourceBlock = block;
-        const prevTextBlock = findPrevTextBlockInContent(blockId, blocks);
+        const prevTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
         const prevBlock = getPreviousBlockInContent(blockId, blocks);
         const targetBlockId = prevTextBlock === undefined ? sourceBlock.parent : prevTextBlock.id;
 

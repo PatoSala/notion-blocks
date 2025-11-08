@@ -7,8 +7,6 @@ import { Block } from "../interfaces/Block.interface";
  */
 
 // Temporary: Must find a dynic way to find out this types in case a custom text based block is also added.
-export const textBlockTypes = ["text", "header", "sub_header", "sub_sub_header"];
-
 export function updateBlock(block: Block, updatedData: Partial<Block>) {
     const updatedBlock = { ...block, ...updatedData };
     return updatedBlock;
@@ -51,7 +49,7 @@ export function rearrangeContent(parentBlock: Block, blockId: string, index: num
 /**
  * Returns the closes previous text block inside the content array of the parent block.
  */
-export function findPrevTextBlockInContent(blockId: string, blocks: Record<string, Block>) {
+export function findPrevTextBlockInContent(blockId: string, blocks: Record<string, Block>, textBlockTypes: string[]) {
   const block = blocks[blockId];
   const content = blocks[block.parent].content;
 

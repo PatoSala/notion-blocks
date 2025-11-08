@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSharedValue, SharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBlocksContext } from "./Blocks/BlocksContext";
+import { useBlocksContext } from "./BlocksContext";
 import { useTextBlocksContext } from "./TextBlocksProvider";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";

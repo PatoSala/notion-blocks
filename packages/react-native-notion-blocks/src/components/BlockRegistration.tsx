@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useRef, RefObject } from "react";
-import { Block, BlockOptionsProps } from "./Block";
+import { Block, BlockOptionsProps, BlockProps } from "./Block";
 
 interface BlockRegistrationProviderProps {
     blockTypes: RefObject<Record<string, React.FunctionComponent>>;
@@ -26,7 +26,10 @@ export function BlockRegistration(props: any) {
     const textBasedBlocksRef = useRef([]);
 
     const register = React.useCallback(({ type, component, options } : { type: string; component: Function; options?: BlockOptionsProps }) => {
-        blocksMapRef.current[type] = component;
+        blocksMapRef.current[type] = {
+            component,
+            options
+        };
         if (options?.isTextBased) {
             textBasedBlocksRef.current = [...textBasedBlocksRef.current, type];
         }
@@ -50,7 +53,7 @@ export function BlockRegistration(props: any) {
     })
 
     const value = React.useMemo(() => ({
-        blocks: blocksMapRef.current,
+        blockTypes: blocksMapRef.current,
         textBasedBlocks: textBasedBlocksRef.current
     }), []);
 

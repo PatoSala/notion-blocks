@@ -2,7 +2,7 @@ import { createContext, useContext, useRef, RefObject } from "react";
 import { StyleSheet, Dimensions } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, SharedValue } from "react-native-reanimated";
 import { useScrollContext } from "./ScrollProvider";
-import { useBlocksContext } from "./Blocks/BlocksContext";
+import { useBlocksContext } from "./BlocksContext";
 import { useBlockRegistrationContext } from "./BlockRegistration";
 
 const { width } = Dimensions.get("window");
@@ -38,7 +38,7 @@ export function useBlocksMeasuresContext() {
 export function BlocksMeasuresProvider({ children }) {
     const blockMeasuresRef = useRef({});
     const indicatorPosition = useSharedValue({ y: 0 });
-    const { blocks: blockTypes } = useBlockRegistrationContext();
+    const { blockTypes } = useBlockRegistrationContext();
     const { movingBlockId, blocks } = useBlocksContext();
 
     const registerBlockMeasure = (blockId: string, measures: { height: number, start: number, end: number }) => {
@@ -81,7 +81,7 @@ export function BlocksMeasuresProvider({ children }) {
     });
 
     const GhostBlock = () => {
-        const Component = blockTypes[blocks[movingBlockId].type];
+        const Component = blockTypes[blocks[movingBlockId].type].component;
         return (
             <Animated.View style={[{
                 opacity: 0.5,

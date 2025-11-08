@@ -5,7 +5,7 @@ import {
 import { Dimensions } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { useBlocksContext } from "./Blocks/BlocksContext";
+import { useBlocksContext } from "./BlocksContext";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useScrollContext } from "./ScrollProvider";
 import { useRef } from "react";

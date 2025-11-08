@@ -1,5 +1,5 @@
 import { Pressable, Text, View, StyleSheet, Dimensions, FlatList, Keyboard } from "react-native";
-import { useBlocksContext } from "../../Blocks/BlocksContext";
+import { useBlocksContext } from "../../BlocksContext";
 import { Block } from "../../../interfaces/Block.interface";
 import { useTextBlocksContext } from "../../TextBlocksProvider";
 import { useBlockRegistrationContext } from "../../BlockRegistration";
@@ -9,7 +9,7 @@ const { width } = Dimensions.get("window");
 export default function InsertBlockSection() {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { blocks, focusedBlockId, insertBlock, removeBlock, rootBlockId } = useBlocksContext();
-    const { blocks: blockTypes, textBasedBlocks } = useBlockRegistrationContext();
+    const { blockTypes, textBasedBlocks } = useBlockRegistrationContext();
     const { setActiveTab, setHidden } = useFooterContext();
 
     const handleInsertBlock = (blockType: string) => {
@@ -72,7 +72,7 @@ export default function InsertBlockSection() {
                         <Pressable style={({ pressed}) => ([{
                             opacity: pressed ? 0.5 : 1
                         }, styles.blockOptions])} onPress={() => handleInsertBlock(item)}>
-                            <Text>{item}</Text>
+                            <Text>{blockTypes[item].options.name}</Text>
                         </Pressable>
                     )
                 }}

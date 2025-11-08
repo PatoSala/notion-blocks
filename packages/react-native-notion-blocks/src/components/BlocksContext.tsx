@@ -1,6 +1,6 @@
 import { createContext, RefObject, useContext, useRef, useState } from "react";
-import { Block } from "../../interfaces/Block.interface";
-import { updateBlock as updateBlockData, insertBlockIdIntoContent, findPrevTextBlockInContent } from "../../core";
+import { Block } from "../interfaces/Block.interface";
+import { updateBlock as updateBlockData, insertBlockIdIntoContent } from "../core";
 
 interface BlocksContext {
     blocks: RefObject<Record<string, Block>>;

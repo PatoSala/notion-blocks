@@ -6,9 +6,10 @@ import { useKeyboardStatus } from "../../hooks/useKeyboardStatus";
 import InsertBlockSection from "./tabs/InsertBlockSection";
 import ReplaceBlockSection from "./tabs/ReplaceBlockSection";
 import { ScrollView } from "react-native-gesture-handler";
-import { useBlocksContext } from "../Blocks/BlocksContext";
+import { useBlocksContext } from "../BlocksContext";
 import { useTextBlocksContext } from "../TextBlocksProvider";
 import { findPrevTextBlockInContent } from "../../core";
+import { useBlockRegistrationContext } from "../BlockRegistration";
 
 interface FooterButtonProps {
     children: React.ReactNode;
@@ -190,9 +191,10 @@ Footer.RemoveBlock = () => {
     const { setHidden, setActiveTab } = useFooterContext();
     const { focusedBlockId, setFocusedBlockId, removeBlock, rootBlockId, blocks } = useBlocksContext();
     const { inputRefs } = useTextBlocksContext();
+    const { textBasedBlocks } = useBlockRegistrationContext(); 
 
     const handleOnPress = () => {
-        const prevTextBlock = findPrevTextBlockInContent(focusedBlockId, blocks);
+        const prevTextBlock = findPrevTextBlockInContent(focusedBlockId, blocks, textBasedBlocks);
         /* setFocusedBlockId(""); */
        /*  setActiveTab("none"); */
         /* setHidden(true); */

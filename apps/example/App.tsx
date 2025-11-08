@@ -1,9 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Text, Image, View, TextInput } from 'react-native';
 import Editor from 'react-native-notion-blocks/src/components/Editor';
-import { sampleData } from 'react-native-notion-blocks/src/utils/sampleData';
-import { largeNoteData } from 'react-native-notion-blocks/src/utils/largeNoteData';
 import { blankNote } from 'react-native-notion-blocks/src/utils/blankNote';
 import { Block } from 'react-native-notion-blocks/src/components/Block';
 import {
@@ -26,7 +23,8 @@ export default function App() {
           type="page"
           component={PageBlock}
           options={{
-            isTextBased: true
+            isTextBased: true,
+            name: "Page"
           }}
         />
 
@@ -34,7 +32,8 @@ export default function App() {
           type="header"
           component={HeaderBlock}
           options={{
-            isTextBased: true
+            isTextBased: true,
+            name: "Header 1"
           }}
         />
 
@@ -42,7 +41,8 @@ export default function App() {
           type="sub_header"
           component={SubHeaderBlock}
           options={{
-            isTextBased: true
+            isTextBased: true,
+            name: "Header 2"
           }}
         />
 
@@ -50,7 +50,8 @@ export default function App() {
           type="sub_sub_header"
           component={SubSubHeaderBlock}
           options={{
-            isTextBased: true
+            isTextBased: true,
+            name: "Header 3"
           }}
         />
 
@@ -58,13 +59,17 @@ export default function App() {
           type="text"
           component={TextBlock}
           options={{
-            isTextBased: true
+            isTextBased: true,
+            name: "Text"
           }}
         />
 
         <Block
           type="image"
           component={ImageBlock}
+          options={{
+            name: "Image"
+          }}
         />
       </Editor>
 

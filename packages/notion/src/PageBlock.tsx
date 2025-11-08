@@ -1,5 +1,5 @@
 import { useTextInput } from "react-native-notion-blocks/src/hooks/useTextInput";
-import { useBlocksContext, useBlock } from "react-native-notion-blocks/src/components/Blocks/BlocksContext";
+import { useBlocksContext, useBlock } from "react-native-notion-blocks/src/components/BlocksContext";
 import { View, TextInput, Text, StyleSheet } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 

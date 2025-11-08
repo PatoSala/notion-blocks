@@ -1,7 +1,7 @@
 import { useRef, useLayoutEffect, useEffect } from "react";
 import { View } from "react-native";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
-import { useBlocksContext } from "./Blocks/BlocksContext";
+import { useBlocksContext } from "./BlocksContext";
 
 /** Measures and registers the height and position of a block */
 export default function LayoutProvider({
