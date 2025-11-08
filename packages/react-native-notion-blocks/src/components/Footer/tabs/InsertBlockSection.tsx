@@ -8,11 +8,13 @@ const { width } = Dimensions.get("window");
 
 export default function InsertBlockSection() {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
-    const { blocks, focusedBlockId, insertBlock, removeBlock, setFocusedBlockId } = useBlocksContext();
+    const { blocks, focusedBlockId, insertBlock, removeBlock, rootBlockId } = useBlocksContext();
     const { blocks: blockTypes, textBasedBlocks } = useBlockRegistrationContext();
     const { setActiveTab, setHidden } = useFooterContext();
 
     const handleInsertBlock = (blockType: string) => {
+        const parentBlockId = focusedBlockId === rootBlockId ? rootBlockId : blocks[focusedBlockId].parent;
+       
         setShowSoftInputOnFocus(true);
         const newBlock = new Block({
             type: blockType,
@@ -20,24 +22,32 @@ export default function InsertBlockSection() {
                 title: ""
             },
             content: [],
-            parent: blocks[focusedBlockId].parent
+            parent: parentBlockId
         });
 
         // note: remember that the root block has no value for parent attribute.
-        insertBlock(newBlock, {
-            prevBlockId: focusedBlockId
-        })
+        if (focusedBlockId === rootBlockId) {
+            insertBlock(newBlock, {
+                nextBlockId: blocks[rootBlockId].content[0]
+            });
+        } else {
+            insertBlock(newBlock, {
+                prevBlockId: focusedBlockId
+            });
+        }
+
+        if (blocks[focusedBlockId].properties.title.length === 0 && focusedBlockId !== rootBlockId) {
+            removeBlock(focusedBlockId);
+        }
 
         // Focus new block
         if (textBasedBlocks.includes(blockType)) {
-            console.log(blockType);
             requestAnimationFrame(() => {
                 inputRefs.current[newBlock.id]?.current.focus();
             });
         } else {
             setActiveTab("none");
             setHidden(true);
-            removeBlock(focusedBlockId);
             Keyboard.dismiss();
         }
     }
@@ -67,34 +77,6 @@ export default function InsertBlockSection() {
                     )
                 }}
             />
-
-            {/* <View style={styles.blockOptionsRow}>
-                <Pressable style={({ pressed}) => ([{
-                    opacity: pressed ? 0.5 : 1
-                }, styles.blockOptions])} onPress={() => handleInsertBlock("text")}>
-                    <Text>Text</Text>
-                </Pressable>
-
-                <Pressable style={({ pressed}) => ([{
-                    opacity: pressed ? 0.5 : 1
-                }, styles.blockOptions])} onPress={() => handleInsertBlock("header")}>
-                    <Text>Heading 1</Text>
-                </Pressable>
-            </View>
-
-            <View style={styles.blockOptionsRow}>
-                <Pressable style={({ pressed}) => ([{
-                    opacity: pressed ? 0.5 : 1
-                }, styles.blockOptions])} onPress={() => handleInsertBlock("sub_header")}>
-                    <Text>Heading 2</Text>
-                </Pressable>
-
-                <Pressable style={({ pressed}) => ([{
-                    opacity: pressed ? 0.5 : 1
-                }, styles.blockOptions])} onPress={() => handleInsertBlock("sub_sub_header")}>
-                    <Text>Heading 3</Text>
-                </Pressable>
-            </View> */}
         </>
     )
 }
