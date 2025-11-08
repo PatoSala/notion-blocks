@@ -1,18 +1,14 @@
 import React, { useContext, createContext, useRef, RefObject } from "react";
-import { CustomBlock, CustomBlockProps } from "./CustomBlock";
-import BlockElement from "./Blocks/Block";
+import { Block, BlockOptionsProps } from "./Block";
 
-const defaultBlockTypes = {
-    /* "text": (props: any) => <BlockElement {...props} />,
-    "page": (props: any) => <BlockElement {...props} />,
-    "header": (props: any) => <BlockElement {...props} />,
-    "sub_header": (props: any) => <BlockElement {...props} />,
-    "sub_sub_header": (props: any) => <BlockElement {...props} />, */
+interface BlockRegistrationProviderProps {
+    blockTypes: RefObject<Record<string, React.FunctionComponent>>;
+    textBasedBlocks: Array<string>;
 }
 
-const BlockRegistrationContext = createContext({});
+const BlockRegistrationContext = createContext<BlockRegistrationProviderProps | {}>({});
 
-export function useBlockRegistrationContext() {
+export function useBlockRegistrationContext() : BlockRegistrationProviderProps | {} {
     const context = useContext(BlockRegistrationContext);
     if (context === null) {
         throw new Error("useBlockRegistrationContext must be used within a BlockRegistrationProvider");
@@ -27,19 +23,23 @@ export function BlockRegistration(props: any) {
     } = props;
 
     const blocksMapRef = useRef({});
+    const textBasedBlocksRef = useRef([]);
 
-    const register = React.useCallback(({ type, component } : { type: string; component: Function; }) => {
+    const register = React.useCallback(({ type, component, options } : { type: string; component: Function; options?: BlockOptionsProps }) => {
         blocksMapRef.current[type] = component;
+        if (options?.isTextBased) {
+            textBasedBlocksRef.current = [...textBasedBlocksRef.current, type];
+        }
     }, []);
 
     const unregister = ({ type }) => {
         delete blocksMapRef.current[type];
     }
 
-    React.Children.forEach(customBlocks, (child: CustomBlockProps) => {
+    React.Children.forEach(customBlocks, (child: BlockProps) => {
         if (React.isValidElement(child)) {
             // Here it should be compared against a BlockConstructor component or sth like that
-            if (child.type === CustomBlock) {
+            if (child.type === Block) {
                 // Register block type
                 register(child.props);
 
@@ -50,7 +50,8 @@ export function BlockRegistration(props: any) {
     })
 
     const value = React.useMemo(() => ({
-        blocks: blocksMapRef.current
+        blocks: blocksMapRef.current,
+        textBasedBlocks: textBasedBlocksRef.current
     }), []);
 
     return (

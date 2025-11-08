@@ -5,7 +5,7 @@ import Editor from 'react-native-notion-blocks/src/components/Editor';
 import { sampleData } from 'react-native-notion-blocks/src/utils/sampleData';
 import { largeNoteData } from 'react-native-notion-blocks/src/utils/largeNoteData';
 import { blankNote } from 'react-native-notion-blocks/src/utils/blankNote';
-import { CustomBlock } from 'react-native-notion-blocks/src/components/CustomBlock';
+import { Block } from 'react-native-notion-blocks/src/components/Block';
 import {
   HeaderBlock,
   PageBlock,
@@ -22,32 +22,47 @@ export default function App() {
         defaultBlocks={blankNote}
         rootBlockId="1"
       >
-        <CustomBlock
+        <Block
           type="page"
           component={PageBlock}
+          options={{
+            isTextBased: true
+          }}
         />
 
-        <CustomBlock
+        <Block
           type="header"
           component={HeaderBlock}
+          options={{
+            isTextBased: true
+          }}
         />
 
-        <CustomBlock
+        <Block
           type="sub_header"
           component={SubHeaderBlock}
+          options={{
+            isTextBased: true
+          }}
         />
 
-        <CustomBlock
+        <Block
           type="sub_sub_header"
           component={SubSubHeaderBlock}
+          options={{
+            isTextBased: true
+          }}
         />
 
-        <CustomBlock
+        <Block
           type="text"
           component={TextBlock}
+          options={{
+            isTextBased: true
+          }}
         />
 
-        <CustomBlock
+        <Block
           type="image"
           component={ImageBlock}
         />

@@ -1,15 +1,17 @@
-import { Pressable, Text, View, StyleSheet, Dimensions } from "react-native";
-import { useFooterContext } from "../Footer";
+import { Pressable, Text, View, StyleSheet, Dimensions, FlatList } from "react-native";
 import { useTextBlocksContext } from "../../TextBlocksProvider";
 import { useBlocksContext } from "../../Blocks/BlocksContext";
+import { useBlockRegistrationContext } from "../../BlockRegistration";
 
 const { width } = Dimensions.get("window");
 
 export default function ReplaceBlockSection() {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { blocks, focusedBlockId, setFocusedBlockId, turnBlockInto } = useBlocksContext();
-    const handleTurnBlockInto = (blockId: string, blockType: string) => {
-        const updatedBlock = turnBlockInto(blockId, blockType);
+    const { textBasedBlocks } = useBlockRegistrationContext();
+
+    const handleTurnBlockInto = (blockType: string) => {
+        const updatedBlock = turnBlockInto(focusedBlockId, blockType);
         /* setFocusedBlockId(updatedBlock.id); */
         // Focus new block
         requestAnimationFrame(() => {
@@ -23,7 +25,27 @@ export default function ReplaceBlockSection() {
                 <Text>Turn into</Text>
             </View>
 
-            <View style={styles.blockOptionsRow}>
+            <FlatList
+                data={textBasedBlocks}
+                numColumns={2}
+                columnWrapperStyle={{
+                    justifyContent: "space-between"
+                }}
+                contentContainerStyle={{
+                    gap: 10
+                }}
+                renderItem={({ item }) => {
+                    return (
+                        <Pressable style={({ pressed}) => ([{
+                            opacity: pressed ? 0.5 : 1
+                        }, styles.blockOptions])} onPress={() => handleTurnBlockInto(item)}>
+                            <Text>{item}</Text>
+                        </Pressable>
+                    )
+                }}
+            />
+
+            {/* <View style={styles.blockOptionsRow}>
                 <Pressable style={({ pressed}) => ([{
                     opacity: pressed ? 0.5 : 1
                 }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "text")}>
@@ -49,7 +71,7 @@ export default function ReplaceBlockSection() {
                 }, styles.blockOptions])} onPress={() => handleTurnBlockInto(focusedBlockId, "sub_sub_header")}>
                     <Text>Heading 3</Text>
                 </Pressable>
-            </View>
+            </View> */}
         </>
     )
 }

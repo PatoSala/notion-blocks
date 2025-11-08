@@ -11,6 +11,7 @@ import {
 } from "../core/updateBlock";
 import { useScrollContext } from "../components/ScrollProvider";
 import { useBlocksMeasuresContext } from "../components/BlocksMeasuresProvider";
+import { useBlockRegistrationContext } from "../components/BlockRegistration";
 
 export function useTextInput(blockId: string) {
     const {
@@ -38,7 +39,6 @@ export function useTextInput(blockId: string) {
     const inputRef = React.useRef<TextInput>(null);
     const selectionRef = React.useRef({ start: title.length, end: title.length });
     const valueRef = React.useRef(title);
-    const height = useSharedValue(0);
     const isFocused = focusedBlockId === blockId;
     const isEditable = isScrolling === false && isDragging.value === false
         ? true
@@ -76,10 +76,6 @@ export function useTextInput(blockId: string) {
             }
         }
     };
-
-    /* const handleContentSizeChange = (event: { nativeEvent: { contentSize: { height: number; }; }; }) => {
-        height.value = event.nativeEvent.contentSize.height;
-    } */
 
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
@@ -132,7 +128,6 @@ export function useTextInput(blockId: string) {
                 end: textAfterMerge.length - sourceBlock.properties.title.length
             });
             inputRefs.current[sourceBlock.id]?.current.setText("");
-            
 
             const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlockId);
         }
@@ -193,7 +188,6 @@ export function useTextInput(blockId: string) {
             /** Prevents the text input being accidentally focused when scrolling/moving a block. */
             editable: isEditable,
 
-            /* onContentSizeChange: handleContentSizeChange, */
             onSelectionChange: handleSelectionChange,
             showSoftInputOnFocus: showSoftInputOnFocus,
             onChangeText: handleChangeText,

@@ -13,8 +13,6 @@ export default function InsertBlockSection() {
     const { blocks, focusedBlockId, insertBlock } = useBlocksContext();
     const { blocks: blockTypes } = useBlockRegistrationContext();
 
-    console.log(blockTypes);
-
     const handleInsertBlock = (blockType: string) => {
         setShowSoftInputOnFocus(true);
         const newBlock = new Block({
