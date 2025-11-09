@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "main": "index.ts",
   "peerDependencies": {
+    "@react-native-blocks/core": "file:../core",
     "react": "19.1.0",
-    "react-native": "0.81.4",
-    "@react-native-blocks/core": "file:../core"
+    "react-native": "0.81.4"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "metro-react-native-babel-preset": "^0.77.0",
     "typescript": "~5.9.2"
   },
   "dependencies": {

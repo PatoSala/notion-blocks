@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "metro-react-native-babel-preset": "^0.77.0",
     "typescript": "~5.9.2"
   }
 }
