@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "index.ts",
   "peerDependencies": {
-    "@react-native-blocks/core": "file:../core",
+    "@react-native-blocks/core": "workspace:*",
     "react": "19.1.0",
     "react-native": "0.81.4"
   },
