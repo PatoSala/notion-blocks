@@ -7,7 +7,7 @@ import { Block } from "../interfaces/Block.interface";
  */
 
 // Temporary: Must find a dynic way to find out this types in case a custom text based block is also added.
-export function updateBlock(block: Block, updatedData: Partial<Block>) {
+export function updateBlockData(block: Block, updatedData: Partial<Block>) {
     const updatedBlock = { ...block, ...updatedData };
     return updatedBlock;
 }

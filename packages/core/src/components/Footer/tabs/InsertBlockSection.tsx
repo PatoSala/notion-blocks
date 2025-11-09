@@ -3,14 +3,12 @@ import { useBlocksContext } from "../../BlocksContext";
 import { Block } from "../../../interfaces/Block.interface";
 import { useTextBlocksContext } from "../../TextBlocksProvider";
 import { useBlockRegistrationContext } from "../../BlockRegistration";
-import { useFooterContext } from "../Footer";
 const { width } = Dimensions.get("window");
 
-export default function InsertBlockSection() {
+export default function InsertBlockSection({ setActiveTab, setHidden } : any) {
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
     const { blocks, focusedBlockId, insertBlock, removeBlock, rootBlockId } = useBlocksContext();
     const { blockTypes, textBasedBlocks } = useBlockRegistrationContext();
-    const { setActiveTab, setHidden } = useFooterContext();
 
     const handleInsertBlock = (blockType: string) => {
         const parentBlockId = focusedBlockId === rootBlockId ? rootBlockId : blocks[focusedBlockId].parent;

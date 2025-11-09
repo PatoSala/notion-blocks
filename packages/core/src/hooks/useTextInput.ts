@@ -3,7 +3,7 @@ import { TextInput, TextInputProps } from "react-native";
 import { useBlocksContext, useBlock } from "../components/BlocksContext";
 import { useTextBlocksContext } from "../components/TextBlocksProvider";
 import {
-    updateBlock as updateBlockData,
+    updateBlockData,
     findPrevTextBlockInContent,
     getPreviousBlockInContent
 } from "../core/updateBlock";

@@ -112,7 +112,7 @@ export default function Footer({
                 {/* Needs revision. The ideal would be this to happen on the Editor component */}
                 <View style={{ paddingHorizontal: 4 }}>
                     {activeTab === "keyboard"
-                    ? <Footer.DismissKeyboard />
+                    ? <Footer.DismissKeyboard/>
                     : <Footer.OpenKeyboard/>}
                 </View>
             </View>
@@ -120,8 +120,14 @@ export default function Footer({
 
             {activeTab && (
                 <View style={[styles.tabSectionContainer, { height: keyboardHeight }]}>
-                    {activeTab === "add-block" ? <InsertBlockSection /> : null}
-                    {activeTab === "turn-block-into" ? <ReplaceBlockSection/> : null}
+                    {activeTab === "add-block"
+                        ? <InsertBlockSection 
+                            setActiveTab={setActiveTab}
+                            setHidden={setHidden}/>
+                        : null}
+                    {activeTab === "turn-block-into"
+                        ? <ReplaceBlockSection/>
+                        : null}
                 </View>
             )}
         </View>
