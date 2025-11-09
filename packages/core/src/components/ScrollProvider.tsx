@@ -1,11 +1,6 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSharedValue, SharedValue } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBlocksContext } from "./BlocksContext";
-import { useTextBlocksContext } from "./TextBlocksProvider";
-import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
-import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 
 interface ScrollContextProps {
     scrollY: SharedValue<number>;
@@ -17,12 +12,7 @@ const ScrollContext = createContext({});
 
 export const useScrollContext = () => useContext(ScrollContext);
 
-export function ScrollProvider({ children }) {
-    const { blockMeasuresRef } = useBlocksMeasuresContext();
-    const { focusedBlockId } = useBlocksContext();
-    const { inputRefs } = useTextBlocksContext();
-    const { keyboardHeight } = useKeyboardStatus();
-    const insets = useSafeAreaInsets();
+export function ScrollProvider({ children, contentContainerStyle }) {
     const scrollViewRef = useRef<ScrollView>(null);
     
     const [isScrolling, setIsScrolling] = useState(false);
@@ -84,8 +74,9 @@ export function ScrollProvider({ children }) {
                 /* style={{ flex: 1 }} */
                 contentContainerStyle={{
                     flexGrow: 1,
-                    paddingTop: insets.top,
+                    /* paddingTop: insets.top, */
                     paddingHorizontal: 8,
+                    ...contentContainerStyle
                 }}
                 keyboardShouldPersistTaps="always"
                 automaticallyAdjustKeyboardInsets

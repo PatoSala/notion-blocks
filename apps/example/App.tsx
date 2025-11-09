@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Editor, Block } from '@react-native-blocks/core';
+import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   HeaderBlock,
   PageBlock,
@@ -23,12 +23,14 @@ const blankNote = {
 }
 
 export default function App() {
-
   return (
     <SafeAreaProvider>
       <Editor
         defaultBlocks={blankNote}
         rootBlockId="1"
+        contentContainerStyle={{
+          paddingTop: 70
+        }}
       >
         <Block
           type="page"

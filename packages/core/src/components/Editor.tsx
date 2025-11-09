@@ -1,13 +1,8 @@
-import React, { useRef, useState, useCallback, useEffect, useMemo } from "react";
-import { GestureHandlerRootView, GestureUpdateEvent } from "react-native-gesture-handler";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
+import React from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
     Pressable,
-    View,
-    Dimensions
+    View
 } from "react-native";
 import { Block  } from "../interfaces/Block.interface";
 import DragProvider from "./DragProvider";
@@ -96,7 +91,8 @@ function NoteScreen({
 export function Editor({
     defaultBlocks,
     rootBlockId,
-    children
+    children,
+    contentContainerStyle
 }) {
     return (
         <BlockRegistration customBlocks={children}>
@@ -104,7 +100,7 @@ export function Editor({
                 <TextBlocksProvider>
                     <GestureHandlerRootView>
                         <BlocksMeasuresProvider>
-                            <ScrollProvider>
+                            <ScrollProvider contentContainerStyle={contentContainerStyle}>
                                 <NoteScreen rootBlockId={rootBlockId} />
                             </ScrollProvider>
                         </BlocksMeasuresProvider>
