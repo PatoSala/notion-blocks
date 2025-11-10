@@ -87,15 +87,26 @@ function NoteScreen({
     )
 }
 
-
+/**
+ * @param props.defaultBlocks
+ * @param props.customBlocks
+ * @param props.defaultBlockType The block type to be used as output of some actions, for example splitting a block.
+ * @param props.children
+ */
 export function Editor({
     defaultBlocks,
     rootBlockId,
     children,
+    defaultBlockType,
     contentContainerStyle
 }) {
+
+    if (defaultBlockType === undefined) throw new Error("defaultBlockType is required");
+    if (rootBlockId === undefined) throw new Error("rootBlockId is required");
+    if (children === undefined) throw new Error("children is required");
+
     return (
-        <BlockRegistration customBlocks={children}>
+        <BlockRegistration customBlocks={children} defaultBlockType={defaultBlockType}>
             <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
                 <TextBlocksProvider>
                     <GestureHandlerRootView>

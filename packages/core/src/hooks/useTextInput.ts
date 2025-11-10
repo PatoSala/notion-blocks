@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { TextInput, TextInputProps } from "react-native";
 import { useBlocksContext, useBlock } from "../components/BlocksContext";
 import { useTextBlocksContext } from "../components/TextBlocksProvider";
+import { scheduleOnUI } from "react-native-worklets";
 import {
     updateBlockData,
     findPrevTextBlockInContent,
@@ -31,7 +32,7 @@ export function useTextInput(blockId: string) {
     } = useTextBlocksContext();
     const { isScrolling } = useScrollContext();
     const { isDragging } = useBlocksMeasuresContext();
-    const { textBasedBlocks } = useBlockRegistrationContext();
+    const { textBasedBlocks, defaultBlockType } = useBlockRegistrationContext();
 
     const block = useMemo(() => blocks[blockId], [blockId]);
     const title = block.properties.title;
@@ -82,6 +83,7 @@ export function useTextInput(blockId: string) {
 
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
+        console.log(selectionRef.current);
     }
 
     function handleOnBlur() {
@@ -118,21 +120,21 @@ export function useTextInput(blockId: string) {
          * 
          * Else, merge the current block with the previous block.
          */
-        if (blocks[targetBlockId].properties.title.length === 0 && targetBlockId !== sourceBlock.parent && prevBlock.type === "text") {
+        if (blocks[targetBlockId].properties.title.length === 0 && targetBlockId !== sourceBlock.parent && prevBlock.type === defaultBlockType) {
             requestAnimationFrame(() => {
                 removeBlock(targetBlockId);
             });
         } else {
-            const textAfterMerge = blocks[targetBlockId].properties.title + sourceBlock.properties.title;
-
-            inputRefs.current[targetBlockId]?.current.setText(textAfterMerge);
-            inputRefs.current[targetBlockId]?.current.focusWithSelection({
-                start: textAfterMerge.length - sourceBlock.properties.title.length,
-                end: textAfterMerge.length - sourceBlock.properties.title.length
-            });
-            inputRefs.current[sourceBlock.id]?.current.setText("");
+            /* inputRefs.current["ghostInput"]?.current.focus(); */
 
             const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlockId);
+
+            inputRefs.current[mergeResult.id]?.current.setText(mergeResult.properties.title);
+            inputRefs.current[mergeResult.id]?.current.setSelection({
+                start: mergeResult.properties.title.length - sourceBlock.properties.title.length,
+                end: mergeResult.properties.title.length - sourceBlock.properties.title.length
+            });
+            inputRefs.current[mergeResult.id]?.current.focus();
         }
         
         return;
@@ -151,25 +153,28 @@ export function useTextInput(blockId: string) {
         const selection = selectionRef.current;
         const textAfterSelection = block.properties.title.substring(selection.end);
 
-        if (block.type !== "text") {
+        /**
+         * When splitting a block into another block type, the current block must rerender to change to the corresponding block component.
+         * That rerender can make the keyboard flicker, so to prevent that we need to focus the ghost input and after the render, focus the block again.
+         *  */
+        if (block.type !== defaultBlockType && block.id !== rootBlockId) {
             inputRefs.current["ghostInput"]?.current.focus();
         }
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
-        /* inputRefs.current[nextBlock.id]?.current.setSelection({
+        
+        console.log("nextBlock", nextBlock);
+
+        if (prevBlock.id === rootBlockId) {
+            inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
+        }
+        inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
+        inputRefs.current[nextBlock.id]?.current.setSelection({
             start: 0,
             end: 0
-        }); */
-        requestAnimationFrame(() => {
-            if (prevBlock.id === rootBlockId) {
-                inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
-            }
-            inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
-            inputRefs.current[nextBlock.id]?.current.focusWithSelection({
-                start: 0,
-                end: 0
-            })
         });
+        inputRefs.current[nextBlock.id]?.current.focus();
+        
         return;
     };
 

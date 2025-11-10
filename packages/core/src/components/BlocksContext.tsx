@@ -1,6 +1,7 @@
 import { createContext, RefObject, useContext, useRef, useState } from "react";
 import { Block } from "../interfaces/Block.interface";
 import { updateBlockData, insertBlockIdIntoContent } from "../core";
+import { useBlockRegistrationContext } from "./BlockRegistration";
 
 interface BlocksContext {
     blocks: RefObject<Record<string, Block>>;
@@ -54,6 +55,7 @@ function useBlock(blockId: string) : Block {
 
 function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const blocksRef = useRef(defaultBlocks);
+    const { defaultBlockType } = useBlockRegistrationContext();
     const [blocksOrder, setBlocksOrder] = useState<string[]>([rootBlockId, ...blocksRef.current[rootBlockId].content]);
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
@@ -99,7 +101,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         if (block.id === rootBlockId) {
             const newBlockText = textAfterSelection;
             const newBlock = new Block({
-                type: "text",
+                type: defaultBlockType,
                 properties: {
                     title: newBlockText
                 },
@@ -128,14 +130,14 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             };
         } else {
             const updatedBlock = updateBlockData(block, {
-                type: selection.start === 0 && selection.end === 0 ? block.type : "text",
+                type: selection.start === 0 && selection.end === 0 ? block.type : defaultBlockType,
                 properties: {
                     title: textAfterSelection
                 }
             });
             // Will be inserted before the source block, pushing the source block down
             const newBlock = new Block({
-                type: selection.start === 0 && selection.end === 0 ? "text" : block.type,
+                type: selection.start === 0 && selection.end === 0 ? defaultBlockType : block.type,
                 properties: {
                     title: textBeforeSelection
                 },

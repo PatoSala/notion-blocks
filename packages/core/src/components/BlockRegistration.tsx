@@ -4,6 +4,7 @@ import { Block, BlockOptionsProps, BlockProps } from "./Block";
 interface BlockRegistrationProviderProps {
     blockTypes: RefObject<Record<string, React.FunctionComponent>>;
     textBasedBlocks: Array<string>;
+    dfaultBlockType: string
 }
 
 const BlockRegistrationContext = createContext<BlockRegistrationProviderProps | {}>({});
@@ -19,11 +20,13 @@ export function useBlockRegistrationContext() : BlockRegistrationProviderProps |
 export function BlockRegistration(props: any) {
     const {
         customBlocks,
+        defaultBlockType,
         children
     } = props;
 
     const blocksMapRef = useRef({});
     const textBasedBlocksRef = useRef([]);
+    const defaultBlockTypeRef = useRef(defaultBlockType);
 
     const register = React.useCallback(({ type, component, options } : { type: string; component: Function; options?: BlockOptionsProps }) => {
         blocksMapRef.current[type] = {
@@ -54,7 +57,8 @@ export function BlockRegistration(props: any) {
 
     const value = React.useMemo(() => ({
         blockTypes: blocksMapRef.current,
-        textBasedBlocks: textBasedBlocksRef.current
+        textBasedBlocks: textBasedBlocksRef.current,
+        defaultBlockType: defaultBlockTypeRef.current
     }), []);
 
     return (
