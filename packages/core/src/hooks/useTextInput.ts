@@ -61,6 +61,7 @@ export function useTextInput(blockId: string) {
             },
             setSelection: (selection: { start: number; end: number }) => {
                 inputRef.current?.setSelection(selection.start, selection.end);
+                selectionRef.current = selection;
             },
             focusWithSelection: (selection: { start: number; end: number }, text?: string) => {
                 /** Find a better way to sync value on block update */
@@ -125,8 +126,6 @@ export function useTextInput(blockId: string) {
                 removeBlock(targetBlockId);
             });
         } else {
-            /* inputRefs.current["ghostInput"]?.current.focus(); */
-
             const { prevTitle, newTitle, mergeResult } = mergeBlock(block, targetBlockId);
 
             inputRefs.current[mergeResult.id]?.current.setText(mergeResult.properties.title);
@@ -151,7 +150,6 @@ export function useTextInput(blockId: string) {
             }
         );
         const selection = selectionRef.current;
-        const textAfterSelection = block.properties.title.substring(selection.end);
 
         /**
          * When splitting a block into another block type, the current block must rerender to change to the corresponding block component.
@@ -162,18 +160,30 @@ export function useTextInput(blockId: string) {
         }
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
-        
-        console.log("nextBlock", nextBlock);
 
         if (prevBlock.id === rootBlockId) {
-            inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
+            // Since in this scenario a new block is created, we focus after animation.
+            requestAnimationFrame(() => {
+                inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
+
+                inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
+                inputRefs.current[nextBlock.id]?.current.focus();
+                inputRefs.current[nextBlock.id]?.current.setSelection({
+                    start: 0,
+                    end: 0
+                });
+            });
+
+        } else {
+            requestAnimationFrame(() => {
+                inputRefs.current[nextBlock.id].current.setText(nextBlock.properties.title);
+                inputRefs.current[nextBlock.id]?.current.setSelection({
+                    start: 0,
+                    end: 0
+                });
+                inputRefs.current[nextBlock.id]?.current.focus();
+            })
         }
-        inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
-        inputRefs.current[nextBlock.id]?.current.setSelection({
-            start: 0,
-            end: 0
-        });
-        inputRefs.current[nextBlock.id]?.current.focus();
         
         return;
     };
