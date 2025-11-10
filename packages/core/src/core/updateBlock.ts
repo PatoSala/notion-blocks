@@ -12,7 +12,11 @@ export function updateBlockData(block: Block, updatedData: Partial<Block>) {
     return updatedBlock;
 }
 
-/** Inserts a new block ID into the content array. If no prevBlockId or nextBlockId is provided, it will be appended to the end. */
+/** 
+ * Inserts a new block ID into the given contentArray.
+ * If no prevBlockId or nextBlockId is provided, it will be appended to the end.
+ * @returns Updated contentArray (same reference as the original)
+ * */
 export function insertBlockIdIntoContent(
   contentArray: string[],
   newBlockId: string,

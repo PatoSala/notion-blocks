@@ -149,17 +149,21 @@ export function useTextInput(blockId: string) {
             }
         );
         const selection = selectionRef.current;
-        
+        const textAfterSelection = block.properties.title.substring(selection.end);
+
         if (block.type !== "text") {
             inputRefs.current["ghostInput"]?.current.focus();
         }
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
-        inputRefs.current[nextBlock.id]?.current.setSelection({
+        /* inputRefs.current[nextBlock.id]?.current.setSelection({
             start: 0,
             end: 0
-        });
+        }); */
         requestAnimationFrame(() => {
+            if (prevBlock.id === rootBlockId) {
+                inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
+            }
             inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
             inputRefs.current[nextBlock.id]?.current.focusWithSelection({
                 start: 0,

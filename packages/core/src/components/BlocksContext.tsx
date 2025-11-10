@@ -117,7 +117,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
 
             blocksRef.current[newBlock.id] = newBlock;
             blocksRef.current[updatedParentBlock.id] = updatedParentBlock;
-            setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]);
+            /* setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]); */
+            setBlocksOrder(prevState => [...insertBlockIdIntoContent(prevState, newBlock.id, {
+                nextBlockId: prevState[1]
+            })]);
             
             return {
                 prevBlock: updatedParentBlock,
@@ -148,7 +151,10 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
             blocksRef.current[updatedBlock.id] = updatedBlock;
             blocksRef.current[newBlock.id] = newBlock;
 
-            setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]);
+            /* setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]); */
+            setBlocksOrder(prevState => [...insertBlockIdIntoContent(prevState, newBlock.id, {
+                nextBlockId: block.id
+            })])
             
             return {
                 prevBlock: newBlock,
