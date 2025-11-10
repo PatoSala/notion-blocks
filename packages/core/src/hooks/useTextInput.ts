@@ -55,13 +55,17 @@ export function useTextInput(blockId: string) {
             focus: () => {
                 inputRef.current?.focus();
             },
+            blur: () => {
+                inputRef.current?.blur();
+            },
+            setSelection: (selection: { start: number; end: number }) => {
+                inputRef.current?.setSelection(selection.start, selection.end);
+            },
             focusWithSelection: (selection: { start: number; end: number }, text?: string) => {
                 /** Find a better way to sync value on block update */
                 if (text !== undefined) {
-                    requestAnimationFrame(() => {
-                        inputRef.current?.setNativeProps({ text });
-                        valueRef.current = text;
-                    })
+                    inputRef.current?.setNativeProps({ text });
+                    /* valueRef.current = text; */
                 }
 
                 inputRef.current?.setSelection(selection.start, selection.end); // Sync native input with selection state
@@ -145,21 +149,22 @@ export function useTextInput(blockId: string) {
             }
         );
         const selection = selectionRef.current;
-        const textBeforeSelection = block.properties.title.substring(0, selection.start);
-        const textAfterSelection = block.properties.title.substring(selection.end);
-
-        inputRefs.current["ghostInput"]?.current.focus();
+        
+        if (block.type !== "text") {
+            inputRefs.current["ghostInput"]?.current.focus();
+        }
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
-
+        inputRefs.current[nextBlock.id]?.current.setSelection({
+            start: 0,
+            end: 0
+        });
         requestAnimationFrame(() => {
-            inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
-            inputRefs.current[nextBlock.id]?.current.setText(textAfterSelection);
-
+            inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
             inputRefs.current[nextBlock.id]?.current.focusWithSelection({
                 start: 0,
                 end: 0
-            });
+            })
         });
         return;
     };
