@@ -1,6 +1,6 @@
 {
   "name": "@react-native-blocks/core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "index.ts",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
