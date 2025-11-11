@@ -84,7 +84,6 @@ export function useTextInput(blockId: string) {
 
     function handleSelectionChange(event: { nativeEvent: { selection: { start: number; end: number; }; }; }) {
         selectionRef.current = event.nativeEvent.selection;
-        console.log(selectionRef.current);
     }
 
     function handleOnBlur() {
@@ -152,6 +151,7 @@ export function useTextInput(blockId: string) {
         const selection = selectionRef.current;
 
         /**
+         * This is a hack.
          * When splitting a block into another block type, the current block must rerender to change to the corresponding block component.
          * That rerender can make the keyboard flicker, so to prevent that we need to focus the ghost input and after the render, focus the block again.
          *  */
@@ -229,6 +229,15 @@ export function useTextInput(blockId: string) {
     React.useEffect(() => {
         if (inputRef.current) {
             registerRef(blockId, api);
+
+            /** 
+             * PATCH: Know issue on latest react-native version.
+             * [#52854](https://github.com/facebook/react-native/issues/52854)
+             */
+            if (title.length === 0) {
+                inputRef.current.setNativeProps({ text: " " });
+                inputRef.current.setNativeProps({ text: "" });
+            }
         }
         /** Needs review:
          * The below code was commented because some input refs where
