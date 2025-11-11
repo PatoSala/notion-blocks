@@ -1,6 +1,6 @@
 {
   "name": "@react-native-blocks/blocks",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "main": "index.ts",
   "peerDependencies": {
     "react": "19.1.0",
