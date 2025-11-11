@@ -9,8 +9,12 @@ export function TextBlock({ blockId } : Props) {
     return (
         <View style={styles.container}>
             <TextInput
+                lineBreakStrategyIOS="hangul-word"
                 style={[styles.text]}
                 {...getTextInputProps()}
+                onContentSizeChange={({ nativeEvent: {contentSize: {width, height} }}) => {
+                    console.log(width, height);
+                }}
             />
         </View>
     )
@@ -18,45 +22,12 @@ export function TextBlock({ blockId } : Props) {
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 8
-    },
-    page: {
-        fontSize: 30,
-        fontWeight: "bold",
-        lineHeight: 36,
-        marginTop: 36,
-        marginBottom: 4,
-        flexWrap: "wrap"
+        paddingHorizontal: 8,
     },
     text: {
         fontSize: 16,
         fontWeight: "normal",
         paddingVertical: 6,
-        lineHeight: 24,
-        flexWrap: "wrap"
-    },
-    header: {
-        fontWeight: "bold",
-        fontSize: 28,
-        marginTop: 32,
-        marginBottom: 8,
-        lineHeight: 34,
-        flexWrap: "wrap"
-    },
-    sub_header: {
-        fontWeight: "bold",
-        fontSize: 22,
-        marginTop: 24,
-        marginBottom: 4,
-        lineHeight: 30,
-        flexWrap: "wrap"
-    },
-    sub_sub_header: {
-        fontWeight: "bold",
-        fontSize: 18,
-        marginTop: 20,
-        marginBottom: 4,
-        lineHeight: 26,
-        flexWrap: "wrap"
+        lineHeight: 24
     }
 });
