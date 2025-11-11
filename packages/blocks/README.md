@@ -13,7 +13,7 @@ npm install @react-native-blocks/blocks
 ```
 
 ## Usage
-```
+```js
 import { StatusBar } from 'expo-status-bar';
 import { Editor, Block } from '@react-native-blocks/core';
 import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -107,4 +107,4 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
-``
+```
