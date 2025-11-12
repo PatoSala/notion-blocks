@@ -1,5 +1,6 @@
 {
   "name": "@react-native-blocks/core",
+  "description": "A base library for React Native Blocks providing required core functionalities.",
   "version": "0.1.7",
   "main": "index.ts",
   "dependencies": {
