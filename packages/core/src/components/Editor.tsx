@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { Block  } from "../interfaces/Block.interface";
 import DragProvider from "./DragProvider";
-import LayoutProvider from "./LayoutProvider";
+import { LayoutProvider } from "./LayoutProvider";
 import Footer from "./Footer/Footer";
 import { useKeyboardStatus } from "../hooks/useKeyboardStatus";
 import { BlocksProvider, useBlocksContext, useBlock } from "./BlocksContext";

@@ -97,6 +97,7 @@ export function useTextInput(blockId: string) {
             });
             updateBlock(updatedBlock);
         }
+        /* remasureBlockLayout(blockId) */
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }) {

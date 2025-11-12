@@ -1,20 +1,20 @@
-import { useRef, useLayoutEffect, useEffect } from "react";
+import { useRef, useLayoutEffect, useContext, createContext, useEffect } from "react";
 import { View } from "react-native";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useBlocksContext } from "./BlocksContext";
 
 /** Measures and registers the height and position of a block */
-export default function LayoutProvider({
+export function LayoutProvider({
     children,
     blockId
 }) {
     const { blocksOrder, rootBlockId } = useBlocksContext();
     const { registerBlockMeasure, removeBlockMeasure } = useBlocksMeasuresContext();
-    const ref = useRef<View>(null);
+    const viewRef = useRef<View>(null);
 
-    useLayoutEffect(() => {
+    const handleOnLayout = () => {
         if (blockId !== rootBlockId) {
-            ref.current?.measure((x, y, width, height) => {
+            viewRef.current?.measure((x, y, width, height) => {
                 registerBlockMeasure(blockId, {
                     blockId: blockId,
                     height: height,
@@ -23,14 +23,16 @@ export default function LayoutProvider({
                 });
             });
         }
+    }
 
+    useEffect(() => {
         return () => {
             removeBlockMeasure(blockId);
         }
     }, [blocksOrder]);
 
     return (
-        <View ref={ref}>
+        <View ref={viewRef} onLayout={handleOnLayout}>
             {children}
         </View>
     );
