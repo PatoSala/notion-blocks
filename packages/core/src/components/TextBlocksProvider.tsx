@@ -18,6 +18,10 @@ const TextBlocksProvider = ({ children }) => {
         delete inputRefs.current[blockId];
     };
 
+    const handleGhostInputOnLayout = () => {
+        registerRef("ghostInput", ghostInputRef);
+    }
+
     const value = {
         inputRefs,
         showSoftInputOnFocus,
@@ -31,7 +35,8 @@ const TextBlocksProvider = ({ children }) => {
             {children}
             <TextInput
                 ref={ghostInputRef}
-                onLayout={() => registerRef("ghostInput", ghostInputRef)}
+                onLayout={handleGhostInputOnLayout}
+                caretHidden
                 style={{
                     position: "absolute",
                     opacity: 0

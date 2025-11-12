@@ -156,11 +156,19 @@ export function useTextInput(blockId: string) {
          * When splitting a block into another block type, the current block must rerender to change to the corresponding block component.
          * That rerender can make the keyboard flicker, so to prevent that we need to focus the ghost input and after the render, focus the block again.
          *  */
-        if (block.type !== defaultBlockType && block.id !== rootBlockId) {
+
+        if (block.type !== defaultBlockType) {
+            console.log("Focus ghost input");
             inputRefs.current["ghostInput"]?.current.focus();
         }
 
-        const { prevBlock, nextBlock } = splitBlock(block, selection);
+        /**
+         * The timeout is bearly noticeable, but it is needed to prevent the keyboard from flickering.
+         * It gives times for the ghost input to be focused before rerendering any block, preventing
+         * keyboard flickering.
+         */
+        setTimeout(() => {
+            const { prevBlock, nextBlock } = splitBlock(block, selection);
 
         if (prevBlock.id === rootBlockId) {
             // Since in this scenario a new block is created, we focus after animation.
@@ -185,6 +193,7 @@ export function useTextInput(blockId: string) {
                 inputRefs.current[nextBlock.id]?.current.focus();
             })
         }
+        }, 0);
         
         return;
     };

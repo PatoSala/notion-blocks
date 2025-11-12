@@ -66,6 +66,7 @@ export function BlocksMeasuresProvider({ children }) {
     )
 
     // Ghost block
+    /** NOTE: It might be better to separate this into its own provider. */
     const isDragging = useSharedValue(false);
     const offset = useSharedValue({ x: 0, y: 0 });
 
@@ -80,6 +81,11 @@ export function BlocksMeasuresProvider({ children }) {
         };
     });
 
+    /** 
+     * NOTE: Ghost block only needs to look like the block that is being dragged,
+     * but right now its mounting the whole component with all its logic, which is not necessary.
+     * I'll leave it like this because its working, but it can be refactored in the future.
+     */
     const GhostBlock = () => {
         const Component = blockTypes[blocks[movingBlockId].type].component;
         return (

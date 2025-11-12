@@ -97,7 +97,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
-        // Look for a way to manage all blocks the same
+        // TODO: Look for a way to manage all blocks the same way
         if (block.id === rootBlockId) {
             const newBlockText = textAfterSelection;
             const newBlock = new Block({
