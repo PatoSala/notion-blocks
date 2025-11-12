@@ -1,11 +1,12 @@
 {
   "name": "@react-native-blocks/blocks",
+  "description": "A block based text editor built for React Native. Inspired by the data model behind Notion’s flexibility.",
   "version": "0.1.7",
   "main": "index.ts",
   "peerDependencies": {
+    "@react-native-blocks/core": "^0.1.3",
     "react": "19.1.0",
-    "react-native": "~0.81.4",
-    "@react-native-blocks/core": "^0.1.3"
+    "react-native": "~0.81.4"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
