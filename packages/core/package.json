@@ -1,7 +1,7 @@
 {
   "name": "@react-native-blocks/core",
   "description": "A base library for React Native Blocks providing required core functionalities.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "main": "index.ts",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
