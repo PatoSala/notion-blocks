@@ -1,7 +1,19 @@
 {
   "name": "@react-native-blocks/core",
   "description": "A base library for React Native Blocks providing required core functionalities.",
-  "version": "0.1.8",
+  "homepage": "https://github.com/PatoSala/react-native-blocks",
+  "author": "Pato Sala <https://github.com/PatoSala>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatoSala/react-native-blocks",
+    "directory": "packages/core"
+  },
+  "version": "0.1.9",
+  "keywords": [
+    "react-native",
+    "notion",
+    "blocks"
+  ],
   "main": "index.ts",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

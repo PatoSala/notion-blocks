@@ -5,3 +5,5 @@ export * from "./src/SubSubHeaderBlock";
 export * from "./src/TextBlock";
 export * from "./src/ImageBlock";
 export * from "./src/CodeBlock";
+export * from "./src/CalloutBlock";
+export * from "./src/QuoteBlock";

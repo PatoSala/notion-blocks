@@ -52,25 +52,27 @@ export default function InsertBlockSection({ setActiveTab, setHidden } : any) {
 
     return (
         <>
-            <View style={styles.blockOptionsRow}>
-                <Text>Blocks</Text>
-            </View>
-
             <FlatList
                 data={Object.keys(blockTypes)}
                 numColumns={2}
+                ListHeaderComponent={(
+                    <View style={styles.blockOptionsRow}>
+                        <Text style={styles.sectionHeader}>Blocks</Text>
+                    </View>
+                )}
                 columnWrapperStyle={{
                     justifyContent: "space-between"
                 }}
                 contentContainerStyle={{
-                    gap: 10
+                    gap: 10,
+                    padding: 16
                 }}
                 renderItem={({ item }) => {
                     return (
                         <Pressable style={({ pressed}) => ([{
                             opacity: pressed ? 0.5 : 1
                         }, styles.blockOptions])} onPress={() => handleInsertBlock(item)}>
-                            <Text>{blockTypes[item].options.name}</Text>
+                            <Text style={styles.blockOptionsText}>{blockTypes[item].options.name}</Text>
                         </Pressable>
                     )
                 }}
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         height: 50,
         width: width / 2 - 20,
-        borderRadius: 8,
+        borderRadius: 4,
         justifyContent: "center",
         paddingHorizontal: 16,
         boxSizing: "border-box",
@@ -97,6 +99,11 @@ const styles = StyleSheet.create({
     },
     blockOptionsText: {
         fontSize: 16,
-        fontWeight: "bold",
+        fontWeight: "500",
+    },
+    sectionHeader: {
+        fontSize: 16,
+        fontWeight: "500",
+        color: "#b3b3b3"
     }
 });

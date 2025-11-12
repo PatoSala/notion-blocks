@@ -280,6 +280,5 @@ const styles = StyleSheet.create({
     },
     tabSectionContainer: {
         backgroundColor: "#f5f5f5",
-        padding: 16,
     }
 });

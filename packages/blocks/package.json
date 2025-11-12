@@ -1,7 +1,19 @@
 {
   "name": "@react-native-blocks/blocks",
   "description": "A block based text editor built for React Native. Inspired by the data model behind Notion’s flexibility.",
-  "version": "0.1.7",
+  "homepage": "https://github.com/PatoSala/react-native-blocks",
+  "author": "Pato Sala <https://github.com/PatoSala>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatoSala/react-native-blocks",
+    "directory": "packages/blocks"
+  },
+  "version": "0.1.8",
+  "keywords": [
+    "react-native",
+    "notion",
+    "blocks"
+  ],
   "main": "index.ts",
   "peerDependencies": {
     "@react-native-blocks/core": "^0.1.3",

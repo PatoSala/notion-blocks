@@ -7,7 +7,9 @@ import {
   SubHeaderBlock,
   SubSubHeaderBlock,
   TextBlock,
-  ImageBlock
+  ImageBlock,
+  CalloutBlock,
+  QuoteBlock
 } from '@react-native-blocks/blocks';
 
 const blankNote = {
@@ -83,6 +85,24 @@ export default function App() {
           component={ImageBlock}
           options={{
             name: "Image"
+          }}
+        />
+
+        <Block
+          type="callout"
+          component={CalloutBlock}
+          options={{
+            isTextBased: true,
+            name: "Callout"
+          }}
+        />
+
+        <Block
+          type="quote"
+          component={QuoteBlock}
+          options={{
+            isTextBased: true,
+            name: "Quote"
           }}
         />
       </Editor>

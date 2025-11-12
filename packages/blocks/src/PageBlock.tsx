@@ -1,5 +1,4 @@
-import { useTextInput } from "@react-native-blocks/core/src/hooks/useTextInput";
-import { useBlocksContext, useBlock } from "@react-native-blocks/core/src/components/BlocksContext";
+import { useTextInput, useBlocksContext, useBlock } from "@react-native-blocks/core";
 import { View, TextInput, Text, StyleSheet } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -66,30 +65,6 @@ const styles = StyleSheet.create({
         fontWeight: "normal",
         paddingVertical: 6,
         lineHeight: 24,
-        flexWrap: "wrap"
-    },
-    header: {
-        fontWeight: "bold",
-        fontSize: 28,
-        marginTop: 32,
-        marginBottom: 8,
-        lineHeight: 34,
-        flexWrap: "wrap"
-    },
-    sub_header: {
-        fontWeight: "bold",
-        fontSize: 22,
-        marginTop: 24,
-        marginBottom: 4,
-        lineHeight: 30,
-        flexWrap: "wrap"
-    },
-    sub_sub_header: {
-        fontWeight: "bold",
-        fontSize: 18,
-        marginTop: 20,
-        marginBottom: 4,
-        lineHeight: 26,
         flexWrap: "wrap"
     }
 });
