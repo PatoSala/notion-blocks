@@ -205,13 +205,17 @@ Footer.RemoveBlock = () => {
        /*  setActiveTab("none"); */
         /* setHidden(true); */
         if (prevTextBlock) {
-            inputRefs.current[prevTextBlock.id].current.focus();
             setActiveTab("keyboard");
+            inputRefs.current[prevTextBlock.id].current.focus();
+
         } else {
             setActiveTab("none");
             setHidden(true);
         };
-        removeBlock(focusedBlockId);
+        
+        requestAnimationFrame(() => {
+            removeBlock(focusedBlockId);
+        });
     }
 
     if (focusedBlockId === rootBlockId) return null;
