@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, View, StyleSheet, Dimensions, Text, Pressable } from "react-native";
+import { Image, View, StyleSheet, Dimensions, Text, Pressable, Modal, Button } from "react-native";
 import { BlockProps } from '@react-native-blocks/core';
 import { Ionicons } from '@expo/vector-icons';
 import { useBlocksContext } from "@react-native-blocks/core";
@@ -22,11 +22,10 @@ export const ImageBlock = (props: BlockProps) => {
   const {
     blockId,
   } = props;
-  const { blocks, updateBlock } = useBlocksContext();
+  const { blocks, updateBlock, selectedBlockId, setSelectedBlockId, removeBlock } = useBlocksContext();
 
   const [source, setSource] = useState(blocks[blockId].properties.source || null);
   const [aspectRatio, setAspectRatio] = useState(blocks[blockId]?.format?.block_aspect_ratio || null);
-
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -53,27 +52,52 @@ export const ImageBlock = (props: BlockProps) => {
     }
   };
 
+  const handleRemoveBlock = () => {
+      setSelectedBlockId(null);
+      setTimeout(() => {
+          removeBlock(blockId);
+      }, 100);
+  };
+
   return (
-    <Pressable
-      style={[styles.container]}
-      onPress={pickImage}
-    >
-        {source === null
-        ? (
-            <View style={styles.row}>
-                <Ionicons name="image-outline" size={24} color="#7d7a75" />
-                <Text style={styles.text}>Add an image</Text>
-            </View>
-        )
-        : (
-            <Image
-                style={[styles.image, { aspectRatio }]}
-                source={{ uri: source }}
-            />
-        )
-        }
-      
-    </Pressable>
+    <>
+      <Pressable
+        style={[styles.container]}
+        onPress={pickImage}
+      >
+          {source === null
+          ? (
+              <View style={styles.row}>
+                  <Ionicons name="image-outline" size={24} color="#7d7a75" />
+                  <Text style={styles.text}>Add an image</Text>
+              </View>
+          )
+          : (
+              <Image
+                  style={[styles.image, { aspectRatio }]}
+                  source={{ uri: source }}
+              />
+          )
+          }
+        
+      </Pressable>
+
+      <Modal
+        visible={selectedBlockId === blockId}
+        presentationStyle="pageSheet"
+        animationType="slide"
+      >
+          <Button
+              title="Close"
+              onPress={() => setSelectedBlockId(null)}
+          />
+
+          <Button
+              title="Remove"
+              onPress={handleRemoveBlock}
+          />
+      </Modal>
+    </>
   )
 }
 

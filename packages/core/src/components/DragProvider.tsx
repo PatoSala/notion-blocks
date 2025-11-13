@@ -20,7 +20,14 @@ export default function DragProvider({
     children,
     blockId,
 }) {
-    const { movingBlockId, setMovingBlockId, moveBlock, blocks } = useBlocksContext();
+    const {
+        movingBlockId,
+        setMovingBlockId,
+        moveBlock,
+        blocks,
+        setSelectedBlockId,
+        rootBlockId
+    } = useBlocksContext();
     const {
         setOffset,
         isDragging,
@@ -169,13 +176,25 @@ export default function DragProvider({
         setOffset({ x: 0, y: 0 });
         setIndicatorPosition({ y: 0 });
     }
+    const start = useSharedValue({ x: 0, y: 0 });
 
     // scroll, tap
     const nativeGestures = Gesture.Native()
 
-    const start = useSharedValue({ x: 0, y: 0 });
+   const longPress = Gesture.LongPress()
+        .minDuration(2000)
+        .onStart((e) => {
+            console.log("LONG PRESS");
+            scheduleOnRN(setSelectedBlockId, blockId);
+        })
+        .onEnd((e) => {
+            console.log("LONG PRESS ENDED");
+        })
+        .enabled(blockId !== rootBlockId);
+
     const blockDrag = Gesture.Pan()
         .activateAfterLongPress(1000)
+        .minDistance(50)
         .onBegin((e) => {
             start.value = {
                 x: 0,
@@ -191,9 +210,15 @@ export default function DragProvider({
         .onFinalize(() => {
             start.value = { x: 0, y: 0 };
             scheduleOnRN(handleOnDragEnd);
-        });
+        })
+        .blocksExternalGesture(nativeGestures)
+        .enabled(blockId !== rootBlockId)
+        /* .simultaneousWithExternalGesture(longPress); */
+
+     
+
     
-    const composed = Gesture.Exclusive(blockDrag, nativeGestures);
+    const composed = Gesture.Simultaneous(nativeGestures,longPress, blockDrag);
 
     return (
         <GestureDetector gesture={composed}>
