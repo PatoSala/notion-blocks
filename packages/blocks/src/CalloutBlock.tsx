@@ -53,7 +53,7 @@ export function CalloutBlock({ blockId } : Props) {
             </View>
 
             <Modal
-                visible={selectedBlockId === blockId}
+                visible={false}
                 presentationStyle="pageSheet"
                 animationType="slide"
             >

@@ -15,11 +15,11 @@ import { TextBlocksProvider, useTextBlocksContext } from "./TextBlocksProvider";
 import { ScrollProvider, useScrollContext } from "./ScrollProvider";
 import { BlocksMeasuresProvider, useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 
-function NoteScreen({
+function RenderTree({
     rootBlockId
 }) {
     const pageId : string = rootBlockId;
-    const { blockTypes, textBasedBlocks } = useBlockRegistrationContext();
+    const { blockTypes, defaultBlockType } = useBlockRegistrationContext();
     const {
         blocks,
         blocksOrder,
@@ -30,10 +30,12 @@ function NoteScreen({
     const rootBlock : Block = blocks[pageId];
 
     /** Editor configs */
-    const { inputRefs: refs } = useTextBlocksContext();
+    const { inputRefs } = useTextBlocksContext();
 
     const handleNewLineBlock = () => {
-        if (rootBlock.content.length === 0 || (!textBasedBlocks.includes(blocks[rootBlock.content[rootBlock.content.length - 1]].type) || blocks[rootBlock.content[rootBlock.content.length - 1]].properties.title.length > 0)) {
+        if (blocks[blocksOrder[blocksOrder.length - 1]].type === defaultBlockType && blocks[blocksOrder[blocksOrder.length - 1]].properties?.title.length === 0) {
+            inputRefs.current[rootBlock.content[rootBlock.content.length - 1]]?.current.focus();
+        } else {
             const newBlock = new Block({
                 type: "text",
                 properties: {
@@ -47,12 +49,7 @@ function NoteScreen({
             insertBlock(newBlock);
             // Focus new block
             requestAnimationFrame(() => {
-                refs.current[newBlock.id]?.current.focus();
-            });
-        } else {
-            // Focus last block (it must be empty)
-            requestAnimationFrame(() => {
-                refs.current[rootBlock.content[rootBlock.content.length - 1]]?.current.focus();
+                inputRefs.current[newBlock.id]?.current.focus();
             });
         }
     }
@@ -112,7 +109,7 @@ export function Editor({
                     <GestureHandlerRootView>
                         <BlocksMeasuresProvider>
                             <ScrollProvider contentContainerStyle={contentContainerStyle}>
-                                <NoteScreen rootBlockId={rootBlockId} />
+                                <RenderTree rootBlockId={rootBlockId} />
                             </ScrollProvider>
                         </BlocksMeasuresProvider>
 

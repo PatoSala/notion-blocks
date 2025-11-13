@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSharedValue, SharedValue } from "react-native-reanimated";
+import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 
 interface ScrollContextProps {
     scrollY: SharedValue<number>;
@@ -14,33 +15,15 @@ export const useScrollContext = () => useContext(ScrollContext);
 
 export function ScrollProvider({ children, contentContainerStyle }) {
     const scrollViewRef = useRef<ScrollView>(null);
-    
     const [isScrolling, setIsScrolling] = useState(false);
     const scrollY = useSharedValue(0);
+    const { triggerRemeasure, blockMeasuresRef } = useBlocksMeasuresContext();
 
-    /* useEffect(() => {
-        // Maybe this conditional could be a function "scrollToVisiblePosition" or sth like that
-        if (blockMeasuresRef.current[focusedBlockId]?.start > keyboardHeight + 24) {
-            handleScrollTo({
-                x: 0,
-                y: blockMeasuresRef.current[focusedBlockId]?.start - keyboardHeight,
-                animated: true
-            })
-        }
-    }, [focusedBlockId]); */
-    
     const handleDragStart = () => {
-        /* if (focusedBlockId) inputRefs.current["ghostInput"]?.current.focus(); */
-
         setIsScrolling(true);
     }
 
     const handleDragEnd = () => {
-        /* if (focusedBlockId) {
-            requestAnimationFrame(() => {
-                inputRefs.current[focusedBlockId].current.focus();
-            })
-        }; */
         setIsScrolling(false);
     }
 
@@ -54,6 +37,21 @@ export function ScrollProvider({ children, contentContainerStyle }) {
             y: y,
             animated: animated
         });
+    }
+
+    // Used for measuring blocks after a rearrange 
+    const handleOnContentSizeChange = () => {
+        // NOTE: This triggerRemeasure is firing twice when app mounts.
+        // Find a way to prevent it since blocks already measure themselves when onLayout.
+        // This should only be fired when the app has already mounted.
+        try {
+            if (blockMeasuresRef.current) {
+                console.log(blockMeasuresRef.current);
+                triggerRemeasure();
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const value = {
@@ -71,7 +69,7 @@ export function ScrollProvider({ children, contentContainerStyle }) {
                 onScrollBeginDrag={handleDragStart}
                 onScrollEndDrag={handleDragEnd}
                 onMomentumScrollEnd={handleDragEnd}
-                /* style={{ flex: 1 }} */
+                /* onContentSizeChange={handleOnContentSizeChange} */
                 contentContainerStyle={{
                     flexGrow: 1,
                     /* paddingTop: insets.top, */

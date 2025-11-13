@@ -2,7 +2,7 @@ import {
     useSharedValue,
     useAnimatedReaction,
 } from "react-native-reanimated";
-import { Dimensions } from "react-native";
+import { Dimensions, View } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useBlocksContext } from "./BlocksContext";
@@ -10,16 +10,21 @@ import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useScrollContext } from "./ScrollProvider";
 import { useRef } from "react";
 
-const { height } = Dimensions.get("screen");
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { useBlockRegistrationContext } from "./BlockRegistration";
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 
 // SCROLLING THRESHOLDS
 const TOP_THRESHOLD = 100;
-const BOTTOM_THRESHOLD = height - 100;
+const BOTTOM_THRESHOLD = screenHeight - 100;
 
 export default function DragProvider({
     children,
     blockId,
 }) {
+    const { blockTypes } = useBlockRegistrationContext();
+    // End testing
     const {
         movingBlockId,
         setMovingBlockId,
@@ -29,7 +34,7 @@ export default function DragProvider({
         rootBlockId
     } = useBlocksContext();
     const {
-        setOffset,
+        /* setOffset, */
         isDragging,
         setIsDragging,
         indicatorPosition,
@@ -39,6 +44,7 @@ export default function DragProvider({
     const { scrollY, handleScrollTo } = useScrollContext();
 
     const scrollDirection = useSharedValue<null | "UP" | "DOWN">(null);
+    
 
     /** Auto scroll interval */
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -140,8 +146,9 @@ export default function DragProvider({
         setMovingBlockId(blockId);
     }
 
-    const handleOnDragUpdate = (e: GestureUpdateEvent, start: { x: number, y: number }) => {
+    const handleOnDragUpdate = (e: GestureUpdateEvent/* , start: { x: number, y: number } */) => {
 
+        /** Update scroll direction */
         if (e.absoluteY > BOTTOM_THRESHOLD) {
             scrollDirection.value = "DOWN";
         } else if (e.absoluteY < TOP_THRESHOLD) {
@@ -149,11 +156,19 @@ export default function DragProvider({
         } else {
              scrollDirection.value = null;
         }
-        
-        setOffset({
-            x: e.translationX + start.x,
-            y: e.translationY + start.y,
-        });
+
+        /** translationX/Y equals how much the finger has moved from its starting point (offset) */
+        // Should rename this to sth like "ghostBlockPosition"
+        /* setOffset({
+            x: e.absoluteX,
+            y: e.absoluteY,
+        }); */
+
+
+        offset.value = {
+            x: e.x,
+            y: e.y
+        };
 
         /** Update indicator position */
         const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);
@@ -173,7 +188,8 @@ export default function DragProvider({
         handleMoveBlock();
         setIsDragging(false);
         setMovingBlockId(null);
-        setOffset({ x: 0, y: 0 });
+        /* setOffset({ x: 0, y: 0 }); */
+        offset.value = { x: 0, y: 0 };
         setIndicatorPosition({ y: 0 });
     }
     const start = useSharedValue({ x: 0, y: 0 });
@@ -184,11 +200,7 @@ export default function DragProvider({
    const longPress = Gesture.LongPress()
         .minDuration(2000)
         .onStart((e) => {
-            console.log("LONG PRESS");
             scheduleOnRN(setSelectedBlockId, blockId);
-        })
-        .onEnd((e) => {
-            console.log("LONG PRESS ENDED");
         })
         .enabled(blockId !== rootBlockId);
 
@@ -196,10 +208,12 @@ export default function DragProvider({
         .activateAfterLongPress(1000)
         .minDistance(50)
         .onBegin((e) => {
+            // e.absoluteX / e.absoluteY equals the position of the finger
             start.value = {
-                x: 0,
+                x: e.absoluteX,
                 y: e.absoluteY
             }
+
         })
         .onStart((e) => {
             scheduleOnRN(handleOnDragStart);
@@ -213,16 +227,53 @@ export default function DragProvider({
         })
         .blocksExternalGesture(nativeGestures)
         .enabled(blockId !== rootBlockId)
-        /* .simultaneousWithExternalGesture(longPress); */
-
-     
-
     
-    const composed = Gesture.Simultaneous(nativeGestures,longPress, blockDrag);
+    const composed = Gesture.Simultaneous(nativeGestures, longPress, blockDrag);
+
+    // Testing
+
+    const blockWidth = movingBlockId ? blockMeasuresRef.current[movingBlockId].width : 0;
+    const blockHeight = movingBlockId ? blockMeasuresRef.current[movingBlockId].height : 0;
+    // Ghost block
+        /** NOTE: It might be better to separate this into its own provider. */
+        /* const isDragging = useSharedValue(false); */
+        const offset = useSharedValue({ x: 0, y: 0 });
+        const animatedStyles = useAnimatedStyle(() => {
+            return {
+                transform: [
+                    { translateX: offset.value.x - blockWidth / 2 },
+                    { translateY: offset.value.y - blockHeight / 2 },
+                ],
+                display: isDragging.value === false ? 'none' : 'flex',
+            };
+        });
+        /** 
+         * NOTE: Ghost block only needs to look like the block that is being dragged,
+         * but right now its mounting the whole component with all its logic, which is not necessary.
+         * I'll leave it like this because its working, but it can be refactored in the future.
+         */
+        const GhostBlock = () => {
+            const Component = blockTypes[blocks[movingBlockId].type].component;
+
+            return (
+                <Animated.View style={[{
+                    opacity: 0.5,
+                    position: "absolute",
+                    zIndex: 1000,
+                    width: "100%",
+                }, animatedStyles]}>
+                    <Component blockId={movingBlockId} />
+                </Animated.View>
+            )
+        }
 
     return (
         <GestureDetector gesture={composed}>
-            {children}
+            <View>
+                {children}
+
+                {isDragging.value === true && movingBlockId === blockId && <GhostBlock />}
+            </View>
         </GestureDetector>
     );
 }

@@ -2,21 +2,28 @@ import { useRef, useLayoutEffect, useContext, createContext, useEffect } from "r
 import { View } from "react-native";
 import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 import { useBlocksContext } from "./BlocksContext";
+import { useAnimatedReaction } from "react-native-reanimated";
 
 /** Measures and registers the height and position of a block */
 export function LayoutProvider({
     children,
     blockId
 }) {
-    const { blocksOrder, rootBlockId } = useBlocksContext();
-    const { registerBlockMeasure, removeBlockMeasure } = useBlocksMeasuresContext();
+    const { blocksOrder, rootBlockId, blocks } = useBlocksContext();
+    const {
+        registerBlockMeasure,
+        removeBlockMeasure,
+    } = useBlocksMeasuresContext();
     const viewRef = useRef<View>(null);
 
+    /** Maybe this computation could be workletized (?) */
     const handleOnLayout = () => {
-        if (blockId !== rootBlockId) {
+        if (blockId !== rootBlockId && viewRef.current) {
             viewRef.current?.measure((x, y, width, height) => {
                 registerBlockMeasure(blockId, {
-                    blockId: blockId,
+                    ref: viewRef,
+                    type: blocks[blockId].type,
+                    width: width,
                     height: height,
                     start: y,
                     end: y + height
@@ -27,9 +34,10 @@ export function LayoutProvider({
 
     useEffect(() => {
         return () => {
+            // Remove the block measure when the block is unmounted.
             removeBlockMeasure(blockId);
         }
-    }, [blocksOrder]);
+    }, []);
 
     return (
         <View ref={viewRef} onLayout={handleOnLayout}>

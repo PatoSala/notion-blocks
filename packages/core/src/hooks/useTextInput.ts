@@ -97,7 +97,6 @@ export function useTextInput(blockId: string) {
             });
             updateBlock(updatedBlock);
         }
-        /* remasureBlockLayout(blockId) */
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }) {
@@ -158,7 +157,6 @@ export function useTextInput(blockId: string) {
          *  */
 
         if (block.type !== defaultBlockType) {
-            console.log("Focus ghost input");
             inputRefs.current["ghostInput"]?.current.focus();
         }
 

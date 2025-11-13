@@ -62,7 +62,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null >(null);
-    console.log(selectedBlockId);
     /** Block actions
      * Note: I might change all this actions to reducers. reducers can be exported!
      */
