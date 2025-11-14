@@ -217,9 +217,7 @@ export default function DragProvider({
 
     return (
         <GestureDetector gesture={composed}>
-            <View>
-                {children}
-            </View>
+            {children}
         </GestureDetector>
     );
 }

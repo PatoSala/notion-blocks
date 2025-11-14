@@ -60,7 +60,7 @@ export function BlocksMeasuresProvider({ children }) {
             styles.indicator,
             indicatorAnimatedStyles,
             {
-                display: indicatorPosition.value.y === 0 ? "none" : "flex"
+                display: isDragging.value === false ? "none" : "flex"
             }
         ]} />
     )
