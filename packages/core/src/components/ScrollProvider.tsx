@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSharedValue, SharedValue } from "react-native-reanimated";
-import { useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
 
 interface ScrollContextProps {
     scrollY: SharedValue<number>;
@@ -17,7 +16,6 @@ export function ScrollProvider({ children, contentContainerStyle }) {
     const scrollViewRef = useRef<ScrollView>(null);
     const [isScrolling, setIsScrolling] = useState(false);
     const scrollY = useSharedValue(0);
-    const { triggerRemeasure, blockMeasuresRef } = useBlocksMeasuresContext();
 
     const handleDragStart = () => {
         setIsScrolling(true);
@@ -39,21 +37,6 @@ export function ScrollProvider({ children, contentContainerStyle }) {
         });
     }
 
-    // Used for measuring blocks after a rearrange 
-    const handleOnContentSizeChange = () => {
-        // NOTE: This triggerRemeasure is firing twice when app mounts.
-        // Find a way to prevent it since blocks already measure themselves when onLayout.
-        // This should only be fired when the app has already mounted.
-        try {
-            if (blockMeasuresRef.current) {
-                console.log(blockMeasuresRef.current);
-                triggerRemeasure();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
     const value = {
         scrollY,
         isScrolling,
@@ -69,10 +52,8 @@ export function ScrollProvider({ children, contentContainerStyle }) {
                 onScrollBeginDrag={handleDragStart}
                 onScrollEndDrag={handleDragEnd}
                 onMomentumScrollEnd={handleDragEnd}
-                /* onContentSizeChange={handleOnContentSizeChange} */
                 contentContainerStyle={{
                     flexGrow: 1,
-                    /* paddingTop: insets.top, */
                     paddingHorizontal: 8,
                     ...contentContainerStyle
                 }}

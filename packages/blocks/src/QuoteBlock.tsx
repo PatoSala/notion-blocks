@@ -1,11 +1,9 @@
 import { useTextInput } from "@react-native-blocks/core";
-import { View, TextInput, StyleSheet, Text, Dimensions, TouchableOpacity } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 
 interface Props {
     blockId: string
 }
-
-const { width } = Dimensions.get("window");
 
 export function QuoteBlock({ blockId } : Props) {
     const { getTextInputProps } = useTextInput(blockId);

@@ -83,7 +83,7 @@ export const ImageBlock = (props: BlockProps) => {
       </Pressable>
 
       <Modal
-        visible={false}
+        visible={selectedBlockId === blockId}
         presentationStyle="pageSheet"
         animationType="slide"
       >
