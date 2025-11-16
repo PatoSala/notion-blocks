@@ -2,7 +2,7 @@
 
 # React Native Blocks
 
-A block based text editor fully built with react-native. Inspired by [the data model behind Notion’s flexibility.](https://www.notion.com/blog/data-model-behind-notion)
+[Inspired by the data model behind Notion's flexibility](https://www.notion.com/blog/data-model-behind-notion), React Native Blocks let's you create modular block-based text editors like Notion.
 
 ![Screenshot 2025-10-07 at 6.02.31 PM.png](assets/screenshot.png?raw=true)
 
@@ -11,12 +11,15 @@ First install the base library. This one will provide us with the core functiona
 ```
 npm install @react-native-blocks/core
 ```
-Then install the library which contains the actual block components.
+Once installed you can start creating your own custom blocks or install a block components library like [@react-native-blocks/blocks](https://www.npmjs.com/package/@react-native-blocks/blocks) which provides a set of blocks similar to the ones present in Notion (Pages, Headings, Checkboxes, etc).
+
+If you want you can even create your own set of blocks and publish it in npm for other to use with this library. For this example we'll be using the blocks from @react-native-blocks/blocks.
 ```
 npm install @react-native-blocks/blocks
 ```
 
-## Usage
+With both libraries installed we'll use from @react-native-blocks/core the `<Editor/>` component to create a new editor and the `<Block/>` component to register the building blocks that `<Editor/>` will use. And from @react-native-blocks/blocks we'll import the blocks we want to register.
+
 ```js
 import { StatusBar } from 'expo-status-bar';
 import { Editor, Block } from '@react-native-blocks/core';
@@ -113,15 +116,19 @@ export default function App() {
 }
 ```
 
-Feel free to contribute!
+## Creating your own blocks.
+Guide in progress. 
+
+## Warning
+This library is still a work in progress so expect breaking changes on future releases.
 
 ## Contributing
 
-Feel free to contribute!
+Feel free to contribute! Fork this repo and create a pull request.
 
 ## Discord
 
-Join me on Discord [https://discord.gg/utxtAafD8n](https://discord.gg/utxtAafD8n)
+Join me on Discord [https://discord.gg/utxtAafD8n](https://discord.gg/utxtAafD8n).
 
 ## Disclaimer
 
