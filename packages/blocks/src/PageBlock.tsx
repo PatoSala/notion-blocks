@@ -173,14 +173,32 @@ export function PageBlock({ blockId } : Props) {
                         <View style={styles.row}>
                             <TouchableOpacity
                                 onPress={() => setShowEmojiSelector(true)}
-                                style={styles.iconContainer}>
-                                <Text style={styles.icon}>
-                                    {pageIcon === null ? <Ionicons name="document-text-outline" size={24} color="black" /> : pageIcon}
-                                </Text>
+                                style={styles.iconContainer}
+                            >
+
+                                {pageIcon === null
+                                ? (
+                                    <Ionicons name="document-text-outline" size={24} color="black" />
+                                ) : (
+                                    <>
+                                        {iconType === "image"
+                                        ? (
+                                            <Image
+                                                source={{ uri: pageIcon }}
+                                                style={{ width: "100%", height: "100%" }}
+                                            />
+                                        )
+                                        : (
+                                            <Text style={styles.icon}>
+                                                {pageIcon}
+                                            </Text>
+                                        )}
+                                    </>
+                                )}
                             </TouchableOpacity>
                             
                             <Text style={styles.text}>
-                                {properties.title}
+                                {properties.title.length === 0 ? placeholder : properties.title}
                             </Text>
                         </View>
                     </>
@@ -283,14 +301,15 @@ const styles = StyleSheet.create({
         flexWrap: "wrap"
     },
     iconContainer: {
-        marginLeft: 8,
         justifyContent: "center",
         alignItems: "center",
         height: 32,
-        width: 32
+        width: 32,
+        borderRadius: 4,
+        overflow: "hidden"
     },
     icon: {
-        fontSize: 16,
+        fontSize: 24,
     },
     header: {
         height: 50,
