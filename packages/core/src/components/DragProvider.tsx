@@ -104,7 +104,11 @@ export default function DragProvider({
 
     /**
      *  Given a y coordinate, returns the block at that position and a "start" or "end"
-     *  string that indicates if the position is closer to the start or end of the block
+     *  string that indicates if the position is closer to the start or end of the block.
+     * 
+     * Note: Maybe this could be turned into a worklet? It would have to look something like this:
+     * findBlockAtPosition = (blocksMeasures: object, y: number) reutns { blockId: string, closestTo: "start" | "end" }
+     * 
      * */
 
     const findBlockAtPosition = (y: number) : { blockId: string, closestTo: "start" | "end" } => {
@@ -133,8 +137,9 @@ export default function DragProvider({
 
         const blockToMove = blocks[movingBlockId];
         const targetBlock = findBlockAtPosition(indicatorPosition.value.y); // Passing the indicator position fixes de out of bounds error since the indicator value will always be positioned at the start ot end of a block
-        
-        moveBlock(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
+        if (blockToMove.id !== targetBlock.blockId) {
+            moveBlock(blockToMove.id, blockToMove.parent, targetBlock.blockId, targetBlock.closestTo);
+        }
     }
 
     const handleOnDragStart = () => {
@@ -144,7 +149,7 @@ export default function DragProvider({
         blockMeasuresRef.current[blockId].ref.current.measureInWindow((x, y, width, height, pageX, pageY) => {
             setStartPosition({
                 x,
-                y: y - insets.top
+                y: y
             })
         })
     }
@@ -159,11 +164,12 @@ export default function DragProvider({
         } else {
              scrollDirection.value = null;
         }
-    
-        /** translationX/Y equals how much the finger has moved from its starting point (offset) */
+        
+        // translationX/Y equals how much the finger has moved from its starting point (offset)
+        // We need to substract the insets
         setOffset({
             x: e.translationX,
-            y: e.translationY 
+            y: e.translationY - insets.top 
         })
         /** Update indicator position */
         const { blockId, closestTo } = findBlockAtPosition(e.absoluteY);

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Image, View, StyleSheet, Dimensions, Text, Pressable, Modal, Button } from "react-native";
 import { BlockProps } from '@react-native-blocks/core';
 import { Ionicons } from '@expo/vector-icons';
-import { useBlocksContext } from "@react-native-blocks/core";
+import { useBlocksContext, useBlock } from "@react-native-blocks/core";
 import * as ImagePicker from 'expo-image-picker';
 
 import { updateBlockData } from "@react-native-blocks/core";
@@ -22,10 +22,11 @@ export const ImageBlock = (props: BlockProps) => {
   const {
     blockId,
   } = props;
-  const { blocks, updateBlock, selectedBlockId, setSelectedBlockId, removeBlock } = useBlocksContext();
+  const { updateBlock, selectedBlockId, setSelectedBlockId, removeBlock } = useBlocksContext();
+  const { block } = useBlock(blockId);
 
-  const [source, setSource] = useState(blocks[blockId].properties.source || null);
-  const [aspectRatio, setAspectRatio] = useState(blocks[blockId]?.format?.block_aspect_ratio || null);
+  const [source, setSource] = useState(block?.properties.source || null);
+  const [aspectRatio, setAspectRatio] = useState(block?.format?.block_aspect_ratio || null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -38,7 +39,7 @@ export const ImageBlock = (props: BlockProps) => {
       setSource(result.assets[0].uri);
       setAspectRatio(result.assets[0].width / result.assets[0].height);
 
-      const updatedBlock = updateBlockData(blocks[blockId], {
+      const updatedBlock = updateBlockData(block, {
         properties: {
           source: result.assets[0].uri
         },
@@ -59,25 +60,27 @@ export const ImageBlock = (props: BlockProps) => {
       }, 100);
   };
 
+  const backgroundColor = source === null ? "#7d7a751d" : "transparent";
+
   return (
     <>
       <Pressable
-        style={[styles.container]}
+        style={[styles.container, { backgroundColor: backgroundColor }]}
         onPress={pickImage}
       >
           {source === null
-          ? (
-              <View style={styles.row}>
-                  <Ionicons name="image-outline" size={24} color="#7d7a75" />
-                  <Text style={styles.text}>Add an image</Text>
-              </View>
-          )
-          : (
-              <Image
-                  style={[styles.image, { aspectRatio }]}
-                  source={{ uri: source }}
-              />
-          )
+            ? (
+                <View style={styles.row}>
+                    <Ionicons name="image-outline" size={24} color="#7d7a75" />
+                    <Text style={styles.text}>Add an image</Text>
+                </View>
+            )
+            : (
+                <Image
+                    style={[styles.image, { aspectRatio }]}
+                    source={{ uri: source }}
+                />
+            )
           }
         
       </Pressable>
@@ -104,7 +107,6 @@ export const ImageBlock = (props: BlockProps) => {
 const styles = StyleSheet.create({
   container: {
     width: width - 32,
-    backgroundColor: "#7d7a751d",
     marginHorizontal: 8,
     boxSizing: "border-box",
     borderRadius: 8,
