@@ -4,7 +4,7 @@
 
 [Inspired by the data model behind Notion's flexibility](https://www.notion.com/blog/data-model-behind-notion), React Native Blocks let's you create modular block-based text editors like Notion.
 
-![Screenshot 2025-10-07 at 6.02.31 PM.png](assets/screenshot.png?raw=true)
+<img src="assets/screenshot.png" alt="drawing" width="50%"/>
 
 ## Installation
 First install the base library. This one will provide us with the core functionalities.

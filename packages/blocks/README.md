@@ -4,7 +4,8 @@
 
 A set of block components to use in conjunction [@react-native-blocks/core](https://www.npmjs.com/package/@react-native-blocks/core) library. Provides the necesseary blocks to build a Notion-like text editor.
 
-![Screenshot 2025-10-07 at 6.02.31 PM.png](../../assets/screenshot.png?raw=true)
+<img src="../../assets/screenshot.png" alt="drawing" width="50%"/>
+
 
 ## Warning
 This library is still a work in progress so expect breaking changes on future releases. If you have any doubts you can join our [Discord server](https://discord.gg/utxtAafD8n).
