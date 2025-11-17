@@ -30,7 +30,7 @@ export function useTextInput(blockId: string) {
         showSoftInputOnFocus,
         inputRefs
     } = useTextBlocksContext();
-    const { isScrolling } = useScrollContext();
+    const { isScrolling, blocksOrder } = useScrollContext();
     const { isDragging } = useBlocksMeasuresContext();
     const { textBasedBlocks, defaultBlockType } = useBlockRegistrationContext();
 
@@ -51,6 +51,7 @@ export function useTextInput(blockId: string) {
             getText: () => valueRef.current,
             setText: (text: string) => {
                 valueRef.current = text;
+                console.log("NW VALUE REEF AFTER SET TEXT", valueRef.current);
                 inputRef.current?.setNativeProps({ text: valueRef.current });
             },
             focus: () => {
@@ -86,6 +87,7 @@ export function useTextInput(blockId: string) {
         selectionRef.current = event.nativeEvent.selection;
     }
 
+    // Review this: handleOnBlur is messing up with handleSubmit.
     function handleOnBlur() {
        const updatedBlock = updateBlockData(blocks[blockId], {
             properties: {
@@ -140,7 +142,6 @@ export function useTextInput(blockId: string) {
             {
                 properties:
                 { 
-                    ...blocks[blockId].properties,
                     title: valueRef.current,
                 }
             }
@@ -152,7 +153,6 @@ export function useTextInput(blockId: string) {
          * When splitting a block into another block type, the current block must rerender to change to the corresponding block component.
          * That rerender can make the keyboard flicker, so to prevent that we need to focus the ghost input and after the render, focus the block again.
          *  */
-
         if (block.type !== defaultBlockType) {
             inputRefs.current["ghostInput"]?.current.focus();
         }
@@ -162,30 +162,33 @@ export function useTextInput(blockId: string) {
          * It gives times for the ghost input to be focused before rerendering any block, preventing
          * keyboard flickering.
          */
+
         setTimeout(() => {
             const { prevBlock, nextBlock } = splitBlock(block, selection);
+
             if (prevBlock.id === rootBlockId) {
                 // Since in this scenario a new block is created, we focus after animation.
-                setTimeout(() => {
+                requestAnimationFrame(() => {
                     inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
 
                     inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
-                    inputRefs.current[nextBlock.id]?.current.focus();
                     inputRefs.current[nextBlock.id]?.current.setSelection({
                         start: 0,
                         end: 0
                     });
-                }, 0);
+                    inputRefs.current[nextBlock.id]?.current.focus();
+
+                });
 
             } else {
-                setTimeout(() => {
+                requestAnimationFrame(() => {
                     inputRefs.current[nextBlock.id].current.setText(nextBlock.properties.title);
                     inputRefs.current[nextBlock.id]?.current.setSelection({
                         start: 0,
                         end: 0
                     });
                     inputRefs.current[nextBlock.id]?.current.focus();
-                }, 0);
+                });
             }
         }, 0);
         
@@ -254,6 +257,7 @@ export function useTextInput(blockId: string) {
             console.log("UnregisterUNREGISTERed block", blockId);
         }; */
     }, []);
+
 
     return {
         getTextInputProps,

@@ -195,7 +195,7 @@ export function PageBlock({ blockId } : Props) {
                             ) : null}
 
                             <TextInput
-                                key={blockId}
+                                key={`input-${blockId}`}   // Really important to pass the key prop
                                 style={styles.page}
                                 {...getTextInputProps()}
                                 placeholder={placeholder}

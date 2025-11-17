@@ -27,7 +27,7 @@ const blankNote = {
 export default function App() {
 
   const extractBlocks = (blocksStore) => {
-    /* console.log(blocksStore); */
+    console.log(blocksStore["1"]);
   }
 
   return (
