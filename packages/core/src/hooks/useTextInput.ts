@@ -50,8 +50,8 @@ export function useTextInput(blockId: string) {
         current: {
             getText: () => valueRef.current,
             setText: (text: string) => {
-                inputRef.current?.setNativeProps({ text });
                 valueRef.current = text;
+                inputRef.current?.setNativeProps({ text: valueRef.current });
             },
             focus: () => {
                 inputRef.current?.focus();
@@ -140,7 +140,8 @@ export function useTextInput(blockId: string) {
             {
                 properties:
                 { 
-                    title: valueRef.current
+                    ...blocks[blockId].properties,
+                    title: valueRef.current,
                 }
             }
         );
@@ -163,30 +164,29 @@ export function useTextInput(blockId: string) {
          */
         setTimeout(() => {
             const { prevBlock, nextBlock } = splitBlock(block, selection);
+            if (prevBlock.id === rootBlockId) {
+                // Since in this scenario a new block is created, we focus after animation.
+                setTimeout(() => {
+                    inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
 
-        if (prevBlock.id === rootBlockId) {
-            // Since in this scenario a new block is created, we focus after animation.
-            setTimeout(() => {
-                inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
+                    inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
+                    inputRefs.current[nextBlock.id]?.current.focus();
+                    inputRefs.current[nextBlock.id]?.current.setSelection({
+                        start: 0,
+                        end: 0
+                    });
+                }, 0);
 
-                inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
-                inputRefs.current[nextBlock.id]?.current.focus();
-                inputRefs.current[nextBlock.id]?.current.setSelection({
-                    start: 0,
-                    end: 0
-                });
-            }, 0);
-
-        } else {
-            setTimeout(() => {
-                inputRefs.current[nextBlock.id].current.setText(nextBlock.properties.title);
-                inputRefs.current[nextBlock.id]?.current.setSelection({
-                    start: 0,
-                    end: 0
-                });
-                inputRefs.current[nextBlock.id]?.current.focus();
-            }, 0);
-        }
+            } else {
+                setTimeout(() => {
+                    inputRefs.current[nextBlock.id].current.setText(nextBlock.properties.title);
+                    inputRefs.current[nextBlock.id]?.current.setSelection({
+                        start: 0,
+                        end: 0
+                    });
+                    inputRefs.current[nextBlock.id]?.current.focus();
+                }, 0);
+            }
         }, 0);
         
         return;

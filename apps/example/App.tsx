@@ -25,6 +25,11 @@ const blankNote = {
 }
 
 export default function App() {
+
+  const extractBlocks = (blocksStore) => {
+    /* console.log(blocksStore); */
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1}} edges={["top"]}>
@@ -32,6 +37,9 @@ export default function App() {
           defaultBlocks={blankNote}
           rootBlockId="1"
           defaultBlockType={"text"}
+
+          // Experimental
+          extractBlocks={extractBlocks}
         >
           <Block
             type="text"

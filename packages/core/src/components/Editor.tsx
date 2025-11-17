@@ -90,6 +90,7 @@ function RenderTree({
  * @param props.defaultBlocks
  * @param props.customBlocks
  * @param props.defaultBlockType The block type to be used as output of some actions, for example splitting a block.
+ * @param props.extractBlocks
  * @param props.children
  */
 export function Editor({
@@ -97,6 +98,7 @@ export function Editor({
     rootBlockId,
     children,
     defaultBlockType,
+    extractBlocks,
     contentContainerStyle
 }) {
 
@@ -106,7 +108,11 @@ export function Editor({
 
     return (
         <BlockRegistration customBlocks={children} defaultBlockType={defaultBlockType}>
-            <BlocksProvider defaultBlocks={defaultBlocks} rootBlockId={rootBlockId}>
+            <BlocksProvider
+                defaultBlocks={defaultBlocks}
+                rootBlockId={rootBlockId}
+                extractBlocks={extractBlocks}
+            >
                 <TextBlocksProvider>
                     <GestureHandlerRootView>
                         <BlocksMeasuresProvider>

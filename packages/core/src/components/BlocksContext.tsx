@@ -1,4 +1,4 @@
-import { createContext, RefObject, useContext, useRef, useState } from "react";
+import { createContext, RefObject, useContext, useRef, useState, useEffect } from "react";
 import { Block } from "../interfaces/Block.interface";
 import { updateBlockData, insertBlockIdIntoContent } from "../core";
 import { useBlockRegistrationContext } from "./BlockRegistration";
@@ -55,13 +55,18 @@ function useBlock(blockId: string) : Block {
     return blocks[blockId];
 }
 
-function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
+function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }: any) {
     const blocksRef = useRef(defaultBlocks);
     const { defaultBlockType } = useBlockRegistrationContext();
     const [blocksOrder, setBlocksOrder] = useState<string[]>([rootBlockId, ...blocksRef.current[rootBlockId].content]);
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null >(null);
+
+    useEffect(() => {
+        extractBlocks(blocksRef.current);
+    }, [blocksOrder]);
+    
     /** Block actions
      * Note: I might change all this actions to reducers. reducers can be exported!
      */
