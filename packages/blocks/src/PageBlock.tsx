@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function PageBlock({ blockId } : Props) {
-    const { getTextInputProps, isFocused } = useTextInput(blockId);
+    const { getTextInputProps } = useTextInput(blockId);
     const { rootBlockId, updateBlock, blocks } = useBlocksContext();
     const { properties } = useBlock(blockId);
     const isRootBlock = rootBlockId === blockId;
@@ -85,6 +85,25 @@ export function PageBlock({ blockId } : Props) {
         updateBlock(updatedBlock);
       };
 
+      const handleRemoveIcon = () => {
+        setPageIcon(null);
+        setShowEmojiSelector(false);
+
+        const block = blocks[blockId];
+        delete block.format.page_icon;
+
+        updateBlock(block);
+      };
+
+      const handleRemoveCover = () => {
+        setPageCover(null);
+
+        const block = blocks[blockId];
+        delete block.format.page_cover;
+
+        updateBlock(block);
+      };
+
     return (
         <>
             { isRootBlock && pageCover
@@ -102,7 +121,7 @@ export function PageBlock({ blockId } : Props) {
                                 <Text style={styles.pageBtnText}>Add icon</Text>
                             </Pressable>
                             
-                            <Pressable style={styles.coverBtn} onPress={() => setPageCover(null)}>
+                            <Pressable style={styles.coverBtn} onPress={handleRemoveCover}>
                                 <Text style={styles.pageBtnText}>Remove cover</Text>
                             </Pressable>
                         </View>
@@ -228,10 +247,7 @@ export function PageBlock({ blockId } : Props) {
                     <View style={styles.header}>
                         <Button
                             title="Remove"
-                            onPress={() => {
-                                setPageIcon(null);
-                                setShowEmojiSelector(false);
-                            }}
+                            onPress={handleRemoveIcon}
                         />
                         <Text style={styles.headerTitle}>Page Icon</Text>
                         <Button
@@ -240,7 +256,7 @@ export function PageBlock({ blockId } : Props) {
                         />
                     </View>
 
-                    <View>
+                    <View style={{ alignItems: "flex-start", marginHorizontal: 8 }}>
                         <Button
                             title="Upload image"
                             onPress={() => {

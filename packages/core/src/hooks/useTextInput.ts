@@ -207,7 +207,7 @@ export function useTextInput(blockId: string) {
     const getTextInputProps : () => TextInputProps = () => {
         return {
             ref: inputRef,
-            defaultValue: valueRef.current,
+            /* defaultValue: valueRef.current, */
             /** Disable multiline text input scrolling. */
             scrollEnabled: false,
             multiline: true,
