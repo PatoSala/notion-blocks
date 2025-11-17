@@ -178,14 +178,14 @@ export function useTextInput(blockId: string) {
             }, 0);
 
         } else {
-            requestAnimationFrame(() => {
+            setTimeout(() => {
                 inputRefs.current[nextBlock.id].current.setText(nextBlock.properties.title);
                 inputRefs.current[nextBlock.id]?.current.setSelection({
                     start: 0,
                     end: 0
                 });
                 inputRefs.current[nextBlock.id]?.current.focus();
-            })
+            }, 0);
         }
         }, 0);
         
