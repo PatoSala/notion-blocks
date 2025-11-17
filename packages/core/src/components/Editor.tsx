@@ -69,13 +69,15 @@ function RenderTree({
             {blocksOrder.map((blockId: string, index: number) => {
                 const Component = blockTypes[blocks[blockId].type].component;
                 return (
-                    <LayoutProvider key={blockId} blockId={blockId} >
+                   <View key={`block-${blockId}`}>
+                     <LayoutProvider blockId={blockId} >
                         <DragProvider blockId={blockId}>
                             <View>
                                 <Component blockId={blockId} />
                             </View>
                         </DragProvider>
                     </LayoutProvider>
+                   </View>
                 )
             })}
 

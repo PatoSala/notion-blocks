@@ -46,6 +46,7 @@ export function CalloutBlock({ blockId } : Props) {
                         </Text>
                     </TouchableOpacity>
                     <TextInput
+                        key={blockId}
                         style={styles.text}
                         {...getTextInputProps()}
                     />

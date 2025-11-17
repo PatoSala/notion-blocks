@@ -11,6 +11,7 @@ export function HeaderBlock({ blockId } : Props) {
     return (
         <View style={styles.container}>
             <TextInput
+                key={blockId}
                 style={styles.header}
                 {...getTextInputProps()}
                 placeholder={placeholder}

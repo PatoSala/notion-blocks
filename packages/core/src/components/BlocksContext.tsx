@@ -254,6 +254,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId }: any) {
      */
     function updateBlock(updatedBlock: Block) {
         blocksRef.current[updatedBlock.id] = updatedBlock;
+        setBlocksOrder(prevState => [...prevState]);
     }
 
     const value = {

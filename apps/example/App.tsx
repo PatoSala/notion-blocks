@@ -17,7 +17,7 @@ const blankNote = {
         id: "1",
         type: "page",
         properties: {
-            title: ""
+            title: "Title"
         },
         content: [],
         parent: ""

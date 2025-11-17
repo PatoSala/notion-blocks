@@ -14,6 +14,7 @@ export function QuoteBlock({ blockId } : Props) {
                 <View style={styles.border}/>
                  
                 <TextInput
+                    key={blockId}
                     style={styles.text}
                     {...getTextInputProps()}
                 />

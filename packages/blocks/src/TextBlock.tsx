@@ -9,6 +9,7 @@ export function TextBlock({ blockId } : Props) {
     return (
         <View style={styles.container}>
             <TextInput
+                key={`input-${blockId}`}   // Really important to pass the key prop
                 style={styles.text}
                 {...getTextInputProps()}
             />

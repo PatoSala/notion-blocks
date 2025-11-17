@@ -10,6 +10,7 @@ export const SubHeaderBlock = ({ blockId } : Props) => {
     return (
         <View style={styles.container}>
             <TextInput
+                key={blockId}
                 style={styles.sub_header}
                 {...getTextInputProps()}
                 placeholder={placeholder}

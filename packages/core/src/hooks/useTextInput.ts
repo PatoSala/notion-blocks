@@ -42,7 +42,7 @@ export function useTextInput(blockId: string) {
     const isFocused = focusedBlockId === blockId;
     const isEditable = isScrolling === false && isDragging.value === false
         ? true
-        : focusedBlockId === blockId
+        : focusedBlockId === blockId    // Keep focusd block editable whn scrolling.
             ? true
             : false;
 
@@ -87,16 +87,12 @@ export function useTextInput(blockId: string) {
     }
 
     function handleOnBlur() {
-        if (isScrolling) {
-            inputRefs.current["ghostInput"]?.current.focus();
-        } else {
-            const updatedBlock = updateBlockData(blocks[blockId], {
-                properties: {
-                    title: valueRef.current
-                }
-            });
-            updateBlock(updatedBlock);
-        }
+       const updatedBlock = updateBlockData(blocks[blockId], {
+            properties: {
+                title: valueRef.current
+            }
+        });
+        updateBlock(updatedBlock);
     }
 
     function handleOnKeyPress (event: { nativeEvent: { key: string; }; }) {
@@ -170,7 +166,7 @@ export function useTextInput(blockId: string) {
 
         if (prevBlock.id === rootBlockId) {
             // Since in this scenario a new block is created, we focus after animation.
-            requestAnimationFrame(() => {
+            setTimeout(() => {
                 inputRefs.current[prevBlock.id]?.current.setText(prevBlock.properties.title);
 
                 inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
@@ -179,7 +175,7 @@ export function useTextInput(blockId: string) {
                     start: 0,
                     end: 0
                 });
-            });
+            }, 0);
 
         } else {
             requestAnimationFrame(() => {
@@ -207,7 +203,7 @@ export function useTextInput(blockId: string) {
     const getTextInputProps : () => TextInputProps = () => {
         return {
             ref: inputRef,
-            /* defaultValue: valueRef.current, */
+            defaultValue: valueRef.current,
             /** Disable multiline text input scrolling. */
             scrollEnabled: false,
             multiline: true,
@@ -257,7 +253,7 @@ export function useTextInput(blockId: string) {
             unregisterRef(blockId);
             console.log("UnregisterUNREGISTERed block", blockId);
         }; */
-    }, [inputRef]);
+    }, []);
 
     return {
         getTextInputProps,
