@@ -22,11 +22,11 @@ export const ImageBlock = (props: BlockProps) => {
   const {
     blockId,
   } = props;
-  const { updateBlock, selectedBlockId, setSelectedBlockId, removeBlock } = useBlocksContext();
-  const { block } = useBlock(blockId);
+  const { blocks, updateBlock, selectedBlockId, setSelectedBlockId, removeBlock } = useBlocksContext();
+  const { properties } = useBlock(blockId);
 
-  const [source, setSource] = useState(block?.properties.source || null);
-  const [aspectRatio, setAspectRatio] = useState(block?.format?.block_aspect_ratio || null);
+  const [source, setSource] = useState(blocks[blockId]?.properties.source || null);
+  const [aspectRatio, setAspectRatio] = useState(blocks[blockId]?.format?.block_aspect_ratio || null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -39,7 +39,7 @@ export const ImageBlock = (props: BlockProps) => {
       setSource(result.assets[0].uri);
       setAspectRatio(result.assets[0].width / result.assets[0].height);
 
-      const updatedBlock = updateBlockData(block, {
+      const updatedBlock = updateBlockData(blocks[blockId], {
         properties: {
           source: result.assets[0].uri
         },

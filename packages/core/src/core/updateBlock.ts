@@ -51,7 +51,7 @@ export function rearrangeContent(parentBlock: Block, blockId: string, index: num
 }
 
 /**
- * Returns the closes previous text block inside the content array of the parent block.
+ * Returns the closest previous text block inside the content array of the parent block.
  */
 export function findPrevTextBlockInContent(blockId: string, blocks: Record<string, Block>, textBlockTypes: string[]) {
   const block = blocks[blockId];

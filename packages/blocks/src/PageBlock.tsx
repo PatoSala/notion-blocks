@@ -7,19 +7,23 @@ import * as ImagePicker from 'expo-image-picker';
 
 const { width } = Dimensions.get("window");
 
+function containsEmoji(str: string) {
+  const emojiRegex = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u;
+  return emojiRegex.test(str);
+}
+
 interface Props {
     blockId: string
 }
 
 export function PageBlock({ blockId } : Props) {
     const { getTextInputProps, isFocused } = useTextInput(blockId);
-    const { rootBlockId, updateBlock } = useBlocksContext();
-    const { block, properties } = useBlock(blockId);
+    const { rootBlockId, updateBlock, blocks } = useBlocksContext();
+    const { properties } = useBlock(blockId);
     const isRootBlock = rootBlockId === blockId;
     const [showEmojiSelector, setShowEmojiSelector] = useState(false);
-    const [pageIcon, setPageIcon] = useState<string | null>(null);
-    const [iconType, setIconType] = useState<"emoji" | "image" | null>(null);
-    const [pageCover, setPageCover] = useState<string | null>(null);
+    const [pageIcon, setPageIcon] = useState<string | null>(blocks[blockId]?.format?.page_icon || null);
+    const [pageCover, setPageCover] = useState<string | null>(blocks[blockId]?.format?.page_cover || null);
     const placeholder = "New page";
 
     const pickCover = async () => {
@@ -32,18 +36,18 @@ export function PageBlock({ blockId } : Props) {
         if (!result.canceled) {
           setPageCover(result.assets[0].uri);
     
-          const updatedBlock = updateBlockData(block, {
-            properties: {
-              cover: result.assets[0].uri
+          const updatedBlock = updateBlockData(blocks[blockId], {
+            format: {
+                page_cover: result.assets[0].uri
+                /* page_cover_position */
             }
           });
     
-          /* updateBlock(updatedBlock); */
+          updateBlock(updatedBlock);
         }
     }
 
-    const pickImage = async () => {
-        setIconType("image");
+    const pickIcon = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ['images'],
           allowsEditing: true,
@@ -56,18 +60,29 @@ export function PageBlock({ blockId } : Props) {
           /* setAspectRatio(result.assets[0].width / result.assets[0].height); */
             setShowEmojiSelector(false);
 
-          const updatedBlock = updateBlockData(block, {
-            properties: {
-              source: result.assets[0].uri
-            },
+          const updatedBlock = updateBlockData(blocks[blockId], {
             format: {
-              block_width: result.assets[0].width,
-              block_aspect_ratio: result.assets[0].width / result.assets[0].height
+                page_icon: result.assets[0].uri,
+                ...blocks[blockId]?.format
             }
           });
     
-          /* updateBlock(updatedBlock); */
+          updateBlock(updatedBlock);
         }
+      };
+
+      const handleEmojiSelect = (emoji: string) => {
+        setPageIcon(emoji);
+        setShowEmojiSelector(false);
+
+        const updatedBlock = updateBlockData(blocks[blockId], {
+          format: {
+            page_icon: emoji,
+            ...blocks[blockId]?.format
+          }
+        });
+
+        updateBlock(updatedBlock);
       };
 
     return (
@@ -143,7 +158,7 @@ export function PageBlock({ blockId } : Props) {
                                         alignItems: "center"
                                     }}
                                 >
-                                    {iconType === "image"
+                                    {containsEmoji(pageIcon) === false
                                         ? (
                                             <Image
                                                 source={{ uri: pageIcon }}
@@ -181,7 +196,7 @@ export function PageBlock({ blockId } : Props) {
                                     <Ionicons name="document-text-outline" size={24} color="black" />
                                 ) : (
                                     <>
-                                        {iconType === "image"
+                                        {containsEmoji(pageIcon) === false
                                         ? (
                                             <Image
                                                 source={{ uri: pageIcon }}
@@ -209,7 +224,6 @@ export function PageBlock({ blockId } : Props) {
                     onRequestClose={() => setShowEmojiSelector(false)}
                     presentationStyle="pageSheet"
                     animationType="slide"
-
                 >
                     <View style={styles.header}>
                         <Button
@@ -217,7 +231,6 @@ export function PageBlock({ blockId } : Props) {
                             onPress={() => {
                                 setPageIcon(null);
                                 setShowEmojiSelector(false);
-                                setIconType(null);
                             }}
                         />
                         <Text style={styles.headerTitle}>Page Icon</Text>
@@ -230,18 +243,19 @@ export function PageBlock({ blockId } : Props) {
                     <View>
                         <Button
                             title="Upload image"
-                            onPress={pickImage}
+                            onPress={() => {
+                                setShowEmojiSelector(false);
+                                setTimeout(() => {
+                                    pickIcon();
+                                }, 1000);
+                            }}
                         />
                     </View>
 
                     <EmojiSelector
                         columns={8}
                         showTabs={false}
-                        onEmojiSelected={(emoji) => {
-                            setIconType("emoji");
-                            setShowEmojiSelector(false);
-                            setPageIcon(emoji);
-                        }}
+                        onEmojiSelected={handleEmojiSelect}
                     />
                 </Modal>
             </View>

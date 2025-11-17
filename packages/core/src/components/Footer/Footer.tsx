@@ -204,6 +204,7 @@ Footer.RemoveBlock = () => {
         /* setFocusedBlockId(""); */
        /*  setActiveTab("none"); */
         /* setHidden(true); */
+        console.log(prevTextBlock);
         if (prevTextBlock) {
             setActiveTab("keyboard");
             inputRefs.current[prevTextBlock.id].current.focus();
