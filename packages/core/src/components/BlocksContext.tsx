@@ -68,8 +68,14 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         ...defaultBlocks
     });
     const { defaultBlockType } = useBlockRegistrationContext();
-    const [blocksOrder, setBlocksOrder] = useState<string[]>(blocksRef.current["root"].content);
-    
+
+    const rootContent = blocksRef.current["root"].content;
+    const [blocksOrder, setBlocksOrder] = useState<string[]>([
+        blocksRef.current["root"].content[0],
+        ...blocksRef.current[blocksRef.current["root"].content[0]].content
+    ]);
+    console.log(blocksOrder);
+
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null >(null);
@@ -96,7 +102,11 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
 
         blocksRef.current[newBlock.parent] = updatedBlock;
         blocksRef.current[newBlock.id] = newBlock;
-        setBlocksOrder(prevState => [rootBlockId, ...blocksRef.current[rootBlockId].content]);
+
+        setBlocksOrder(prevState => [
+            rootContent[0],
+            ...blocksRef.current[rootContent[0]].content
+        ]);
     }
 
     /**
@@ -116,8 +126,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         const textBeforeSelection = block.properties.title.substring(0, selection.start);
         const textAfterSelection = block.properties.title.substring(selection.end);
 
-        console.log(block.parent);
-        
         // Will be inserted before the source block, pushing the source block down
 
         const newBlock = new Block({
@@ -126,34 +134,44 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
                 title: textBeforeSelection
             },
             parent: block.parent,
-            content: blocksOrder[0] === block.id ? block.content : []
+            content: block.content
         });
         
         const updatedBlock = updateBlockData(block, {
-            type: /* selection.start === 0 && selection.end === 0 ? block.type :  */defaultBlockType,
+            type: defaultBlockType,
             properties: {
                 title: textAfterSelection
             },
-            content: blocksOrder[0] === block.id ? [] : block.content
-        });
-        
-        // update root block (??)
-        const updatedParentBlock = updateBlockData(blocksRef.current[block.parent], {
-            content: insertBlockIdIntoContent(blocksRef.current[block.parent].content, newBlock.id, {
-                nextBlockId: block.id
-            })
+            content: [],
+            parent: blocksOrder[0] === block.id ? newBlock.id : block.parent
         });
 
-        blocksRef.current[updatedParentBlock.id] = updatedParentBlock;
         blocksRef.current[updatedBlock.id] = updatedBlock;
         blocksRef.current[newBlock.id] = newBlock;
 
-        /* setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]); */
-        setBlocksOrder(prevState => [...insertBlockIdIntoContent(prevState, newBlock.id, {
-            nextBlockId: block.id
-        })]);
+        // If splitting the only child of the "root"
+        if (blocksOrder[0] === block.id) {
+            // If we are splitting the only child of the "root" we need to tell the "root" block that its only child has changed.
+            const updatedParentBlock = updateBlockData(blocksRef.current[block.parent], {
+                content: [newBlock.id]
+            });
+            blocksRef.current[updatedParentBlock.id] = updatedParentBlock;
+        }
 
-        setShouldUpdate([updatedBlock.id, newBlock.id]);
+        // If splitting the only child of the "root", set the new block as the first block
+        if (blocksOrder[0] === block.id) {
+            setBlocksOrder(prevState => [
+                newBlock.id,
+                ...prevState // [newBlock.id, [oldFirstBlock, blockId, blockId, blockId]]
+            ]);
+        } else {
+            // Old insert behavior
+            setBlocksOrder(prevState => [...insertBlockIdIntoContent(prevState, newBlock.id, {
+                nextBlockId: block.id
+            })])
+        }
+
+        /* setShouldUpdate([updatedBlock.id, newBlock.id]); */
         
         return {
             prevBlock: newBlock,

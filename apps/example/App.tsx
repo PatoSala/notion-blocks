@@ -27,7 +27,8 @@ const blankNote = {
 export default function App() {
 
   const extractBlocks = (blocksStore) => {
-    /* console.log(blocksStore["1"]); */
+    console.log("ROOT CONTENT", blocksStore["root"].content);
+    console.log("ONLY ROOT CHILD CONTENT", blocksStore[blocksStore["root"].content[0]].content);
   }
 
   return (

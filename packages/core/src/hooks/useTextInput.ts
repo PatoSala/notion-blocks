@@ -15,6 +15,7 @@ import { useBlockRegistrationContext } from "../components/BlockRegistration";
 export function useTextInput(blockId: string) {
     const {
         blocks,
+        blocksOrder,
         rootBlockId,
         focusedBlockId,
         setFocusedBlockId,
@@ -24,7 +25,7 @@ export function useTextInput(blockId: string) {
         splitBlock,
         removeBlock,
         shouldUpdate,
-        setShouldUpdate
+        setShouldUpdate,
     } = useBlocksContext();
     const {
         registerRef,
@@ -32,7 +33,7 @@ export function useTextInput(blockId: string) {
         showSoftInputOnFocus,
         inputRefs
     } = useTextBlocksContext();
-    const { isScrolling, blocksOrder } = useScrollContext();
+    const { isScrolling } = useScrollContext();
     const { isDragging } = useBlocksMeasuresContext();
     const { textBasedBlocks, defaultBlockType } = useBlockRegistrationContext();
 
@@ -106,7 +107,8 @@ export function useTextInput(blockId: string) {
             }
         });
 
-        if (block.id === rootBlockId) return;
+        // This should be handled withing the PageBlock
+        if (blocksOrder[0] === blockId) return;
         
         const sourceBlock = block;
         const prevTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
@@ -166,7 +168,7 @@ export function useTextInput(blockId: string) {
 
         const { prevBlock, nextBlock } = splitBlock(block, selection);
 
-        /* inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title); */
+        inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title);
         setTimeout(() => {
             inputRefs.current[nextBlock.id]?.current.setSelection({
                 start: 0,
@@ -270,14 +272,14 @@ export function useTextInput(blockId: string) {
         }; */
     }, []);
 
-    /* React.useEffect(() => {
+    React.useEffect(() => {
        if (shouldUpdate.includes(blockId)) {
            console.log("SHOULD UPDATE", blockId);
            api.current.setText(blocks[blockId].properties.title);
            
            setShouldUpdate(prevState => prevState.filter(id => id !== blockId));
        }
-    }, [shouldUpdate]); */
+    }, [shouldUpdate]);
 
 
     return {

@@ -19,7 +19,6 @@ import * as Crypto from 'expo-crypto';
 function RenderTree({
     rootBlockId
 }) {
-    const pageId : string = rootBlockId;
     const { blockTypes, defaultBlockType } = useBlockRegistrationContext();
     const {
         blocks,
@@ -28,7 +27,8 @@ function RenderTree({
     } = useBlocksContext();
     const { keyboardHeight } = useKeyboardStatus();
 
-    const rootBlock : Block = blocks[pageId];
+    // Root block in this speecific case equals the first (and only) block of the "root" block.
+    const rootBlock : Block = blocks[blocksOrder[0]];
 
     /** Editor configs */
     const { inputRefs } = useTextBlocksContext();
@@ -44,7 +44,7 @@ function RenderTree({
                 },
                 format: {},
                 content: [],
-                parent: pageId
+                parent: rootBlock.id
             });
 
             insertBlock(newBlock);
@@ -61,24 +61,26 @@ function RenderTree({
             style={{
                 flexGrow: 1,
                 minHeight: keyboardHeight + 64,
+                backgroundColor: "lightgray"
             }}
         />
     )
 
     return (
         <>
+            {/* Wee concat the "root" content (should be just one item) with the content of its only child. */}
             {blocksOrder.map((blockId: string, index: number) => {
                 const Component = blockTypes[blocks[blockId].type].component;
                 return (
-                   <View key={`component-${blockId}`}> 
-                     <LayoutProvider blockId={blockId} >
-                        <DragProvider blockId={blockId}>
-                            <View>
-                                <Component blockId={blockId} />
-                            </View>
-                        </DragProvider>
-                    </LayoutProvider>
-                   </View>
+                    <View key={`component-${blockId}`} style={{ backgroundColor: "red" }}> 
+                        <LayoutProvider blockId={blockId} >
+                            <DragProvider blockId={blockId}>
+                                <View>
+                                    <Component blockId={blockId} />
+                                </View>
+                            </DragProvider>
+                        </LayoutProvider>
+                    </View>
                 )
             })}
 
