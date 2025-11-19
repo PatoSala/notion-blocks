@@ -17,7 +17,7 @@ const blankNote = {
         id: "1",
         type: "page",
         properties: {
-            title: "Title"
+            title: ""
         },
         content: [],
         parent: ""
@@ -27,7 +27,7 @@ const blankNote = {
 export default function App() {
 
   const extractBlocks = (blocksStore) => {
-    console.log(blocksStore["1"]);
+    /* console.log(blocksStore["1"]); */
   }
 
   return (

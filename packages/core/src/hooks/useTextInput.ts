@@ -22,7 +22,9 @@ export function useTextInput(blockId: string) {
         insertBlock,
         mergeBlock,
         splitBlock,
-        removeBlock
+        removeBlock,
+        shouldUpdate,
+        setShouldUpdate
     } = useBlocksContext();
     const {
         registerRef,
@@ -51,7 +53,6 @@ export function useTextInput(blockId: string) {
             getText: () => valueRef.current,
             setText: (text: string) => {
                 valueRef.current = text;
-                console.log("NW VALUE REEF AFTER SET TEXT", valueRef.current);
                 inputRef.current?.setNativeProps({ text: valueRef.current });
             },
             focus: () => {
@@ -163,7 +164,18 @@ export function useTextInput(blockId: string) {
          * keyboard flickering.
          */
 
+        const { prevBlock, nextBlock } = splitBlock(block, selection);
+
+        /* inputRefs.current[nextBlock.id]?.current.setText(nextBlock.properties.title); */
         setTimeout(() => {
+            inputRefs.current[nextBlock.id]?.current.setSelection({
+                start: 0,
+                end: 0
+            });
+            inputRefs.current[nextBlock.id]?.current.focus();
+        }, 0);
+
+        /* setTimeout(() => {
             const { prevBlock, nextBlock } = splitBlock(block, selection);
 
             if (prevBlock.id === rootBlockId) {
@@ -190,7 +202,7 @@ export function useTextInput(blockId: string) {
                     inputRefs.current[nextBlock.id]?.current.focus();
                 });
             }
-        }, 0);
+        }, 0); */
         
         return;
     };
@@ -257,6 +269,15 @@ export function useTextInput(blockId: string) {
             console.log("UnregisterUNREGISTERed block", blockId);
         }; */
     }, []);
+
+    /* React.useEffect(() => {
+       if (shouldUpdate.includes(blockId)) {
+           console.log("SHOULD UPDATE", blockId);
+           api.current.setText(blocks[blockId].properties.title);
+           
+           setShouldUpdate(prevState => prevState.filter(id => id !== blockId));
+       }
+    }, [shouldUpdate]); */
 
 
     return {

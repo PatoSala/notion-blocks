@@ -62,6 +62,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null >(null);
+    const [shouldUpdate, setShouldUpdate] = useState([]);
 
     useEffect(() => {
         extractBlocks(blocksRef.current);
@@ -130,7 +131,9 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
             setBlocksOrder(prevState => [...insertBlockIdIntoContent(prevState, newBlock.id, {
                 nextBlockId: prevState[1]
             })]);
-            
+
+            setShouldUpdate([updatedParentBlock.id, newBlock.id]);
+
             return {
                 prevBlock: updatedParentBlock,
                 nextBlock: newBlock
@@ -163,7 +166,9 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
             /* setBlocksOrder([rootBlockId, ...blocksRef.current[rootBlockId].content]); */
             setBlocksOrder(prevState => [...insertBlockIdIntoContent(prevState, newBlock.id, {
                 nextBlockId: block.id
-            })])
+            })]);
+
+            setShouldUpdate([updatedBlock.id, newBlock.id]);
             
             return {
                 prevBlock: newBlock,
@@ -268,6 +273,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         rootBlockId,
         focusedBlockId,
         movingBlockId,
+        shouldUpdate,
+        setShouldUpdate,
         selectedBlockId,
         setSelectedBlockId,
         setMovingBlockId,
