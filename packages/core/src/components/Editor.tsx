@@ -14,6 +14,7 @@ import { BlockRegistration, useBlockRegistrationContext } from "./BlockRegistrat
 import { TextBlocksProvider, useTextBlocksContext } from "./TextBlocksProvider";
 import { ScrollProvider, useScrollContext } from "./ScrollProvider";
 import { BlocksMeasuresProvider, useBlocksMeasuresContext } from "./BlocksMeasuresProvider";
+import * as Crypto from 'expo-crypto';
 
 function RenderTree({
     rootBlockId
@@ -69,7 +70,7 @@ function RenderTree({
             {blocksOrder.map((blockId: string, index: number) => {
                 const Component = blockTypes[blocks[blockId].type].component;
                 return (
-                   <View key={`block-${blockId}`}>
+                   <View key={`component-${blockId}`}> 
                      <LayoutProvider blockId={blockId} >
                         <DragProvider blockId={blockId}>
                             <View>

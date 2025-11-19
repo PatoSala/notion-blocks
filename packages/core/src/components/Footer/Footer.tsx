@@ -173,7 +173,7 @@ Footer.AddBlock = () => {
 Footer.TurnBlockInto = () => {
     const { activeTab, setActiveTab } = useFooterContext();
     const { inputRefs, setShowSoftInputOnFocus } = useTextBlocksContext();
-    const { focusedBlockId, rootBlockId } = useBlocksContext();
+    const { focusedBlockId, rootBlockId, blocksOrder } = useBlocksContext();
 
     const handleOnPress = () => {
         setShowSoftInputOnFocus(false);
@@ -184,7 +184,7 @@ Footer.TurnBlockInto = () => {
         })
     };
 
-    if (focusedBlockId === rootBlockId) return null;
+    if (blocksOrder[0] === focusedBlockId) return null;
 
     return (
         <Footer.Button onPress={handleOnPress}>
@@ -195,16 +195,12 @@ Footer.TurnBlockInto = () => {
 
 Footer.RemoveBlock = () => {
     const { setHidden, setActiveTab } = useFooterContext();
-    const { focusedBlockId, setFocusedBlockId, removeBlock, rootBlockId, blocks } = useBlocksContext();
+    const { focusedBlockId, setFocusedBlockId, removeBlock, blocksOrder, blocks } = useBlocksContext();
     const { inputRefs } = useTextBlocksContext();
     const { textBasedBlocks } = useBlockRegistrationContext(); 
 
     const handleOnPress = () => {
         const prevTextBlock = findPrevTextBlockInContent(focusedBlockId, blocks, textBasedBlocks);
-        /* setFocusedBlockId(""); */
-       /*  setActiveTab("none"); */
-        /* setHidden(true); */
-        console.log(prevTextBlock);
         if (prevTextBlock) {
             setActiveTab("keyboard");
             inputRefs.current[prevTextBlock.id].current.focus();
@@ -219,7 +215,7 @@ Footer.RemoveBlock = () => {
         });
     }
 
-    if (focusedBlockId === rootBlockId) return null;
+    if (blocksOrder[0] === focusedBlockId) return null;
 
     return (
         <Footer.Button onPress={handleOnPress}>

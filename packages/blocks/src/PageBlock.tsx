@@ -18,9 +18,11 @@ interface Props {
 
 export function PageBlock({ blockId } : Props) {
     const { getTextInputProps } = useTextInput(blockId);
-    const { rootBlockId, updateBlock, blocks } = useBlocksContext();
+    const { rootBlockId, updateBlock, blocks, blocksOrder } = useBlocksContext();
     const { properties } = useBlock(blockId);
-    const isRootBlock = rootBlockId === blockId;
+
+    // This condition should be renamed to "isFirstBlock" or sth like that
+    const isRootBlock = blocksOrder[0] === blockId;
     const [showEmojiSelector, setShowEmojiSelector] = useState(false);
     const [pageIcon, setPageIcon] = useState<string | null>(blocks[blockId]?.format?.page_icon || null);
     const [pageCover, setPageCover] = useState<string | null>(blocks[blockId]?.format?.page_cover || null);

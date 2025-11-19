@@ -20,7 +20,7 @@ const blankNote = {
             title: ""
         },
         content: [],
-        parent: ""
+        parent: "root"
     }
 }
 
