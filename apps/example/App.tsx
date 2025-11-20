@@ -9,7 +9,8 @@ import {
   TextBlock,
   ImageBlock,
   CalloutBlock,
-  QuoteBlock
+  QuoteBlock,
+  CheckboxBlock
 } from '@react-native-blocks/blocks';
 
 const blankNote = {
@@ -92,6 +93,15 @@ export default function App() {
             component={ImageBlock}
             options={{
               name: "Image"
+            }}
+          />
+
+          <Block
+            type="checkbox"
+            component={CheckboxBlock}
+            options={{
+              isTextBased: true,
+              name: "To-do"
             }}
           />
 
