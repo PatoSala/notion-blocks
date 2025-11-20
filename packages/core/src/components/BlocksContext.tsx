@@ -107,6 +107,22 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         ]);
     }
 
+    function insertBlockV2(newBlock: Block, position?: { prevBlockId?: string | undefined, nextBlockId?: string | undefined }) {
+        const updatedBlock = updateBlockData(blocksRef.current[newBlock.parent], {
+            content: insertBlockIdIntoContent(blocksRef.current[newBlock.parent].content, newBlock.id, {
+                prevBlockId: position?.prevBlockId,
+                nextBlockId: position?.nextBlockId
+            })
+        });
+        blocksRef.current[newBlock.parent] = updatedBlock;
+        blocksRef.current[newBlock.id] = newBlock;
+
+        setBlocksOrder(prevState => [
+            rootContent[0],
+            ...blocksRef.current[rootContent[0]].content
+        ]);
+    }
+
     /**
      * 
      * @param block 

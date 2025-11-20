@@ -114,6 +114,34 @@ export function HeaderBlock({ blockId } : Props) {
             // findPrevTextBlock
             const previousTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
             
+            if (previousTextBlock === undefined) {
+                const parentBlock = blocks[blocks[blockId].parent];
+                const isTextBased = textBasedBlocks.includes(parentBlock.type);
+                
+                inputRefs.current["ghostInput"]?.current.focus();
+
+                if (isTextBased) {
+                    updateBlockV2(parentBlock.id, {
+                        properties: {
+                            title: parentBlock.properties.title + value
+                        }
+                    });
+                    removeBlock(blockId);
+
+
+
+                    requestAnimationFrame(() => {
+                        inputRefs.current[parentBlock.id]?.current.setText(parentBlock.properties.title + value);
+                        inputRefs.current[parentBlock.id]?.current.setSelection({
+                            start: parentBlock.properties.title.length,
+                            end: parentBlock.properties.title.length
+                        })
+                        inputRefs.current[parentBlock.id]?.current.focus();
+                    });
+                }
+                return;
+            }
+
             updateBlockV2(previousTextBlock.id, {
                 properties: {
                     title: previousTextBlock.properties.title + value

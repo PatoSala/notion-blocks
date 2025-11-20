@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { useTextInput, useBlocksContext, useBlock, updateBlockData } from "@react-native-blocks/core";
+import {
+    useTextInput,
+    useBlocksContext,
+    useTextBlocksContext,
+    useBlock,
+    updateBlockData,
+    createBlock
+} from "@react-native-blocks/core";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Modal, Button, Image, Dimensions, Pressable } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import EmojiSelector from "react-native-emoji-selector";
@@ -17,8 +24,21 @@ interface Props {
 }
 
 export function PageBlock({ blockId } : Props) {
-    const { getTextInputProps } = useTextInput(blockId);
-    const { rootBlockId, updateBlock, blocks, blocksOrder } = useBlocksContext();
+    const {
+        getTextInputProps,
+        getValue,
+        getSelection
+    } = useTextInput(blockId);
+    const {
+        blocks,
+        insertBlock,
+        updateBlock,
+        updateBlockV2,
+        blocksOrder,
+    } = useBlocksContext();
+    const {
+        inputRefs
+    } = useTextBlocksContext();
     const { properties } = useBlock(blockId);
 
     // This condition should be renamed to "isFirstBlock" or sth like that
@@ -73,21 +93,21 @@ export function PageBlock({ blockId } : Props) {
         }
       };
 
-      const handleEmojiSelect = (emoji: string) => {
+    const handleEmojiSelect = (emoji: string) => {
         setPageIcon(emoji);
         setShowEmojiSelector(false);
 
         const updatedBlock = updateBlockData(blocks[blockId], {
-          format: {
+            format: {
             page_icon: emoji,
             ...blocks[blockId]?.format
-          }
+            }
         });
 
         updateBlock(updatedBlock);
-      };
+    };
 
-      const handleRemoveIcon = () => {
+    const handleRemoveIcon = () => {
         setPageIcon(null);
         setShowEmojiSelector(false);
 
@@ -95,16 +115,112 @@ export function PageBlock({ blockId } : Props) {
         delete block.format.page_icon;
 
         updateBlock(block);
-      };
+    };
 
-      const handleRemoveCover = () => {
+    const handleRemoveCover = () => {
         setPageCover(null);
 
         const block = blocks[blockId];
         delete block.format.page_cover;
 
         updateBlock(block);
-      };
+    };
+
+    const handleSubmitEditing = () => {
+        const value = getValue();
+        const selection = getSelection();
+
+        if (selection.start === value.length && selection.end === value.length) {
+            const newBlock = createBlock({
+                type: "text",
+                properties: {
+                    title: ""
+                },
+                parent: blockId,
+                content: []
+            });
+
+            insertBlock(newBlock, {
+                nextBlockId: blocks[blockId].content[0]
+            });
+
+            requestAnimationFrame(() => {
+                inputRefs.current[newBlock.id]?.current.focus();
+            })
+            return;
+        }
+
+        if (selection.start === 0 && selection.end === 0) {
+            const newBlock = createBlock({
+                type: "text",
+                properties: {
+                    title: value
+                },
+                parent: blockId,
+                content: []
+            });
+
+            updateBlockV2(blockId, {
+                properties: {
+                    title: ""
+                }
+            });
+
+            insertBlock(newBlock, {
+                nextBlockId: blocks[blockId].content[0]
+            });
+
+            requestAnimationFrame(() => {
+                inputRefs.current[blockId].current.setText("");
+                inputRefs.current[newBlock.id]?.current.setSelection({
+                    start: 0,
+                    end: 0
+                });
+                inputRefs.current[newBlock.id]?.current.focus();
+            })
+            return;
+        }
+
+        const textBeforeSelection = value.substring(0, selection.start);
+        const textAfterSelection = value.substring(selection.end);
+
+        const newBlock = createBlock({
+            type: "text",
+            properties: {
+                title: textAfterSelection
+            },
+            parent: blockId,
+            content: []
+        });
+
+       updateBlockV2(blockId, {
+            properties: {
+                title: textBeforeSelection
+            }
+         });
+
+       insertBlock(newBlock, {
+           nextBlockId: blocks[blockId].content[0]
+       });
+
+       requestAnimationFrame(() => {
+           inputRefs.current[blockId]?.current.setText(textBeforeSelection);
+           inputRefs.current[newBlock.id]?.current.setSelection({
+               start: 0,
+               end: 0
+           });
+           inputRefs.current[newBlock.id]?.current.focus();
+       });
+    }
+
+    const handleOnKeyPress = (event: { nativeEvent: { key: string; }; }) => {
+        const value = getValue();
+        const selection = getSelection();
+
+        if (event.nativeEvent.key === "Backspace" && selection.start === 0 && selection.end === 0) {
+            return;
+        }
+    }
 
     return (
         <>
@@ -200,6 +316,8 @@ export function PageBlock({ blockId } : Props) {
                                 key={`input-${blockId}`}   // Really important to pass the key prop
                                 style={styles.page}
                                 {...getTextInputProps()}
+                                onSubmitEditing={handleSubmitEditing}
+                                onKeyPress={handleOnKeyPress}
                                 placeholder={placeholder}
                             />
                         </View>
