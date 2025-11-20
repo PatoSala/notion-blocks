@@ -268,6 +268,12 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         setBlocksOrder(prevState => [...prevState]);
     }
 
+    function updateBlockV2(blockId: string, blockData: Partial<Block>) {
+        const updatedBlock = updateBlockData(blocksRef.current[blockId], blockData);
+        blocksRef.current[updatedBlock.id] = updatedBlock;
+        setBlocksOrder(prevState => [...prevState]);
+    }
+
     const value = {
         blocks: blocksRef.current,
         blocksOrder,
@@ -287,7 +293,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         mergeBlock: mergeBlock,
         removeBlock: removeBlock,
         moveBlock: moveBlock,
-        getBlockSnapshot: (blockId: string) => blocksRef.current[blockId]
+        getBlockSnapshot: (blockId: string) => blocksRef.current[blockId],
+        updateBlockV2
     }
 
     return (

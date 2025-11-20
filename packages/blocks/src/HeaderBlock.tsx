@@ -1,4 +1,11 @@
-import { useTextInput, useBlocksContext, useTextBlocksContext, createBlock, updateBlockData } from "@react-native-blocks/core";
+import {
+    useTextInput,
+    useBlocksContext,
+    useTextBlocksContext,
+    createBlock,
+    updateBlockData,
+    findPrevTextBlockInContent
+} from "@react-native-blocks/core";
 import { View, TextInput, StyleSheet } from "react-native";
 import { useEffect } from "react";
 interface Props {
@@ -12,9 +19,11 @@ export function HeaderBlock({ blockId } : Props) {
         turnBlockInto,
         insertBlock,
         updateBlock,
+        updateBlockV2,
+        removeBlock
     } = useBlocksContext();
     /* const block = getBlockSnapshot(blockId); */
-    const { inputRefs } = useTextBlocksContext();
+    const { inputRefs, textBasedBlocks } = useTextBlocksContext();
     const placeholder = "Header 1";
 
     const handleSubmitEditing = () => {
@@ -97,6 +106,32 @@ export function HeaderBlock({ blockId } : Props) {
        });
     }
 
+    const handleOnKeyPress = (event: { nativeEvent: { key: string; }; }) => {
+        const value = getValue();
+        const selection = getSelection();
+
+        if (event.nativeEvent.key === "Backspace" && selection.start === 0 && selection.end === 0) {
+            // findPrevTextBlock
+            const previousTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
+            
+            updateBlockV2(previousTextBlock.id, {
+                properties: {
+                    title: previousTextBlock.properties.title + value
+                }
+            });
+            removeBlock(blockId);
+
+            requestAnimationFrame(() => {
+                inputRefs.current[previousTextBlock.id]?.current.setText(previousTextBlock.properties.title + value);
+                inputRefs.current[previousTextBlock.id]?.current.setSelection({
+                    start: previousTextBlock.properties.title.length,
+                    end: previousTextBlock.properties.title.length
+                })
+                inputRefs.current[previousTextBlock.id]?.current.focus();
+            });
+        }
+    };
+
     return (
         <View style={styles.container}>
             <TextInput
@@ -106,6 +141,7 @@ export function HeaderBlock({ blockId } : Props) {
                 {...getTextInputProps()}
                 placeholder={placeholder}
                 onSubmitEditing={handleSubmitEditing}
+                onKeyPress={handleOnKeyPress}
             />
         </View>
     )

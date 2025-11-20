@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput } from "react-native";
-
+import { useBlockRegistrationContext } from "./BlockRegistration";
 const TextBlocksContext = React.createContext({});
 
 const useTextBlocksContext = () => React.useContext(TextBlocksContext);
@@ -9,6 +9,7 @@ const TextBlocksProvider = ({ children }) => {
     const inputRefs = React.useRef({});
     const ghostInputRef = React.useRef<TextInput>(null);
     const [showSoftInputOnFocus, setShowSoftInputOnFocus] = React.useState(true);
+    const { textBasedBlocks } = useBlockRegistrationContext();
 
     const registerRef = (blockId, ref) => {
         inputRefs.current[blockId] = ref;
@@ -27,7 +28,8 @@ const TextBlocksProvider = ({ children }) => {
         showSoftInputOnFocus,
         setShowSoftInputOnFocus,
         registerRef,
-        unregisterRef
+        unregisterRef,
+        textBasedBlocks
     }
 
     return (
