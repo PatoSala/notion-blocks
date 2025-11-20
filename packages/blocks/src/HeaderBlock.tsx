@@ -77,11 +77,13 @@ export function HeaderBlock({ blockId } : Props) {
         const textBeforeSelection = value.substring(0, selection.start);
         const textAfterSelection = value.substring(selection.end);
 
-         const updatedBlock = updateBlockData(blocks[blockId], {
+        inputRefs.current["ghostInput"]?.current.focus();
+
+        const updatedBlock = updateBlockData(blocks[blockId], {
             properties: {
                 title: textBeforeSelection
             }
-         })
+        });
         const newBlock = createBlock({
             type: "text",
             properties: {
@@ -112,14 +114,15 @@ export function HeaderBlock({ blockId } : Props) {
 
         if (event.nativeEvent.key === "Backspace" && selection.start === 0 && selection.end === 0) {
             // findPrevTextBlock
+
+            inputRefs.current["ghostInput"]?.current.focus();
+
             const previousTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
             
             if (previousTextBlock === undefined) {
                 const parentBlock = blocks[blocks[blockId].parent];
                 const isTextBased = textBasedBlocks.includes(parentBlock.type);
                 
-                inputRefs.current["ghostInput"]?.current.focus();
-
                 if (isTextBased) {
                     updateBlockV2(parentBlock.id, {
                         properties: {
