@@ -26,6 +26,7 @@ export function useTextInput(blockId: string) {
         removeBlock,
         shouldUpdate,
         setShouldUpdate,
+        getBlockSnapshot
     } = useBlocksContext();
     const {
         registerRef,
@@ -37,7 +38,7 @@ export function useTextInput(blockId: string) {
     const { isDragging } = useBlocksMeasuresContext();
     const { textBasedBlocks, defaultBlockType } = useBlockRegistrationContext();
 
-    const block = useMemo(() => blocks[blockId], [blockId]);
+    const block = getBlockSnapshot(blockId);
     const title = block.properties.title;
     const inputRef = React.useRef<TextInput>(null);
     const selectionRef = React.useRef({ start: title.length, end: title.length });
@@ -114,9 +115,8 @@ export function useTextInput(blockId: string) {
         const prevTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
         const prevBlock = getPreviousBlockInContent(blockId, blocks);
         const targetBlockId = prevTextBlock === undefined ? sourceBlock.parent : prevTextBlock.id;
-
         /**
-         * If the previous block is a textblock and that block is empty,
+         * If the inmediate previous block is a textblock and that block is empty,
          * remove it and keep focus on current block.
          * 
          * Else, merge the current block with the previous block.
@@ -272,18 +272,20 @@ export function useTextInput(blockId: string) {
         }; */
     }, []);
 
-    React.useEffect(() => {
+   /*  React.useEffect(() => {
        if (shouldUpdate.includes(blockId)) {
            console.log("SHOULD UPDATE", blockId);
            api.current.setText(blocks[blockId].properties.title);
            
            setShouldUpdate(prevState => prevState.filter(id => id !== blockId));
        }
-    }, [shouldUpdate]);
+    }, [shouldUpdate]); */
 
 
     return {
         getTextInputProps,
-        isFocused
+        isFocused,
+        getValue: () => valueRef.current,
+        getSelection: () => selectionRef.current
     };
 }

@@ -27,6 +27,13 @@ class Block {
         this.parent = parent;
     }
 }
+
+const createBlock = (block: Block) => {
+    return new Block(block);
+}
+
+export { createBlock };
+
 export { Block, UUIDv4 };
 
 // Blocks already handle structure, maybe the storage should only be responsible for storing all blocks

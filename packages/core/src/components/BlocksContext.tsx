@@ -74,7 +74,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         blocksRef.current["root"].content[0],
         ...blocksRef.current[blocksRef.current["root"].content[0]].content
     ]);
-    console.log(blocksOrder);
 
     const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
@@ -99,7 +98,6 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
                 nextBlockId: position?.nextBlockId
             })
         });
-
         blocksRef.current[newBlock.parent] = updatedBlock;
         blocksRef.current[newBlock.id] = newBlock;
 
@@ -209,6 +207,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         blocksRef.current[updatedTargetBlock.id] = updatedTargetBlock;
         blocksRef.current[updatedParentBlock.id] = updatedParentBlock;
 
+        // Assuming that we are still rendering a flat tree. This should be reviewed with the introduction of nested blocks.
         setBlocksOrder(prevState => prevState.filter((id: string) => id !== soureBlock.id));
 
         return {
@@ -287,7 +286,8 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         splitBlock: splitBlock,
         mergeBlock: mergeBlock,
         removeBlock: removeBlock,
-        moveBlock: moveBlock
+        moveBlock: moveBlock,
+        getBlockSnapshot: (blockId: string) => blocksRef.current[blockId]
     }
 
     return (

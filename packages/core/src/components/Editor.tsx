@@ -34,11 +34,14 @@ function RenderTree({
     const { inputRefs } = useTextBlocksContext();
 
     const handleNewLineBlock = () => {
-        if (blocks[blocksOrder[blocksOrder.length - 1]].type === defaultBlockType && blocks[blocksOrder[blocksOrder.length - 1]].properties?.title.length === 0) {
+        if (
+            blocks[blocksOrder[blocksOrder.length - 1]].type === defaultBlockType
+            && blocks[blocksOrder[blocksOrder.length - 1]].properties?.title.length === 0
+        ) {
             inputRefs.current[rootBlock.content[rootBlock.content.length - 1]]?.current.focus();
         } else {
             const newBlock = new Block({
-                type: "text",
+                type: defaultBlockType,
                 properties: {
                     title: ""
                 },
@@ -61,7 +64,7 @@ function RenderTree({
             style={{
                 flexGrow: 1,
                 minHeight: keyboardHeight + 64,
-                backgroundColor: "lightgray"
+                backgroundColor: "transparent"
             }}
         />
     )
@@ -72,7 +75,7 @@ function RenderTree({
             {blocksOrder.map((blockId: string, index: number) => {
                 const Component = blockTypes[blocks[blockId].type].component;
                 return (
-                    <View key={`component-${blockId}`} style={{ backgroundColor: "red" }}> 
+                    <View key={`component-${blockId}`} style={{ backgroundColor: "transparent" }}> 
                         <LayoutProvider blockId={blockId} >
                             <DragProvider blockId={blockId}>
                                 <View>
