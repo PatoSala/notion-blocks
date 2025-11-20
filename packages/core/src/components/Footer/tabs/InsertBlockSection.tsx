@@ -11,7 +11,7 @@ export default function InsertBlockSection({ setActiveTab, setHidden } : any) {
     const { blockTypes, textBasedBlocks } = useBlockRegistrationContext();
 
     const handleInsertBlock = (blockType: string) => {
-        const parentBlockId = focusedBlockId === rootBlockId ? rootBlockId : blocks[focusedBlockId].parent;
+        const parentBlockId = blocks[focusedBlockId].parent === "root" ? focusedBlockId : blocks[focusedBlockId].parent;
        
         setShowSoftInputOnFocus(true);
         const newBlock = new Block({
@@ -23,18 +23,17 @@ export default function InsertBlockSection({ setActiveTab, setHidden } : any) {
             parent: parentBlockId
         });
 
-        // note: remember that the root block has no value for parent attribute.
-        if (focusedBlockId === rootBlockId) {
+        if (blocks[focusedBlockId].parent === "root") {
             insertBlock(newBlock, {
                 nextBlockId: blocks[rootBlockId].content[0]
             });
-        } else {
-            insertBlock(newBlock, {
-                prevBlockId: focusedBlockId
-            });
         }
 
-        if (blocks[focusedBlockId].properties.title.length === 0 && focusedBlockId !== rootBlockId) {
+        insertBlock(newBlock, {
+            prevBlockId: focusedBlockId
+        });
+
+        if (blocks[focusedBlockId].properties.title.length === 0 && blocks[focusedBlockId].parent !== "root") {
             removeBlock(focusedBlockId);
         }
 
@@ -43,11 +42,11 @@ export default function InsertBlockSection({ setActiveTab, setHidden } : any) {
             requestAnimationFrame(() => {
                 inputRefs.current[newBlock.id]?.current.focus();
             });
-        } else {
-            setActiveTab("none");
-            setHidden(true);
-            Keyboard.dismiss();
+            return;
         }
+        Keyboard.dismiss();
+        setActiveTab("none");
+        setHidden(true);
     }
 
     return (

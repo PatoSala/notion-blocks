@@ -12,7 +12,6 @@ export default function ReplaceBlockSection() {
 
     const handleTurnBlockInto = (blockType: string) => {
         const updatedBlock = turnBlockInto(focusedBlockId, blockType);
-        /* setFocusedBlockId(updatedBlock.id); */
         // Focus new block
         requestAnimationFrame(() => {
             inputRefs.current[updatedBlock.id]?.current.focus();

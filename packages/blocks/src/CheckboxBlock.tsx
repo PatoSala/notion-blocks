@@ -30,7 +30,6 @@ export function CheckboxBlock({ blockId } : Props) {
     const handleSubmitEditing = () => {
         const value = getValue();
         const selection = getSelection();
-        const previousTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
 
          if (value.length === 0) {
             updateBlockV2(blockId, {
@@ -47,7 +46,7 @@ export function CheckboxBlock({ blockId } : Props) {
 
         if (selection.start === 0 && selection.end === 0) {
             const newBlock = createBlock({
-                type: "text",
+                type: "checkbox",
                 properties: {
                     title: ""
                 },
@@ -207,18 +206,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         flexDirection: "row",
         alignItems: "center",
-        gap: 8
+        gap: 8,
     },
     text: {
         fontSize: 16,
         fontWeight: "normal",
         flexGrow: 1,
         paddingVertical: 6,
-        lineHeight: 18,
-        flexWrap: "wrap"
+        lineHeight: 24,
+        flexWrap: "wrap",
     },
     checkbox: {
         width: 24,
-        height: 24
+        height: 24,
+        alignSelf: "center"
     }
 });
