@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Pressable, GestureDetector, Gesture } from "react-native-gesture-handler";
 import EmojiSelector from "react-native-emoji-selector";
+import FormSheetModal from "./components/Modal/FormSheetModal";
 
 interface Props {
     blockId: string
@@ -53,21 +54,22 @@ export function CalloutBlock({ blockId } : Props) {
                 </View>
             </View>
 
-            <Modal
+            <FormSheetModal
+                title="Actions"
                 visible={selectedBlockId === blockId}
-                presentationStyle="pageSheet"
-                animationType="slide"
+                onClose={() => setSelectedBlockId(null)}
             >
-                <Button
-                    title="Close"
-                    onPress={() => setSelectedBlockId(null)}
+                <FormSheetModal.Section
+                    title="Image"
+                    options={[
+                        {
+                        title: "Remove",
+                        style: { color: "red" },
+                        onPress: handleRemoveBlock
+                        }
+                    ]}
                 />
-
-                <Button
-                    title="Remove"
-                    onPress={handleRemoveBlock}
-                />
-            </Modal>
+            </FormSheetModal>
 
             <Modal
                 visible={showEmojiSelector}

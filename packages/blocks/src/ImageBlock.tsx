@@ -4,6 +4,7 @@ import { BlockProps } from '@react-native-blocks/core';
 import { Ionicons } from '@expo/vector-icons';
 import { useBlocksContext, useBlock } from "@react-native-blocks/core";
 import * as ImagePicker from 'expo-image-picker';
+import FormSheetModal from "./components/Modal/FormSheetModal";
 
 import { updateBlockData } from "@react-native-blocks/core";
 
@@ -85,21 +86,22 @@ export const ImageBlock = (props: BlockProps) => {
         
       </Pressable>
 
-      <Modal
+      <FormSheetModal
+        title="Actions"
         visible={selectedBlockId === blockId}
-        presentationStyle="pageSheet"
-        animationType="slide"
+        onClose={() => setSelectedBlockId(null)}
       >
-          <Button
-              title="Close"
-              onPress={() => setSelectedBlockId(null)}
+          <FormSheetModal.Section
+            title="Image"
+            options={[
+              {
+                title: "Remove",
+                style: { color: "red" },
+                onPress: handleRemoveBlock
+              }
+            ]}
           />
-
-          <Button
-              title="Remove"
-              onPress={handleRemoveBlock}
-          />
-      </Modal>
+      </FormSheetModal>
     </>
   )
 }
