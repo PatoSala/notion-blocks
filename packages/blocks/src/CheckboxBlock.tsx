@@ -32,15 +32,19 @@ export function CheckboxBlock({ blockId } : Props) {
         const selection = getSelection();
 
          if (value.length === 0) {
-            updateBlockV2(blockId, {
-                type: "text",
-                properties: {
-                    title: value
-                }
-            });
-            requestAnimationFrame(() => {
-                inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
-            });
+            inputRefs.current["ghostInput"]?.current.focus();
+
+            setTimeout(() => {
+                updateBlockV2(blockId, {
+                    type: "text",
+                    properties: {
+                        title: value
+                    }
+                });
+                requestAnimationFrame(() => {
+                    inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
+                });
+            }, 0);
             return;
         }
 
@@ -120,22 +124,25 @@ export function CheckboxBlock({ blockId } : Props) {
             // findPrevTextBlock
 
             if (value.length === 0) {
-                updateBlockV2(blockId, {
-                    type: "text",
-                    properties: {
-                        title: value
-                    }
-                });
-                requestAnimationFrame(() => {
-                    inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
-                });
+                inputRefs.current["ghostInput"]?.current.focus();
+
+                setTimeout(() => {
+                    updateBlockV2(blockId, {
+                        type: "text",
+                        properties: {
+                            title: value
+                        }
+                    });
+                    requestAnimationFrame(() => {
+                        inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
+                    });
+                }, 0);
                 return;
             }
 
             const previousTextBlock = findPrevTextBlockInContent(blockId, blocks, textBasedBlocks);
             
             inputRefs.current["ghostInput"]?.current.focus();
-
 
             if (previousTextBlock === undefined) {
                 const parentBlock = blocks[blocks[blockId].parent];

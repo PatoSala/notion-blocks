@@ -29,9 +29,13 @@ export function SubSubHeaderBlock({ blockId } : Props) {
         const selection = getSelection();
 
         if (value.length === 0) {
-            turnBlockInto(blockId, "text");
-            requestAnimationFrame(() => {
-                inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
+            inputRefs.current["ghostInput"]?.current.focus();
+            
+            setTimeout(() => {
+                turnBlockInto(blockId, "text");
+                requestAnimationFrame(() => {
+                    inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
+                });
             });
             return;
         }

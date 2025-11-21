@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { Image, View, StyleSheet, Dimensions, Text, Pressable, Modal, Button } from "react-native";
-import { BlockProps } from '@react-native-blocks/core';
 import { Ionicons } from '@expo/vector-icons';
-import { useBlocksContext, useBlock } from "@react-native-blocks/core";
+import { useBlocksContext, BlockProps, updateBlockData } from "@react-native-blocks/core";
 import * as ImagePicker from 'expo-image-picker';
 import FormSheetModal from "./components/Modal/FormSheetModal";
-
-import { updateBlockData } from "@react-native-blocks/core";
 
 const { width } = Dimensions.get("window");
 
@@ -24,7 +21,6 @@ export const ImageBlock = (props: BlockProps) => {
     blockId,
   } = props;
   const { blocks, updateBlock, selectedBlockId, setSelectedBlockId, removeBlock } = useBlocksContext();
-  const { properties } = useBlock(blockId);
 
   const [source, setSource] = useState(blocks[blockId]?.properties.source || null);
   const [aspectRatio, setAspectRatio] = useState(blocks[blockId]?.format?.block_aspect_ratio || null);

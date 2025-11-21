@@ -7,7 +7,7 @@ import {
     findPrevTextBlockInContent
 } from "@react-native-blocks/core";
 import { View, TextInput, StyleSheet } from "react-native";
-import { useEffect } from "react";
+
 interface Props {
     blockId: string
 }
@@ -22,7 +22,6 @@ export function HeaderBlock({ blockId } : Props) {
         updateBlockV2,
         removeBlock
     } = useBlocksContext();
-    /* const block = getBlockSnapshot(blockId); */
     const { inputRefs, textBasedBlocks } = useTextBlocksContext();
     const placeholder = "Header 1";
 
@@ -31,10 +30,15 @@ export function HeaderBlock({ blockId } : Props) {
         const selection = getSelection();
 
         if (value.length === 0) {
-            turnBlockInto(blockId, "text");
-            requestAnimationFrame(() => {
-                inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
-            });
+            inputRefs.current["ghostInput"]?.current.focus();
+            // This timeout prevents the keyboard flicker
+            setTimeout(() => {
+                turnBlockInto(blockId, "text"); // Maybe this type should be thee defaultBlockType (?)
+
+                requestAnimationFrame(() => {
+                    inputRefs.current[blockId]?.current.focus(); // Maybe the "ghostTextInput" hack should be done inside this function.
+                });
+            }, 0);
             return;
         }
 
@@ -134,7 +138,7 @@ export function HeaderBlock({ blockId } : Props) {
 
 
                     requestAnimationFrame(() => {
-                        inputRefs.current[parentBlock.id]?.current.setText(parentBlock.properties.title + value);
+                        inputRefs.current[parentBlock.id]?.current.setText(parentBlock.properties.title + value); // Find a way so that blocks update their content automatically
                         inputRefs.current[parentBlock.id]?.current.setSelection({
                             start: parentBlock.properties.title.length,
                             end: parentBlock.properties.title.length
@@ -153,7 +157,7 @@ export function HeaderBlock({ blockId } : Props) {
             removeBlock(blockId);
 
             requestAnimationFrame(() => {
-                inputRefs.current[previousTextBlock.id]?.current.setText(previousTextBlock.properties.title + value);
+                inputRefs.current[previousTextBlock.id]?.current.setText(previousTextBlock.properties.title + value); // Find a way so that blocks update their content automatically
                 inputRefs.current[previousTextBlock.id]?.current.setSelection({
                     start: previousTextBlock.properties.title.length,
                     end: previousTextBlock.properties.title.length
