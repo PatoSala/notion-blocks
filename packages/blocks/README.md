@@ -4,32 +4,23 @@
 
 A set of block components to use in conjunction [@react-native-blocks/core](https://www.npmjs.com/package/@react-native-blocks/core) library. Provides the necesseary blocks to build a Notion-like text editor.
 
-<img src="../../assets/screenshot.png" alt="drawing" width="50%"/>
-
-
-## Warning
-This library is still a work in progress so expect breaking changes on future releases. If you have any doubts you can join our [Discord server](https://discord.gg/utxtAafD8n).
+<img src="../../assets/blocks-screenshot.png" alt="drawing" width="50%"/>
 
 ## Block types
 
-### Text
-A simple text block.
+- Text
+- Header 1
+- Header 2
+- Header 3
+- To-do list
+- Bulleted list
+- Numbered list
+- Callout
+- Quote
+- Image
 
-### Heading 1
-
-### Heading 2
-
-### Heading 3
-
-### Page
-
-### Check list
-
-### Numbered list
-
-### Callout
-
-### Image
+## Warning
+This library is still a work in progress so expect breaking changes on future releases. If you have any doubts you can join our [Discord server](https://discord.gg/utxtAafD8n).
 
 
 
