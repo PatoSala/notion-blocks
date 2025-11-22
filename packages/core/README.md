@@ -2,7 +2,7 @@
 
 # @react-native-blocks/core
 
-Inspired by the data model behind Notion's flexibility, @react-native-blocks/core is the core library of [react-native-blocks](https://github.com/PatoSala/react-native-blocks/tree/main). Provides all the tools necessary to build block-based text editors like Notion.
+Inspired by the data model behind Notion's flexibility, `@react-native-blocks/core` is the core library of [react-native-blocks](https://github.com/PatoSala/react-native-blocks/tree/main). Provides all the tools necessary to build block-based text editors like Notion.
 
 ## Quick start
 
@@ -21,7 +21,7 @@ npm install @react-native-blocks/blocks
 ```
 
 ## Usage
-With both libraries installed we'll use from @react-native-blocks/core the `<Editor/>` component to create a new editor and the `<Block/>` component to register the building blocks that `<Editor/>` will use. And from @react-native-blocks/blocks we'll import the blocks we want to register.
+With both libraries installed we'll use from `@react-native-blocks/core` the `<Editor/>` component to create a new editor and the `<Block/>` component to register the building blocks that `<Editor/>` will use. And from @react-native-blocks/blocks we'll import the blocks we want to register.
 
 ```js
 import { StatusBar } from 'expo-status-bar';
