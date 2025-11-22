@@ -10,7 +10,8 @@ import {
   ImageBlock,
   CalloutBlock,
   QuoteBlock,
-  CheckboxBlock
+  CheckboxBlock,
+  BulletBlock
 } from '@react-native-blocks/blocks';
 
 const blankNote = {
@@ -97,11 +98,20 @@ export default function App() {
           />
 
           <Block
+            type="bullet"
+            component={BulletBlock}
+            options={{
+              isTextBased: true,
+              name: "Bulleted list"
+            }}
+          />
+
+          <Block
             type="checkbox"
             component={CheckboxBlock}
             options={{
               isTextBased: true,
-              name: "To-do"
+              name: "To-do list"
             }}
           />
 
