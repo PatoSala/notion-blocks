@@ -6,6 +6,12 @@ A set of block components to use in conjunction [@react-native-blocks/core](http
 
 <img src="../../assets/blocks-screenshot.png" alt="drawing" width="50%"/>
 
+## Installation
+Remember this library it's meant ti be used with `@react-native-blocks/core`.
+```
+npm install @react-native-blocks/blocks
+```
+
 ## Block types
 
 - Text
