@@ -75,7 +75,7 @@ function BlocksProvider({ children, defaultBlocks, rootBlockId, extractBlocks }:
         ...blocksRef.current[blocksRef.current["root"].content[0]].content
     ]);
 
-    const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId);
+    const [focusedBlockId, setFocusedBlockId] = useState(rootBlockId); // Maybe this was to be able to insert by default on the rootBlock?
     const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null >(null);
     const [shouldUpdate, setShouldUpdate] = useState([]);

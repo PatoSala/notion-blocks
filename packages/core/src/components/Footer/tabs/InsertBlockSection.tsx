@@ -25,13 +25,13 @@ export default function InsertBlockSection({ setActiveTab, setHidden } : any) {
 
         if (blocks[focusedBlockId].parent === "root") {
             insertBlock(newBlock, {
-                nextBlockId: blocks[rootBlockId].content[0]
+                nextBlockId: blocks[focusedBlockId].content[0]
+            });
+        } else {
+            insertBlock(newBlock, {
+                prevBlockId: focusedBlockId
             });
         }
-
-        insertBlock(newBlock, {
-            prevBlockId: focusedBlockId
-        });
 
         if (blocks[focusedBlockId].properties.title.length === 0 && blocks[focusedBlockId].parent !== "root") {
             removeBlock(focusedBlockId);

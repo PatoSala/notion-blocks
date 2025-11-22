@@ -12,7 +12,7 @@ npm install @react-native-blocks/core
 ```
 
 ### 2. Install a block-component library
-@react-nativee-blocks/core by it's own only provides the necessary tools to create a block based interface but does not provide the block components to be rendered. It´s up to you if you want to use an already existing set of blocks, create your own or even use both at the same time. In this example wee'll be using [@react-native-blocks/blocks](https://www.npmjs.com/package/@react-native-blocks/blocks) which provides a set of blocks similar to the ones present in Notion (Pages, Headings, Checkboxes, etc).
+`@react-nativee-blocks/core` by it's own only provides the necessary tools to create a block based interface but does not provide the block components to be rendered. It´s up to you if you want to use an already existing set of blocks, create your own or even use both at the same time. In this example we'll be using [@react-native-blocks/blocks](https://www.npmjs.com/package/@react-native-blocks/blocks) which provides a set of blocks similar to the ones present in Notion (Pages, Headings, Checkboxes, etc).
 ```
 npm install @react-native-blocks/blocks
 ```

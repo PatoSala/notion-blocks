@@ -1,3 +1,10 @@
+
+/**
+ * Maybe this component should be renamed to something like BlockGestureHandler
+ * and be exported from the coree library so that users could decide whether fi theey want
+ * a certain block to have the drag or longpressed gestures.
+ */
+
 import {
     useSharedValue,
     useAnimatedReaction,
@@ -202,7 +209,7 @@ export default function DragProvider({
             .onStart((e) => {
                 scheduleOnRN(setSelectedBlockId, blockId);
             })
-            .enabled(blockId !== rootBlockId);
+            /* .enabled(blockId !== rootBlockId); */
 
     const blockDrag = Gesture.Pan()
         .activateAfterLongPress(1000)
