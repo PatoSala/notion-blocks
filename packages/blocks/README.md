@@ -10,3 +10,26 @@ A set of block components to use in conjunction [@react-native-blocks/core](http
 ## Warning
 This library is still a work in progress so expect breaking changes on future releases. If you have any doubts you can join our [Discord server](https://discord.gg/utxtAafD8n).
 
+## Block types
+
+### Text
+A simple text block.
+
+### Heading 1
+
+### Heading 2
+
+### Heading 3
+
+### Page
+
+### Check list
+
+### Numbered list
+
+### Callout
+
+### Image
+
+
+

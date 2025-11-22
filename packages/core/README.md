@@ -5,18 +5,19 @@
 Inspired by the data model behind Notion's flexibility, @react-native-blocks/core is the core library of [react-native-blocks](https://github.com/PatoSala/react-native-blocks/tree/main). Provides all the tools necessary to build block-based text editors like Notion.
 
 ## Quick start
-Install in your React Native Project.
+
+### 1. Install in your React Native Project.
 ```
 npm install @react-native-blocks/core
 ```
-Once installed you can start creating your own custom blocks or install a block components library like [@react-native-blocks/blocks](https://www.npmjs.com/package/@react-native-blocks/blocks) which provides a set of blocks similar to the ones present in Notion (Pages, Headings, Checkboxes, etc).
 
-If you want you can even create your own set of blocks and publish it in npm for other to use with this library. For this example we'll be using the blocks from @react-native-blocks/blocks.
-
+### 2. Install a block-component library
+@react-nativee-blocks/core by it's own only provides the necessary tools to create a block based interface but does not provide the block components to be rendered. It´s up to you if you want to use an already existing set of blocks, create your own or even use both at the same time. In this example wee'll be using [@react-native-blocks/blocks](https://www.npmjs.com/package/@react-native-blocks/blocks) which provides a set of blocks similar to the ones present in Notion (Pages, Headings, Checkboxes, etc).
 ```
 npm install @react-native-blocks/blocks
 ```
 
+## Usage
 With both libraries installed we'll use from @react-native-blocks/core the `<Editor/>` component to create a new editor and the `<Block/>` component to register the building blocks that `<Editor/>` will use. And from @react-native-blocks/blocks we'll import the blocks we want to register.
 
 ```js
